@@ -31,7 +31,8 @@ function reset() {
   name.value = "";
   search();
 }
-function select(product: { id: string; code: string; name: string }) {
+function select(product: { id: string; code: string; name: string; stock: number }) {
+  if (product.stock < 1) return;
   if (!draft.items.some((i) => i.productId === product.id))
     draft.items.push({
       productId: product.id,
@@ -49,6 +50,6 @@ function select(product: { id: string; code: string; name: string }) {
 <el-alert v-if="stockNotice" :title="stockNotice" type="error" :closable="false"/><el-skeleton v-if="products.isPending.value" :rows="5" animated/>
 <div v-else-if="products.isError.value" class="empty-panel"><div class="empty-icon">◇</div><h3>暂时无法加载商品</h3><p>{{apiMessage(products.error.value)}}</p><el-button @click="products.refetch()">重新加载</el-button></div>
 <el-empty v-else-if="!products.data.value?.items.length" description="没有匹配的商品，试试其他条件"/>
-<el-table v-else :data="products.data.value.items"><el-table-column prop="code" label="代码"/><el-table-column prop="name" label="名称"/><el-table-column prop="description" label="说明"/><el-table-column label="价格"><template #default="{row}">¥{{row.priceJpy.toLocaleString('ja-JP')}}</template></el-table-column><el-table-column prop="stock" label="当前库存"/><el-table-column v-if="runtime.scope==='public'" label="操作"><template #default="{row}"><el-button @click="refreshStock(row.id)">刷新库存</el-button><el-button @click="select(row)">选择商品</el-button></template></el-table-column></el-table>
+<el-table v-else :data="products.data.value.items"><el-table-column prop="code" label="代码"/><el-table-column prop="name" label="名称"/><el-table-column prop="description" label="说明"/><el-table-column label="价格"><template #default="{row}">¥{{row.priceJpy.toLocaleString('ja-JP')}}</template></el-table-column><el-table-column prop="stock" label="当前库存"/><el-table-column v-if="runtime.scope==='public'" label="操作"><template #default="{row}"><el-button @click="refreshStock(row.id)">刷新库存</el-button><el-button :disabled="row.stock < 1" @click="select(row)">选择商品</el-button></template></el-table-column></el-table>
 <el-pagination v-if="products.data.value" v-model:current-page="page" :page-size="20" :total="products.data.value.total" layout="prev, pager, next"/>
 </div><div class="subtle-note"><span>↗</span> {{runtime.scope==='private'?'商品代码会自动转换为大写；价格单位为日元。':'库存是查询时的快照，最终可购买数量以确认订单时为准。'}}</div></section></template>

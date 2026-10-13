@@ -82,17 +82,20 @@ export const screens: readonly Screen[] = [
       "Idempotency-Key（同一次创建/重试保持 UUID）",
     ],
     inputContract: "@training2/api-contracts/inputs#orderInput",
-    apis: ["createOrder"],
+    apis: ["createOrder", "getStock"],
     authActions: [],
     transitions: ["PUB-LOGIN", "PUB-PRODUCTS", "PUB-ORDER"],
     states: {
-      idle: "显示所选明细；不允许输入价格或所有者",
-      loading: "禁止重复点击，不创建新key",
+      idle: "显示所选明细，重查库存；数量即时限制为1到min(库存,1000)的整数；零库存禁用；不允许输入价格或所有者",
+      loading:
+        "查询库存时禁用输入/创建；提交中禁止重复点击或取消选择，不创建新key",
       empty: "无明细时引导返回商品页",
-      success: "201或200跳转订单详情；显示服务器快照与金额",
+      success:
+        "201或200跳转订单详情；取消选择需确认，确认清空全部选择/数量/key并返回商品页，保留或关闭不清空",
       error: "保留明细及key，输入/商品不存在/幂等冲突分别提示",
     },
     acceptance: [
+      "AC-O08",
       "AC-O01",
       "AC-O02",
       "AC-O03",
@@ -249,6 +252,7 @@ export const scenarios: readonly Scenario[] = [
     id: "E2E-ORDER-CREATE",
     screens: ["PUB-PRODUCTS", "PUB-ORDER-CREATE", "PUB-ORDER"],
     acceptance: [
+      "AC-O08",
       "AC-O01",
       "AC-O02",
       "AC-O03",
@@ -263,12 +267,13 @@ export const scenarios: readonly Scenario[] = [
     status: "implemented",
     specFile: "tests/e2e/orders.spec.ts",
     actions: [
-      "选多商品创建草稿",
+      "选多商品创建草稿；数量即时限制；确认取消选择后清空缓存并重新选择",
       "超时重试/双击；同key同输入和不同输入；异常商品与数量",
     ],
     expectations: [
       "同一次提交保留key，重试只生成一单",
       "价格快照由服务器决定；创建不扣库存",
+      "数量边界禁用；取消确认/保留、重新选择无旧缓存",
     ],
   },
   {
