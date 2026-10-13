@@ -45,4 +45,9 @@ Step2 已实现 CI、Husky 提交钩子、config 和 logger、Node Test Runner/C
 
 ## Step4 Prisma 生成
 
-Step3 PR #2 已于 2026-10-13 经用户授权合并。Step4 使用 Prisma 7.10，从临时空 PostgreSQL 应用 SQL 后生成 schema 和 Client；Schema 提交 Git，Client 构建时生成。只新增一项 Client 读写/事务回滚集成测试。本地模型复现及 pnpm check 已通过，共 24 个测试。schema-to-types 技能校验通过。状态为レビュー待ち。[PR #3](https://github.com/changxu-advanced/training2/pull/3) 的最新 checks 为 GitHub CI 结果依据，合并后再进入 Step5。
+Step3 PR #2 已于 2026-10-13 经用户授权合并。Step4 使用 Prisma 7.10，从临时空 PostgreSQL 应用 SQL 后生成 schema 和 Client；Schema 提交 Git，Client 构建时生成。只新增一项 Client 读写/事务回滚集成测试。本地模型复现及 pnpm check 已通过，共 24 个测试。schema-to-types 技能校验通过。状态为完了，用户已授权合并。[PR #3](https://github.com/changxu-advanced/training2/pull/3) 的最新 checks 为 GitHub CI 结果依据，合并后再进入 Step5。
+
+
+## Step5 API 契约与生成
+
+状态：レビュー待ち。8 个业务操作及其正常/异常响应、认证要求已定义。OpenAPI 与类型化 Axios Client 可重建，纯 Zod 表单入口与服务代码分离；当前业务未实现返回 501。只新增两个关键测试，与已有检查合计 26 个。兼容性用固定版 oasdiff 在 CI 对基线比较；首次无基线时允许初始化，测试已验证 endpoint 删除会失败。PR 最新 checks 是 CI 结果依据。详见 api.md。

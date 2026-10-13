@@ -21,7 +21,9 @@
     "db:schema": "pnpm --filter @training2/postgres schema:generate",
     "db:schema:check": "pnpm --filter @training2/postgres schema:check",
     "prisma:generate": "pnpm --filter @training2/prisma generate",
-    "prisma:check": "pnpm --filter @training2/prisma generate:check"
+    "prisma:check": "pnpm --filter @training2/prisma generate:check",
+    "codegen": "node tools/codegen/api.ts",
+    "codegen:check": "node tools/codegen/api.ts --check"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

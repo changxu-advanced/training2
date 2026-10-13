@@ -11,6 +11,7 @@
 - [业务需求](docs/requirements.md)
 - [架构说明](docs/architecture.md)
 - [数据库设计](docs/database.md)
+- [API 契约与生成](docs/api.md)
 - [验收场景](docs/acceptance-scenarios.md)
 - [当前进度](docs/progress.md)
 - [待处理事项](ISSUES.md)

@@ -7,5 +7,6 @@ node --version
 pnpm --version
 pnpm install --frozen-lockfile
 pnpm prisma:check
+pnpm codegen:check
 psql -v ON_ERROR_STOP=1 -c 'SELECT current_database(), version();'
 echo 'Development container ready. See docs/getting-started.md.'
