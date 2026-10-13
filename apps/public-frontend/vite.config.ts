@@ -1,2 +1,2 @@
-import { defineConfig } from "vite";
-export default defineConfig({ envDir: false });
+import { frontendConfig } from "@training2/ui/vite";
+export default frontendConfig("public");

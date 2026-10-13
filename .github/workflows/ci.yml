@@ -36,9 +36,15 @@ jobs:
           fetch-depth: 0
       - name: Build fixed development runtime
         run: docker build -t training2-ci infra/docker
+      - name: Start local authentication emulator
+        run: |
+          docker run -d --rm --network host --name training2-cognito-ci \
+            -v "${{ github.workspace }}/.devcontainer/cognito/config.json:/training2-config.json:ro" \
+            --entrypoint /bin/sh jagregory/cognito-local:5.3.0 \
+            -c 'cp /training2-config.json /app/.cognito/config.json && node /app/start.js'
       - name: Install and run project checks inside container
         run: |
-          docker run --rm --user root --network host \
-            -e CI=true -e HUSKY=0 -e NODE_ENV=test -e DATABASE_URL -e API_BASE_REF="${{ github.event.pull_request.base.sha || github.event.before }}" \
+          docker run --rm --user root --network host --add-host cognito-local:127.0.0.1 \
+            -e CI=true -e HUSKY=0 -e NODE_ENV=test -e DATABASE_URL -e COGNITO_LOCAL_ENDPOINT=http://cognito-local:9229 -e PLAYWRIGHT_BROWSERS_PATH=/opt/playwright -e API_BASE_REF="${{ github.event.pull_request.base.sha || github.event.before }}" \
             -v "${{ github.workspace }}:/workspaces/training2" \
-            training2-ci bash -lc 'pnpm install --frozen-lockfile && pnpm db:migrate && pnpm db:seed && pnpm prisma:check && pnpm codegen:check && pnpm screen:check && pnpm check && pnpm db:schema:check && git config --global --add safe.directory /workspaces/training2 && if [ -n "$API_BASE_REF" ] && [ "$API_BASE_REF" != 0000000000000000000000000000000000000000 ]; then bash tools/scripts/check-openapi-breaking.sh "$API_BASE_REF"; fi'
+            training2-ci bash -lc 'pnpm install --frozen-lockfile && pnpm seed:cognito && pnpm db:migrate && pnpm db:seed && pnpm prisma:check && pnpm codegen:check && pnpm screen:check && pnpm check && pnpm exec playwright install --with-deps chromium && pnpm test:e2e && pnpm db:schema:check && git config --global --add safe.directory /workspaces/training2 && if [ -n "$API_BASE_REF" ] && [ "$API_BASE_REF" != 0000000000000000000000000000000000000000 ]; then bash tools/scripts/check-openapi-breaking.sh "$API_BASE_REF"; fi'

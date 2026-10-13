@@ -6,7 +6,7 @@ export function renderScreens(
   const lines = [
     "# 页面契约（自动生成）",
     "",
-    "源：packages/screen-contracts/src/index.ts；请勿手改。路由与业务 E2E 当前为计划，浏览器运行结果见进度记录。",
+    "源：packages/screen-contracts/src/index.ts；请勿手改。实际路由由 Vue Router 构建并验证；各 E2E 场景实施状态见下表，运行结果见进度记录。",
     "",
     "根路由 / 在两端跳转 /products。权限 owner 包含已登录要求，服务器仍验证订单所有者。",
     "",

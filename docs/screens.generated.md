@@ -1,6 +1,6 @@
 # 页面契约（自动生成）
 
-源：packages/screen-contracts/src/index.ts；请勿手改。路由与业务 E2E 当前为计划，浏览器运行结果见进度记录。
+源：packages/screen-contracts/src/index.ts；请勿手改。实际路由由 Vue Router 构建并验证；各 E2E 场景实施状态见下表，运行结果见进度记录。
 
 根路由 / 在两端跳转 /products。权限 owner 包含已登录要求，服务器仍验证订单所有者。
 
@@ -136,7 +136,7 @@
 
 ### E2E-AUTH
 
-- 状态：planned；阶段：Step9；实际 spec：尚未实现
+- 状态：implemented；阶段：Step9；实际 spec：tests/e2e/auth.spec.ts
 - 页面：PUB-LOGIN、ADM-LOGIN、ADM-PRODUCTS、ADM-PRODUCT-CREATE、PUB-ORDER-CREATE、PUB-ORDER
 - 验收：AC-A01、AC-P03、AC-O07、AC-E02
 - 操作：登录/退出与过期会话处理；未登录跳转，买家不能进入管理页，API仍返回401/403

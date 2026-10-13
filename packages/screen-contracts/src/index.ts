@@ -211,7 +211,8 @@ export const scenarios: readonly Scenario[] = [
     acceptance: ["AC-A01", "AC-P03", "AC-O07", "AC-E02"],
     step: 9,
     kind: "business",
-    status: "planned",
+    status: "implemented",
+    specFile: "tests/e2e/auth.spec.ts",
     actions: [
       "登录/退出与过期会话处理",
       "未登录跳转，买家不能进入管理页，API仍返回401/403",
