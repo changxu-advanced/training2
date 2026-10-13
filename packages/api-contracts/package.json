@@ -16,7 +16,8 @@
     "@hono/zod-openapi": "1.6.3",
     "hono": "4.13.13",
     "zod": "4.6.7",
-    "@training2/auth": "workspace:*"
+    "@training2/auth": "workspace:*",
+    "@training2/logger": "workspace:*"
   },
   "devDependencies": {
     "axios": "1.20.0"

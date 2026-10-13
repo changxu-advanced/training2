@@ -190,18 +190,9 @@ importers:
 
   apps/private-api:
     dependencies:
-      '@hono/node-server':
-        specifier: 2.1.4
-        version: 2.1.4(hono@4.13.13)
-      '@training2/api-contracts':
+      '@training2/backend':
         specifier: workspace:*
-        version: link:../../packages/api-contracts
-      '@training2/auth':
-        specifier: workspace:*
-        version: link:../../packages/auth
-      hono:
-        specifier: 4.13.13
-        version: 4.13.13
+        version: link:../../packages/backend
 
   apps/private-frontend:
     dependencies:
@@ -215,18 +206,9 @@ importers:
 
   apps/public-api:
     dependencies:
-      '@hono/node-server':
-        specifier: 2.1.4
-        version: 2.1.4(hono@4.13.13)
-      '@training2/api-contracts':
+      '@training2/backend':
         specifier: workspace:*
-        version: link:../../packages/api-contracts
-      '@training2/auth':
-        specifier: workspace:*
-        version: link:../../packages/auth
-      hono:
-        specifier: 4.13.13
-        version: 4.13.13
+        version: link:../../packages/backend
 
   apps/public-frontend:
     dependencies:
@@ -252,6 +234,9 @@ importers:
       '@training2/auth':
         specifier: workspace:*
         version: link:../auth
+      '@training2/logger':
+        specifier: workspace:*
+        version: link:../logger
       hono:
         specifier: 4.13.13
         version: 4.13.13
@@ -271,6 +256,34 @@ importers:
       aws-jwt-verify:
         specifier: 5.2.1
         version: 5.2.1
+
+  packages/backend:
+    dependencies:
+      '@hono/node-server':
+        specifier: 2.1.4
+        version: 2.1.4(hono@4.13.13)
+      '@training2/api-contracts':
+        specifier: workspace:*
+        version: link:../api-contracts
+      '@training2/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@training2/config':
+        specifier: workspace:*
+        version: link:../config
+      '@training2/logger':
+        specifier: workspace:*
+        version: link:../logger
+      '@training2/prisma':
+        specifier: workspace:*
+        version: link:../prisma
+      hono:
+        specifier: 4.13.13
+        version: 4.13.13
+    devDependencies:
+      '@training2/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
 
   packages/config:
     dependencies:
@@ -319,7 +332,11 @@ importers:
 
   packages/screen-contracts: {}
 
-  packages/test-utils: {}
+  packages/test-utils:
+    dependencies:
+      '@training2/prisma':
+        specifier: workspace:*
+        version: link:../prisma
 
   packages/ui: {}
 
