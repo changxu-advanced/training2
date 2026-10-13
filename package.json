@@ -6,14 +6,16 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "typecheck": "pnpm -r --if-present run typecheck",
-    "test": "node -e \"console.error('Business tests are not implemented yet; see the acceptance scenarios.'); process.exit(1)\"",
+    "test": "pnpm -r --if-present run test",
     "build": "pnpm -r --if-present run build",
     "seed:cognito": "node tools/scripts/check-local-auth.mjs",
     "dev:public-api": "pnpm --filter @training2/public-api dev",
     "dev:private-api": "pnpm --filter @training2/private-api dev",
     "check:environment": "bash tools/scripts/check-environment.sh",
     "dev:public-frontend": "pnpm --filter @training2/public-frontend dev",
-    "dev:private-frontend": "pnpm --filter @training2/private-frontend dev"
+    "dev:private-frontend": "pnpm --filter @training2/private-frontend dev",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

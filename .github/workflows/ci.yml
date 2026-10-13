@@ -1,0 +1,27 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Build fixed development runtime
+        run: docker build -t training2-ci infra/docker
+      - name: Install and run project checks inside container
+        run: |
+          docker run --rm --user root \
+            -e CI=true -e HUSKY=0 \
+            -v "${{ github.workspace }}:/workspaces/training2" \
+            training2-ci bash -lc 'pnpm install --frozen-lockfile && pnpm check'

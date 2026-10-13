@@ -4,11 +4,11 @@
 
 ## Step0 规格已准备
 
-状态：レビュー待ち。已建立业务需求、架构说明和带 ID 的验收场景。原文未明确的细节采用 requirements.md 中的默认设计，不增加支付、配送或独立购物车。尚未提交合并，因此按实施计划不标为完了。
+状态：完了。已建立业务需求、架构说明和带 ID 的验收场景。原文未明确的细节采用 requirements.md 中的默认设计，不增加支付、配送或独立购物车。经用户授权后提交 2c4dd88 已首次推送至 main。
 
 ## Step1 开发环境已验证
 
-状态：レビュー待ち。已补齐缺失容器文件，启动开发容器、PostgreSQL 和 cognito-local，并用最终配置重建。
+状态：完了。已补齐缺失容器文件，启动开发容器、PostgreSQL 和 cognito-local，并用最终配置重建。
 
 | 检查 | 结果 |
 | --- | --- |
@@ -29,8 +29,8 @@
 
 当前页面只是环境就绪占位页，API 只有 health。没有实现商品、订单、正式认证页面、数据库业务 schema 或业务测试。当前 Amplify 检查在 Node 中运行 SDK；浏览器登录的实际 UI 在后续阶段验证。
 
-## 下一步依赖
+## Step2 检查基盘
 
-本地 Git 仓库为 main，origin 为 git@github.com:changxu-advanced/training2.git。通过 HTTPS 只读检查可访问仓库，没有 refs。容器 GitHub 登录等待本人在浏览器授权；尚未提交或推送。
+Step0/1 首次推送已完成。仓库为 changxu-advanced/training2，容器内 GitHub 已由本人完成登录；Git 使用 HTTPS 凭据连接同一仓库。Step2 分支为 step/02-ci-foundation。
 
-implementation-plan 明确要求 Step1 后由用户首次推送，Step2 起按独立分支、验证、PR、合并推进。需要完成初次提交推送后，才开始 Step2 的 CI、commit hook、config 和 logger。
+Step2 已实现 CI、Husky 提交钩子、config 和 logger、Node Test Runner/Chai 测试、测试推进说明，以及 step-workflow 技能。容器内 pnpm check 通过；10 个实际测试通过；人为引入类型和格式错误均被检查拒绝；技能校验通过。GitHub CI 和 PR 待验证，未合并前不标为完了，也不进入 Step3。
