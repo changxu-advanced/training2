@@ -45,4 +45,4 @@ Step2 已实现 CI、Husky 提交钩子、config 和 logger、Node Test Runner/C
 
 ## Step4 Prisma 生成
 
-Step3 PR #2 已于 2026-10-13 经用户授权合并。Step4 使用 Prisma 7.10，从临时空 PostgreSQL 应用 SQL 后生成 schema 和 Client；Schema 提交 Git，Client 构建时生成。只新增一项 Client 读写/事务回滚集成测试。本地模型复现及 pnpm check 已通过，共 24 个测试。schema-to-types 技能校验通过。PR 与 GitHub CI 结果待核对。
+Step3 PR #2 已于 2026-10-13 经用户授权合并。Step4 使用 Prisma 7.10，从临时空 PostgreSQL 应用 SQL 后生成 schema 和 Client；Schema 提交 Git，Client 构建时生成。只新增一项 Client 读写/事务回滚集成测试。本地模型复现及 pnpm check 已通过，共 24 个测试。schema-to-types 技能校验通过。状态为レビュー待ち。[PR #3](https://github.com/changxu-advanced/training2/pull/3) 的最新 checks 为 GitHub CI 结果依据，合并后再进入 Step5。
