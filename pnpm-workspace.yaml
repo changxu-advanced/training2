@@ -4,6 +4,9 @@ packages:
 
 allowBuilds:
   esbuild: true
+  "@prisma/engines": true
+  "@prisma/client": false
+  prisma: false
 
 minimumReleaseAgeExclude:
   - '@aws-sdk/client-cognito-identity-provider@3.1150.0'

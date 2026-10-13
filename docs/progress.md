@@ -38,6 +38,11 @@ Step2 已实现 CI、Husky 提交钩子、config 和 logger、Node Test Runner/C
 
 ## Step3 数据库契约
 
-状态：レビュー待ち。商品、订单、明细、约束、索引、状态枚举和更新时间触发器已由 0001_initial.sql 定义。迁移 runner 保存 SHA256 历史、检查连续编号并用事务和 advisory lock 处理重复或并发执行。
+状态：完了。商品、订单、明细、约束、索引、状态枚举和更新时间触发器已由 0001_initial.sql 定义。迁移 runner 保存 SHA256 历史、检查连续编号并用事务和 advisory lock 处理重复或并发执行。
 
 开发库已通过迁移初始化，示例商品已写入。13 个实际 PostgreSQL 测试通过，与 Step2 合计 23 个测试。最新结构从临时空库生成并提交 schemas/current.json；检查命令验证可重复。CI 已加入同版本 PostgreSQL，当前结果以 [PR #2](https://github.com/changxu-advanced/training2/pull/2) checks 为准。详见 database.md。
+
+
+## Step4 Prisma 生成
+
+Step3 PR #2 已于 2026-10-13 经用户授权合并。Step4 使用 Prisma 7.10，从临时空 PostgreSQL 应用 SQL 后生成 schema 和 Client；Schema 提交 Git，Client 构建时生成。只新增一项 Client 读写/事务回滚集成测试。本地模型复现及 pnpm check 已通过，共 24 个测试。schema-to-types 技能校验通过。PR 与 GitHub CI 结果待核对。

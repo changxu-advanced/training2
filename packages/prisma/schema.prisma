@@ -1,0 +1,70 @@
+generator client {
+  provider               = "prisma-client"
+  output                 = "./generated"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+  moduleFormat           = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model order_items {
+  order_id       String   @db.Uuid
+  product_id     String   @db.Uuid
+  product_code   String
+  product_name   String
+  unit_price_jpy BigInt
+  quantity       Int
+  orders         orders   @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  products       products @relation(fields: [product_id], references: [id], onUpdate: NoAction)
+
+  @@id([order_id, product_id])
+  @@index([product_id], map: "order_items_product_idx")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model orders {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  owner_sub       String
+  idempotency_key String        @db.Uuid
+  request_items   Json
+  status          order_status  @default(draft)
+  total_jpy       BigInt
+  created_at      DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime      @default(now()) @db.Timestamptz(6)
+  confirmed_at    DateTime?     @db.Timestamptz(6)
+  cancelled_at    DateTime?     @db.Timestamptz(6)
+  order_items     order_items[]
+
+  @@unique([owner_sub, idempotency_key], map: "orders_owner_key_unique")
+  @@index([owner_sub, created_at(sort: Desc), id], map: "orders_owner_created_idx")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model products {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code        String        @unique
+  name        String
+  description String        @default("")
+  price_jpy   BigInt
+  stock       Int
+  created_at  DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime      @default(now()) @db.Timestamptz(6)
+  order_items order_items[]
+}
+
+model schema_migrations {
+  name       String   @id
+  checksum   String   @db.Char(64)
+  applied_at DateTime @default(now()) @db.Timestamptz(6)
+}
+
+enum order_status {
+  draft
+  confirmed
+  cancelled
+}

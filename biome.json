@@ -10,7 +10,8 @@
       "!**/.env.*",
       "!**/pnpm-lock.yaml",
       "!**/devcontainer-lock.json",
-      "!**/.devcontainer/runtime"
+      "!**/.devcontainer/runtime",
+      "!**/packages/prisma/generated"
     ]
   },
   "formatter": {

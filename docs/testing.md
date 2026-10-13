@@ -7,3 +7,5 @@ Step2 使用 pnpm check 统一执行 lint、类型检查、当前实际存在的
 前端 Vitest 在 Step9 引入实际组件与查询测试，Playwright 随 Step10/11 的页面业务加入；Step12 覆盖实际 PostgreSQL 并发和主要 E2E。Step3 已在 CI 增加 PostgreSQL 17.6 服务、迁移和 seed、实际 DB 测试以及空库结构清单比较；不使用 DB mock 宣称库存一致性。
 
 配置包只校验调用方提供的环境变量，不读取任何文件。日志只记录必要的结构化上下文；不要记录完整请求体、token 或密码。脱敏支持嵌套敏感键、Bearer、JWT、连接串凭据和常见密钥赋值；不能从任意自然语言中推断所有秘密。
+
+Step4 只新增一个 Prisma Client 读写与事务回滚集成测试；Schema 复现用生成比较验证。后续新增测试按 AGENTS.md 中的用户偏好，仅覆盖关键风险和必要验收，复用已有检查。
