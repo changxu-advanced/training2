@@ -50,4 +50,9 @@ Step3 PR #2 已于 2026-10-13 经用户授权合并。Step4 使用 Prisma 7.10�
 
 ## Step5 API 契约与生成
 
-状态：レビュー待ち。8 个业务操作及其正常/异常响应、认证要求已定义。OpenAPI 与类型化 Axios Client 可重建，纯 Zod 表单入口与服务代码分离；当前业务未实现返回 501。只新增两个关键测试，与已有检查合计 26 个。兼容性用固定版 oasdiff 在 CI 对基线比较；首次无基线时允许初始化，测试已验证 endpoint 删除会失败。PR 最新 checks 是 CI 结果依据。详见 api.md。
+状态：完了。用户授权合并 Step5 PR #4，main 合并提交 71bc4ce。8 个业务操作及其正常/异常响应、认证要求已定义。OpenAPI 与类型化 Axios Client 可重建，纯 Zod 表单入口与服务代码分离；当前业务未实现返回 501。只新增两个关键测试，与已有检查合计 26 个。兼容性用固定版 oasdiff 在 CI 对基线比较；首次无基线时允许初始化，测试已验证 endpoint 删除会失败。PR 最新 checks 是 CI 结果依据。详见 api.md。
+
+
+## Step6 认证与权限
+
+状态：レビュー待ち。两个 API 已接入 access token 验证和管理员限制；共享库提供订单所有者限制，Step11 再与真实订单结合。开发模拟器初始化及 Amplify 实际登录接入正式验证库；生产禁用 local 模式。新增两个 RSA/权限组合测试，合计 28 个测试。容器内 pnpm check、codegen:check 和 Amplify 实际登录/JWKS 验证通过；GitHub CI 以 PR 最新 checks 为依据。详见 auth.md。

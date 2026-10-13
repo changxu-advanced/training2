@@ -15,6 +15,7 @@ import {
 import { Amplify } from "aws-amplify";
 import { fetchAuthSession, signIn, signOut } from "aws-amplify/auth";
 import { JwtRsaVerifier } from "aws-jwt-verify";
+import { createAuthenticator } from "../../packages/auth/src/index.ts";
 
 const endpoint = process.env.COGNITO_LOCAL_ENDPOINT;
 assert.equal(
@@ -127,6 +128,14 @@ function verifier(
   return v;
 }
 const verification = verifier();
+const auth = createAuthenticator({
+  mode: "local",
+  nodeEnv: "development",
+  userPoolId: pool.Id,
+  clientId: app.ClientId,
+  issuer,
+  jwksUri: `${endpoint}/${pool.Id}/.well-known/jwks.json`,
+});
 for (const username of ["admin@training2.test", "buyer@training2.test"]) {
   await signOut();
   const result = await signIn({
@@ -139,6 +148,7 @@ for (const username of ["admin@training2.test", "buyer@training2.test"]) {
   const token = session.tokens?.accessToken?.toString();
   assert.ok(token);
   const payload = await verification.verify(token);
+  assert.equal((await auth.verify(token)).sub, payload.sub);
   const registeredUser = await client.send(
     new AdminGetUserCommand({ UserPoolId: pool.Id, Username: username }),
   );

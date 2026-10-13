@@ -16,11 +16,41 @@ import {
 } from "../src/index.ts";
 
 test("contract input/response validation, honest stubs and generated Axios transport", async () => {
-  const app = createContractApp("public");
+  const app = createContractApp("public", {
+    verify: async () => ({ sub: "buyer", groups: [] }),
+  });
   assert.equal((await app.request("/products?unexpected=1")).status, 400);
+  assert.equal(
+    (await app.request("/orders/00000000-0000-4000-8000-000000000000")).status,
+    401,
+  );
+  const privateApp = createContractApp("private", {
+    verify: async (token) => ({
+      sub: token,
+      groups: token === "admin" ? ["admin"] : [],
+    }),
+  });
+  assert.equal((await privateApp.request("/products")).status, 401);
+  assert.equal(
+    (
+      await privateApp.request("/products", {
+        headers: { Authorization: "Bearer buyer" },
+      })
+    ).status,
+    403,
+  );
+  assert.equal(
+    (
+      await privateApp.request("/products", {
+        headers: { Authorization: "Bearer admin" },
+      })
+    ).status,
+    501,
+  );
   const bad = await app.request("/orders", {
     method: "POST",
     headers: {
+      Authorization: "Bearer fixture",
       "Content-Type": "application/json",
       "Idempotency-Key": randomUUID(),
     },
@@ -31,6 +61,7 @@ test("contract input/response validation, honest stubs and generated Axios trans
   const valid = await app.request("/orders", {
     method: "POST",
     headers: {
+      Authorization: "Bearer fixture",
       "Content-Type": "application/json",
       "Idempotency-Key": randomUUID(),
     },
