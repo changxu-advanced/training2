@@ -1,0 +1,23 @@
+body {
+  margin: 0;
+  background: #f4f6f8;
+  color: #1f2937;
+  font-family: system-ui, sans-serif;
+}
+main {
+  max-width: 760px;
+  margin: 12vh auto;
+  padding: 40px;
+  background: white;
+  border-radius: 16px;
+}
+h1 {
+  font-size: 32px;
+}
+p {
+  line-height: 1.8;
+}
+.label {
+  color: #2563eb;
+  font-weight: 700;
+}

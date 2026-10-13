@@ -1,0 +1,32 @@
+{
+  "name": "training2",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "test": "node -e \"console.error('Business tests are not implemented yet; see the acceptance scenarios.'); process.exit(1)\"",
+    "build": "pnpm -r --if-present run build",
+    "seed:cognito": "node tools/scripts/check-local-auth.mjs",
+    "dev:public-api": "pnpm --filter @training2/public-api dev",
+    "dev:private-api": "pnpm --filter @training2/private-api dev",
+    "check:environment": "bash tools/scripts/check-environment.sh",
+    "dev:public-frontend": "pnpm --filter @training2/public-frontend dev",
+    "dev:private-frontend": "pnpm --filter @training2/private-frontend dev"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@types/node": "26.6.4",
+    "husky": "9.1.7",
+    "typescript": "7.0.2",
+    "aws-amplify": "6.22.1",
+    "aws-jwt-verify": "5.2.1",
+    "@aws-sdk/client-cognito-identity-provider": "3.1150.0"
+  },
+  "packageManager": "pnpm@12.9.1",
+  "engines": {
+    "node": "26.10.0",
+    "pnpm": "12.9.1"
+  }
+}
