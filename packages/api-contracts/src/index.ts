@@ -259,7 +259,21 @@ export type ApiEnvironment = {
   Variables: { principal: Principal; requestId: string };
 };
 export type ContractApp = OpenAPIHono<ApiEnvironment>;
+export class ApiFailure extends Error {
+  readonly status: 400 | 404 | 409 | 503;
+  readonly code: z.infer<typeof errorSchema>["error"]["code"];
+  constructor(
+    status: 400 | 404 | 409 | 503,
+    code: z.infer<typeof errorSchema>["error"]["code"],
+    message: string,
+  ) {
+    super(message);
+    this.status = status;
+    this.code = code;
+  }
+}
 export type ContractOptions = {
+  bindRoutes?: (app: ContractApp) => readonly string[];
   logger?: ReturnType<typeof createLogger>;
   configure?: (app: ContractApp) => void;
   beforeRoutes?: (app: ContractApp) => void;
@@ -365,19 +379,32 @@ export function createContractApp(
     }
   });
   options.beforeRoutes?.(app);
+  const implemented = new Set(options.bindRoutes?.(app) ?? []);
   for (const route of routes)
-    app.openapi(route, (c) =>
-      c.json(
-        error(
-          "NOT_IMPLEMENTED",
-          "This operation is not implemented yet",
-          c.get("requestId"),
+    if (!implemented.has(route.operationId))
+      app.openapi(route, (c) =>
+        c.json(
+          error(
+            "NOT_IMPLEMENTED",
+            "This operation is not implemented yet",
+            c.get("requestId"),
+          ),
+          501,
         ),
-        501,
-      ),
-    );
+      );
   app.get("/openapi.json", (c) => c.json(openapiDocument(scope)));
   app.onError((failure, c) => {
+    if (failure instanceof ApiFailure)
+      return c.json(
+        {
+          error: {
+            code: failure.code,
+            message: failure.message,
+            requestId: c.get("requestId"),
+          },
+        },
+        failure.status,
+      );
     if (failure instanceof HTTPException && failure.status === 415)
       return c.json(
         error(

@@ -234,7 +234,8 @@ export const scenarios: readonly Scenario[] = [
     ],
     step: 10,
     kind: "business",
-    status: "planned",
+    status: "implemented",
+    specFile: "tests/e2e/products.spec.ts",
     actions: [
       "管理员注册后在两端查找商品",
       "验证重复代码、非法输入、搜索组合及空分页",

@@ -70,4 +70,9 @@ Step3 PR #2 已于 2026-10-13 经用户授权合并。Step4 使用 Prisma 7.10�
 
 ## Step9 前端框架与登录
 
-状态：レビュー待ち。两个 Vue 前端使用共享布局、Element Plus、TanStack Query、生成 Axios Client 和 Amplify；实际7个路由与契约验证，登录/退出、权限与安全回跳、表单校验、错误反馈已接入。商品/订单业务尚未实现时展示明确提示，不显示假成功。新增2个 Vitest 组合用例及1组真实浏览器认证流程；pnpm check（34个单元/集成测试）、screen:check、Playwright均通过，已目视检查买家登录和管理商品表单。CI新增模拟器/浏览器执行，最新结果以PR checks为准。实际商品/订单 E2E 仍有5组 planned。详见 frontend.md。
+状态：完了。用户授权合并 Step9 PR #8，main 合并提交 3e571fd。两个 Vue 前端使用共享布局、Element Plus、TanStack Query、生成 Axios Client 和 Amplify；实际7个路由与契约验证，登录/退出、权限与安全回跳、表单校验、错误反馈已接入。商品/订单业务尚未实现时展示明确提示，不显示假成功。新增2个 Vitest 组合用例及1组真实浏览器认证流程；pnpm check（34个单元/集成测试）、screen:check、Playwright均通过，已目视检查买家登录和管理商品表单。CI新增模拟器/浏览器执行，最新结果以PR checks为准。实际商品/订单 E2E 仍有5组 planned。详见 frontend.md。
+
+
+## Step10 商品功能
+
+状态：レビュー待ち。商品注册、管理列表、公开字面搜索、分页和库存查询已接入真实数据库，前端显示商品说明/价格/库存及刷新。注册201、重复409、权限401/403与输入400已验证；库存更新通过查询缓存安全反映到页面。新增1个组合DB/API测试及1个真实商品浏览器场景，累计35个单元/集成测试和2组浏览器流程。pnpm check、针对最终改动的检查、screen/codegen一致性及Playwright通过；CI以PR最新checks为依据。订单业务与4组订单/完整流程E2E仍待Step11〜12。详见 products.md。

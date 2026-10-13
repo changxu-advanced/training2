@@ -74,7 +74,7 @@ test("both API runtimes connect to real PostgreSQL, check auth/CORS and project 
               headers: { Authorization: "Bearer buyer" },
             })
           ).status,
-          scope === "public" ? 501 : 403,
+          scope === "public" ? 200 : 403,
         );
         assert.equal(
           (
@@ -82,7 +82,7 @@ test("both API runtimes connect to real PostgreSQL, check auth/CORS and project 
               headers: { Authorization: "Bearer admin" },
             })
           ).status,
-          501,
+          200,
         );
         const origin =
           scope === "public"

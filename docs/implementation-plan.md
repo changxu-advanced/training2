@@ -20,7 +20,7 @@ GraphQLは対象外。決済・配送・商品編集や削除などREADMEにな�
 
 ## 2. 現状と進捗の扱い
 
-2026-10-13 の実施結果は [現在の進捗](progress.md) を参照。Step0〜1 はユーザー承認を経て main へ初回push済み。Step2 は PR #1 で合併済み。Step3 は PR #2 で合併済み。Step4 は PR #3 で合併済み。Step5 は PR #4 で合併済み。Step6 は PR #5 で合併済み。Step7 は PR #6 で合併済み。Step8 は PR #7 で合併済み。Step9 は前端・認証画面を実装しローカル検証済み、レビュー待ち。
+2026-10-13 の実施結果は [現在の進捗](progress.md) を参照。Step0〜1 はユーザー承認を経て main へ初回push済み。Step2 は PR #1 で合併済み。Step3 は PR #2 で合併済み。Step4 は PR #3 で合併済み。Step5 は PR #4 で合併済み。Step6 は PR #5 で合併済み。Step7 は PR #6 で合併済み。Step8 は PR #7 で合併済み。Step9 は PR #8 で合併済み。Step10 は商品機能を実装しローカル検証済み、レビュー待ち。
 
 初期確認時（2026-10-07）の作業フォルダで確認できたものはREADME.md、AGENTS.md、Dev Container設定2ファイル、計画文書。
 Dev Container設定が参照する以下のファイルは未作成。
