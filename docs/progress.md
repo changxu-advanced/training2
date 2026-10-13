@@ -85,4 +85,9 @@ Step3 PR #2 已于 2026-10-13 经用户授权合并。Step4 使用 Prisma 7.10�
 
 ## Step12 重点验证
 
-状态：レビュー待ち。新增3组真实DB组合测试覆盖重复确认/取消、确认取消竞争、多商品逆序锁、同key竞争、半途写入回滚/释放锁和SQL序列化错误重试上限；另有仅测试用途的乐观CAS版本冲突/重读比较，生产仍为悲观锁。新增1组完整管理员注册→买家取消的浏览器流程，6个场景ID全部实施，CI强制对应无缺漏。累计40个单元/集成测试和4组浏览器流程；容器内pnpm check、Playwright、空库SQL/Prisma再生成、结构/API/屏幕一致性检查均通过。CI以PR最新checks为准；详见 verification.md。
+状态：完了。用户授权合并 Step12 PR #11，main 合并提交 b58e0e6。新增3组真实DB组合测试覆盖重复确认/取消、确认取消竞争、多商品逆序锁、同key竞争、半途写入回滚/释放锁和SQL序列化错误重试上限；另有仅测试用途的乐观CAS版本冲突/重读比较，生产仍为悲观锁。新增1组完整管理员注册→买家取消的浏览器流程，6个场景ID全部实施，CI强制对应无缺漏。累计40个单元/集成测试和4组浏览器流程；容器内pnpm check、Playwright、空库SQL/Prisma再生成、结构/API/屏幕一致性检查均通过。CI以PR最新checks为准；详见 verification.md。
+
+
+## Step13 文档整理
+
+状态：レビュー待ち。VitePress 1.6.4 整理已有文档，API 参考与页面参考从契约生成，补齐空库初始化、检查命令、生成/排障和学习记录；CI 增加文档构建。容器内重复 post-create（含 frozen install、认证、迁移/seed、Prisma 和生成检查）成功；docs:check、pnpm check（40 个单元/集成测试）、4 组 Playwright 流程与 OpenAPI 基线比较均通过，已目视确认首页/API 参考。未新增重复业务测试；CI 以 PR 最新 checks 为准。下一步为 Step14，部署环境仍未确定。

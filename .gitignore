@@ -10,3 +10,4 @@ test-results/
 .devcontainer/runtime/
 packages/prisma/generated/
 packages/prisma/.generation-*.prisma
+docs/.vitepress/cache/
