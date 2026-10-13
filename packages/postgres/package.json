@@ -1,0 +1,21 @@
+{
+  "name": "@training2/postgres",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "migrate": "node scripts/migrate.ts",
+    "seed": "node scripts/seed.ts",
+    "schema:generate": "node scripts/schema.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "test": "node --test test/*.test.ts",
+    "schema:check": "node scripts/schema.ts --check"
+  },
+  "dependencies": {
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "@types/pg": "8.23.1"
+  }
+}

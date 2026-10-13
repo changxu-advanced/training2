@@ -27,10 +27,17 @@
 | 认证重建 | 账号和池通过数据卷保留；初始化脚本重复运行通过 |
 | .env 限制 | Compose 启动关闭隐式读取；Vite envDir=false；构建排除；Git 忽略 |
 
-当前页面只是环境就绪占位页，API 只有 health。没有实现商品、订单、正式认证页面、数据库业务 schema 或业务测试。当前 Amplify 检查在 Node 中运行 SDK；浏览器登录的实际 UI 在后续阶段验证。
+当前页面只是环境就绪占位页，API 只有 health。Step1 时没有实现商品、订单、正式认证页面或数据库业务 schema；数据库进展见下面 Step3。当前 Amplify 检查在 Node 中运行 SDK；浏览器登录的实际 UI 在后续阶段验证。
 
 ## Step2 检查基盘
 
 Step0/1 首次推送已完成。仓库为 changxu-advanced/training2，容器内 GitHub 已由本人完成登录；Git 使用 HTTPS 凭据连接同一仓库。Step2 分支为 step/02-ci-foundation。
 
-Step2 已实现 CI、Husky 提交钩子、config 和 logger、Node Test Runner/Chai 测试、测试推进说明，以及 step-workflow 技能。容器内 pnpm check 通过；10 个实际测试通过；人为引入类型和格式错误均被检查拒绝；技能校验通过。PR：[Step2 检查基盘](https://github.com/changxu-advanced/training2/pull/1)。GitHub CI 的当前结果以该 PR checks 为准。状态为レビュー待ち；未合并前不标为完了，也不进入 Step3。
+Step2 已实现 CI、Husky 提交钩子、config 和 logger、Node Test Runner/Chai 测试、测试推进说明，以及 step-workflow 技能。容器内 pnpm check 通过；10 个实际测试通过；人为引入类型和格式错误均被检查拒绝；技能校验通过。PR：[Step2 检查基盘](https://github.com/changxu-advanced/training2/pull/1)。GitHub CI 的当前结果以该 PR checks 为准。状态为完了；2026-10-13 用户授权合并 PR #1，main 合并提交 21357f0。
+
+
+## Step3 数据库契约
+
+状态：レビュー待ち。商品、订单、明细、约束、索引、状态枚举和更新时间触发器已由 0001_initial.sql 定义。迁移 runner 保存 SHA256 历史、检查连续编号并用事务和 advisory lock 处理重复或并发执行。
+
+开发库已通过迁移初始化，示例商品已写入。13 个实际 PostgreSQL 测试通过，与 Step2 合计 23 个测试。最新结构从临时空库生成并提交 schemas/current.json；检查命令验证可重复。CI 已加入同版本 PostgreSQL，当前结果以 [PR #2](https://github.com/changxu-advanced/training2/pull/2) checks 为准。详见 database.md。

@@ -1,0 +1,488 @@
+{
+  "columns": [
+    {
+      "table_name": "order_items",
+      "column_name": "order_id",
+      "ordinal_position": 1,
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "product_id",
+      "ordinal_position": 2,
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "product_code",
+      "ordinal_position": 3,
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": "C"
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "product_name",
+      "ordinal_position": 4,
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "unit_price_jpy",
+      "ordinal_position": 5,
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "order_items",
+      "column_name": "quantity",
+      "ordinal_position": 6,
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "orders",
+      "column_name": "id",
+      "ordinal_position": 1,
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()",
+      "collation_name": null
+    },
+    {
+      "table_name": "orders",
+      "column_name": "owner_sub",
+      "ordinal_position": 2,
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "orders",
+      "column_name": "idempotency_key",
+      "ordinal_position": 3,
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "orders",
+      "column_name": "request_items",
+      "ordinal_position": 4,
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "orders",
+      "column_name": "status",
+      "ordinal_position": 5,
+      "data_type": "USER-DEFINED",
+      "udt_name": "order_status",
+      "is_nullable": "NO",
+      "column_default": "'draft'::order_status",
+      "collation_name": null
+    },
+    {
+      "table_name": "orders",
+      "column_name": "total_jpy",
+      "ordinal_position": 6,
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "orders",
+      "column_name": "created_at",
+      "ordinal_position": 7,
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "collation_name": null
+    },
+    {
+      "table_name": "orders",
+      "column_name": "updated_at",
+      "ordinal_position": 8,
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "collation_name": null
+    },
+    {
+      "table_name": "orders",
+      "column_name": "confirmed_at",
+      "ordinal_position": 9,
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "YES",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "orders",
+      "column_name": "cancelled_at",
+      "ordinal_position": 10,
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "YES",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "id",
+      "ordinal_position": 1,
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()",
+      "collation_name": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "code",
+      "ordinal_position": 2,
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": "C"
+    },
+    {
+      "table_name": "products",
+      "column_name": "name",
+      "ordinal_position": 3,
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "description",
+      "ordinal_position": 4,
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "''::text",
+      "collation_name": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "price_jpy",
+      "ordinal_position": 5,
+      "data_type": "bigint",
+      "udt_name": "int8",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "stock",
+      "ordinal_position": 6,
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "created_at",
+      "ordinal_position": 7,
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "collation_name": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "updated_at",
+      "ordinal_position": 8,
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "collation_name": null
+    },
+    {
+      "table_name": "schema_migrations",
+      "column_name": "name",
+      "ordinal_position": 1,
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "schema_migrations",
+      "column_name": "checksum",
+      "ordinal_position": 2,
+      "data_type": "character",
+      "udt_name": "bpchar",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "schema_migrations",
+      "column_name": "applied_at",
+      "ordinal_position": 3,
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "collation_name": null
+    }
+  ],
+  "constraints": [
+    {
+      "table_name": "order_items",
+      "name": "order_items_code_format",
+      "type": "c",
+      "definition": "CHECK ((product_code ~ '^[A-Z0-9_-]{1,32}$'::text))"
+    },
+    {
+      "table_name": "order_items",
+      "name": "order_items_name_length",
+      "type": "c",
+      "definition": "CHECK ((((char_length(product_name) >= 1) AND (char_length(product_name) <= 100)) AND (product_name = btrim(product_name))))"
+    },
+    {
+      "table_name": "order_items",
+      "name": "order_items_order_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE"
+    },
+    {
+      "table_name": "order_items",
+      "name": "order_items_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (order_id, product_id)"
+    },
+    {
+      "table_name": "order_items",
+      "name": "order_items_price_range",
+      "type": "c",
+      "definition": "CHECK (((unit_price_jpy >= 0) AND (unit_price_jpy <= 100000000)))"
+    },
+    {
+      "table_name": "order_items",
+      "name": "order_items_product_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "order_items",
+      "name": "order_items_quantity_range",
+      "type": "c",
+      "definition": "CHECK (((quantity >= 1) AND (quantity <= 1000)))"
+    },
+    {
+      "table_name": "orders",
+      "name": "orders_owner_key_unique",
+      "type": "u",
+      "definition": "UNIQUE (owner_sub, idempotency_key)"
+    },
+    {
+      "table_name": "orders",
+      "name": "orders_owner_length",
+      "type": "c",
+      "definition": "CHECK ((((char_length(owner_sub) >= 1) AND (char_length(owner_sub) <= 255)) AND (owner_sub = btrim(owner_sub))))"
+    },
+    {
+      "table_name": "orders",
+      "name": "orders_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "table_name": "orders",
+      "name": "orders_request_items_shape",
+      "type": "c",
+      "definition": "CHECK (\nCASE\n    WHEN (jsonb_typeof(request_items) = 'array'::text) THEN ((jsonb_array_length(request_items) >= 1) AND (jsonb_array_length(request_items) <= 50))\n    ELSE false\nEND)"
+    },
+    {
+      "table_name": "orders",
+      "name": "orders_status_timestamps",
+      "type": "c",
+      "definition": "CHECK ((((status = 'draft'::order_status) AND (confirmed_at IS NULL) AND (cancelled_at IS NULL)) OR ((status = 'confirmed'::order_status) AND (confirmed_at IS NOT NULL) AND (cancelled_at IS NULL)) OR ((status = 'cancelled'::order_status) AND (cancelled_at IS NOT NULL))))"
+    },
+    {
+      "table_name": "orders",
+      "name": "orders_timestamp_order",
+      "type": "c",
+      "definition": "CHECK ((((confirmed_at IS NULL) OR (confirmed_at >= created_at)) AND ((cancelled_at IS NULL) OR (cancelled_at >= created_at)) AND ((confirmed_at IS NULL) OR (cancelled_at IS NULL) OR (cancelled_at >= confirmed_at))))"
+    },
+    {
+      "table_name": "orders",
+      "name": "orders_total_range",
+      "type": "c",
+      "definition": "CHECK (((total_jpy >= 0) AND (total_jpy <= '5000000000000'::bigint)))"
+    },
+    {
+      "table_name": "products",
+      "name": "products_code_format",
+      "type": "c",
+      "definition": "CHECK ((code ~ '^[A-Z0-9_-]{1,32}$'::text))"
+    },
+    {
+      "table_name": "products",
+      "name": "products_code_key",
+      "type": "u",
+      "definition": "UNIQUE (code)"
+    },
+    {
+      "table_name": "products",
+      "name": "products_description_length",
+      "type": "c",
+      "definition": "CHECK ((char_length(description) <= 2000))"
+    },
+    {
+      "table_name": "products",
+      "name": "products_name_length",
+      "type": "c",
+      "definition": "CHECK ((((char_length(name) >= 1) AND (char_length(name) <= 100)) AND (name = btrim(name))))"
+    },
+    {
+      "table_name": "products",
+      "name": "products_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "table_name": "products",
+      "name": "products_price_range",
+      "type": "c",
+      "definition": "CHECK (((price_jpy >= 0) AND (price_jpy <= 100000000)))"
+    },
+    {
+      "table_name": "products",
+      "name": "products_stock_range",
+      "type": "c",
+      "definition": "CHECK (((stock >= 0) AND (stock <= 1000000)))"
+    },
+    {
+      "table_name": "schema_migrations",
+      "name": "schema_migrations_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (name)"
+    }
+  ],
+  "indexes": [
+    {
+      "table_name": "order_items",
+      "name": "order_items_pkey",
+      "definition": "CREATE UNIQUE INDEX order_items_pkey ON public.order_items USING btree (order_id, product_id)"
+    },
+    {
+      "table_name": "order_items",
+      "name": "order_items_product_idx",
+      "definition": "CREATE INDEX order_items_product_idx ON public.order_items USING btree (product_id)"
+    },
+    {
+      "table_name": "orders",
+      "name": "orders_owner_created_idx",
+      "definition": "CREATE INDEX orders_owner_created_idx ON public.orders USING btree (owner_sub, created_at DESC, id)"
+    },
+    {
+      "table_name": "orders",
+      "name": "orders_owner_key_unique",
+      "definition": "CREATE UNIQUE INDEX orders_owner_key_unique ON public.orders USING btree (owner_sub, idempotency_key)"
+    },
+    {
+      "table_name": "orders",
+      "name": "orders_pkey",
+      "definition": "CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)"
+    },
+    {
+      "table_name": "products",
+      "name": "products_code_key",
+      "definition": "CREATE UNIQUE INDEX products_code_key ON public.products USING btree (code)"
+    },
+    {
+      "table_name": "products",
+      "name": "products_name_search_idx",
+      "definition": "CREATE INDEX products_name_search_idx ON public.products USING gin (lower(name) gin_trgm_ops)"
+    },
+    {
+      "table_name": "products",
+      "name": "products_pkey",
+      "definition": "CREATE UNIQUE INDEX products_pkey ON public.products USING btree (id)"
+    },
+    {
+      "table_name": "schema_migrations",
+      "name": "schema_migrations_pkey",
+      "definition": "CREATE UNIQUE INDEX schema_migrations_pkey ON public.schema_migrations USING btree (name)"
+    }
+  ],
+  "enums": [
+    {
+      "name": "order_status",
+      "value": "draft"
+    },
+    {
+      "name": "order_status",
+      "value": "confirmed"
+    },
+    {
+      "name": "order_status",
+      "value": "cancelled"
+    }
+  ],
+  "functions": [
+    {
+      "name": "set_updated_at",
+      "arguments": "",
+      "definition": "CREATE OR REPLACE FUNCTION public.set_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n  NEW.updated_at = clock_timestamp();\n  RETURN NEW;\nEND;\n$function$\n"
+    }
+  ],
+  "triggers": [
+    {
+      "table_name": "orders",
+      "name": "orders_updated_at",
+      "definition": "CREATE TRIGGER orders_updated_at BEFORE UPDATE ON public.orders FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "table_name": "products",
+      "name": "products_updated_at",
+      "definition": "CREATE TRIGGER products_updated_at BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+  ]
+}
