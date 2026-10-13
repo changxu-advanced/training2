@@ -152,7 +152,7 @@
 
 ### E2E-ORDER-CREATE
 
-- 状态：planned；阶段：Step11；实际 spec：尚未实现
+- 状态：implemented；阶段：Step11；实际 spec：tests/e2e/orders.spec.ts
 - 页面：PUB-PRODUCTS、PUB-ORDER-CREATE、PUB-ORDER
 - 验收：AC-O01、AC-O02、AC-O03、AC-O04、AC-O05、AC-O07、AC-E01、AC-E02
 - 操作：选多商品创建草稿；超时重试/双击；同key同输入和不同输入；异常商品与数量
@@ -160,7 +160,7 @@
 
 ### E2E-ORDER-OWNER
 
-- 状态：planned；阶段：Step11；实际 spec：尚未实现
+- 状态：implemented；阶段：Step11；实际 spec：tests/e2e/orders.spec.ts
 - 页面：PUB-LOGIN、PUB-ORDER
 - 验收：AC-O06、AC-O07
 - 操作：切换买家及管理员账号访问其他人的订单；尝试查看、确认、取消
@@ -168,7 +168,7 @@
 
 ### E2E-ORDER-STOCK
 
-- 状态：planned；阶段：Step11；实际 spec：尚未实现
+- 状态：implemented；阶段：Step11；实际 spec：tests/e2e/orders.spec.ts
 - 页面：PUB-PRODUCTS、PUB-ORDER
 - 验收：AC-P07、AC-S01、AC-S02、AC-S03、AC-S04、AC-S05、AC-S06、AC-E01、AC-E02
 - 操作：足量确认、重复确认、取消和重复取消；多商品部分不足；查看快照后库存改变；确认已取消订单

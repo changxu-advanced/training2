@@ -51,3 +51,7 @@
 ## Step10 验证记录
 
 AC-P01〜P06 对应 packages/backend/test/products.test.ts：容器内实际 PostgreSQL/API 通过，包含注册、规范化、重复/权限/输入、字面搜索、分页及空结果。tests/e2e/products.spec.ts 对应 E2E-PRODUCTS，真实浏览器注册→搜索/库存刷新与失败反馈通过；AC-E01 只完成商品环节，完整订单链路尚未执行。AC-P07 的订单确认/最新库存判定仍在 Step11 验证。
+
+## Step11 验证记录
+
+AC-O01〜O07、AC-S01〜S06 对应 packages/backend/test/orders.test.ts 的订单组合测试，在实际PostgreSQL/API验证创建、规范化key/输入重试、价格快照、权限、状态及全量库存回滚。AC-C01/C07 有独立连接的基本竞争证据；完整竞争矩阵仍待Step12。tests/e2e/orders.spec.ts 对应三组订单场景，验证实际浏览器创建重试、所有者404、确认/取消与库存反馈；完整 AC-E01 和高级故障验收不因此标记为通过。

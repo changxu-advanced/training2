@@ -11,6 +11,7 @@ import { type ApiConfig, parseApiConfig } from "@training2/config";
 import { createLogger } from "@training2/logger";
 import { createPrismaClient, type PrismaClient } from "@training2/prisma";
 import { cors } from "hono/cors";
+import { bindOrderRoutes } from "./orders.ts";
 import { bindProductRoutes } from "./products.ts";
 export type ApiRuntime = {
   app: ContractApp;
@@ -34,7 +35,10 @@ export async function createApi(
   const app = createContractApp(scope, authenticator, {
     ...options,
     logger,
-    bindRoutes: (app) => bindProductRoutes(app, scope, prisma),
+    bindRoutes: (app) => [
+      ...bindProductRoutes(app, scope, prisma),
+      ...(scope === "public" ? bindOrderRoutes(app, prisma) : []),
+    ],
     configure(app) {
       app.use(
         "*",
