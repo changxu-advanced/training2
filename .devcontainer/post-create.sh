@@ -6,6 +6,7 @@ git config --global --add safe.directory "$(pwd)"
 node --version
 pnpm --version
 pnpm install --frozen-lockfile
+pnpm seed:cognito
 pnpm prisma:check
 pnpm codegen:check
 psql -v ON_ERROR_STOP=1 -c 'SELECT current_database(), version();'

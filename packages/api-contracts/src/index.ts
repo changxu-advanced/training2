@@ -1,4 +1,11 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import {
+  AuthError,
+  type Authenticator,
+  authenticate,
+  type Principal,
+  requireAdmin,
+} from "@training2/auth";
 import { HTTPException } from "hono/http-exception";
 import { orderInput, productInput } from "./inputs.ts";
 
@@ -247,7 +254,10 @@ export function openapiDocument(
   });
 }
 
-export function createContractApp(scope: "public" | "private") {
+export function createContractApp(
+  scope: "public" | "private",
+  authenticator?: Authenticator,
+) {
   const error = (
     code:
       | "INVALID_INPUT"
@@ -256,11 +266,41 @@ export function createContractApp(scope: "public" | "private") {
       | "UNSUPPORTED_MEDIA_TYPE",
     message: string,
   ) => ({ error: { code, message, requestId: crypto.randomUUID() } });
-  const app = new OpenAPIHono({
+  const app = new OpenAPIHono<{ Variables: { principal: Principal } }>({
     defaultHook: (result, c) => {
       if (!result.success)
         return c.json(error("INVALID_INPUT", "Invalid request input"), 400);
     },
+  });
+  app.use("*", async (c, next) => {
+    const protectedRequest =
+      (scope === "private" && c.req.path === "/products") ||
+      c.req.path === "/orders" ||
+      c.req.path.startsWith("/orders/");
+    if (!protectedRequest) return next();
+    try {
+      if (!authenticator) throw new AuthError(401);
+      const user = await authenticate(
+        c.req.header("Authorization"),
+        authenticator,
+      );
+      if (scope === "private") requireAdmin(user);
+      c.set("principal", user);
+      return next();
+    } catch (failure) {
+      if (!(failure instanceof AuthError)) throw failure;
+      const code = failure.status === 403 ? "FORBIDDEN" : "UNAUTHENTICATED";
+      return c.json(
+        {
+          error: {
+            code,
+            message: failure.message,
+            requestId: crypto.randomUUID(),
+          },
+        },
+        failure.status,
+      );
+    }
   });
   for (const route of scope === "public" ? publicRoutes : privateRoutes)
     app.openapi(route, (c) =>

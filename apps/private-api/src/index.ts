@@ -1,7 +1,8 @@
 import { serve } from "@hono/node-server";
 import { createContractApp } from "@training2/api-contracts";
+import { loadAuthenticator } from "@training2/auth/load";
 
-const app = createContractApp("private");
+const app = createContractApp("private", await loadAuthenticator());
 app.get("/health", (c) =>
   c.json({ status: "ok", service: "private-api", stage: "foundation" }),
 );

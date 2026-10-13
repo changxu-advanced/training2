@@ -3,8 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./load": "./src/load.ts",
+    "./browser": "./src/browser.ts"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "tsc"
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.ts"
+  },
+  "dependencies": {
+    "aws-jwt-verify": "5.2.1",
+    "aws-amplify": "6.22.1"
   }
 }

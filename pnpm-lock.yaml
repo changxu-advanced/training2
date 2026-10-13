@@ -196,6 +196,9 @@ importers:
       '@training2/api-contracts':
         specifier: workspace:*
         version: link:../../packages/api-contracts
+      '@training2/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       hono:
         specifier: 4.13.13
         version: 4.13.13
@@ -218,6 +221,9 @@ importers:
       '@training2/api-contracts':
         specifier: workspace:*
         version: link:../../packages/api-contracts
+      '@training2/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       hono:
         specifier: 4.13.13
         version: 4.13.13
@@ -243,6 +249,9 @@ importers:
       '@hono/zod-openapi':
         specifier: 1.6.3
         version: 1.6.3(hono@4.13.13)(zod@4.6.7)
+      '@training2/auth':
+        specifier: workspace:*
+        version: link:../auth
       hono:
         specifier: 4.13.13
         version: 4.13.13
@@ -254,7 +263,14 @@ importers:
         specifier: 1.20.0
         version: 1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2)
 
-  packages/auth: {}
+  packages/auth:
+    dependencies:
+      aws-amplify:
+        specifier: 6.22.1
+        version: 6.22.1
+      aws-jwt-verify:
+        specifier: 5.2.1
+        version: 5.2.1
 
   packages/config:
     dependencies:
