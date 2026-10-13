@@ -15,6 +15,7 @@ const mutation = useMutation({
         quantity: i.quantity,
       })),
     });
+    if(new Set(body.items.map(i=>i.productId.toLowerCase())).size!==body.items.length)throw new Error("Duplicate products");
     draft.key ||= crypto.randomUUID();
     return runtime.publicClient.createOrder({
       body,
@@ -22,12 +23,14 @@ const mutation = useMutation({
     });
   },
   onSuccess: async (order) => {
+    runtime.queryClient.setQueryData(["order",order.id],order);
     draft.items = [];
     draft.key = "";
     await runtime.router.push(`/orders/${order.id}`);
   },
 });
 function submit() {
+  if(mutation.isPending.value)return;
   const parsed = orderInput.safeParse({
     items: draft.items.map((i) => ({
       productId: i.productId,
