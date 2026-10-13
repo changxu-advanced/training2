@@ -9,9 +9,6 @@
     "build": "tsc"
   },
   "dependencies": {
-    "hono": "4.13.13",
-    "@hono/node-server": "2.1.4",
-    "@training2/api-contracts": "workspace:*",
-    "@training2/auth": "workspace:*"
+    "@training2/backend": "workspace:*"
   }
 }

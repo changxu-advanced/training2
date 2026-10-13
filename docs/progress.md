@@ -55,4 +55,9 @@ Step3 PR #2 已于 2026-10-13 经用户授权合并。Step4 使用 Prisma 7.10�
 
 ## Step6 认证与权限
 
-状态：レビュー待ち。两个 API 已接入 access token 验证和管理员限制；共享库提供订单所有者限制，Step11 再与真实订单结合。开发模拟器初始化及 Amplify 实际登录接入正式验证库；生产禁用 local 模式。新增两个 RSA/权限组合测试，合计 28 个测试。容器内 pnpm check、codegen:check 和 Amplify 实际登录/JWKS 验证通过；GitHub CI 以 PR 最新 checks 为依据。详见 auth.md。
+状态：完了。用户授权合并 Step6 PR #5，main 合并提交 8309de3。两个 API 已接入 access token 验证和管理员限制；共享库提供订单所有者限制，Step11 再与真实订单结合。开发模拟器初始化及 Amplify 实际登录接入正式验证库；生产禁用 local 模式。新增两个 RSA/权限组合测试，合计 28 个测试。容器内 pnpm check、codegen:check 和 Amplify 实际登录/JWKS 验证通过；GitHub CI 以 PR 最新 checks 为依据。详见 auth.md。
+
+
+## Step7 后端共通处理
+
+状态：レビュー待ち。两个 API 使用共通运行模块接入 config、Prisma、认证、CORS、日志、DB 健康检查和退出清理。所有业务响应按契约在发送前验证；不合法响应改为经独立检查的 500，不返回或记录原始内容，不递归。DTO 显式投影 bigint 日元与 ISO 日期，提供测试库工具。只新增两个集成测试，总计 30 个；容器内 pnpm check、codegen:check，以及两个 HTTP 服务实际启动/DB 健康/正常退出均通过。开发 API 已更新至此实现。CI 以 PR 最新 checks 为依据。详见 backend.md。

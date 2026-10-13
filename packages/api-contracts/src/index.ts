@@ -6,6 +6,7 @@ import {
   type Principal,
   requireAdmin,
 } from "@training2/auth";
+import { createLogger } from "@training2/logger";
 import { HTTPException } from "hono/http-exception";
 import { orderInput, productInput } from "./inputs.ts";
 
@@ -254,9 +255,19 @@ export function openapiDocument(
   });
 }
 
+export type ApiEnvironment = {
+  Variables: { principal: Principal; requestId: string };
+};
+export type ContractApp = OpenAPIHono<ApiEnvironment>;
+export type ContractOptions = {
+  logger?: ReturnType<typeof createLogger>;
+  configure?: (app: ContractApp) => void;
+  beforeRoutes?: (app: ContractApp) => void;
+};
 export function createContractApp(
   scope: "public" | "private",
   authenticator?: Authenticator,
+  options: ContractOptions = {},
 ) {
   const error = (
     code:
@@ -265,13 +276,64 @@ export function createContractApp(
       | "INTERNAL_ERROR"
       | "UNSUPPORTED_MEDIA_TYPE",
     message: string,
-  ) => ({ error: { code, message, requestId: crypto.randomUUID() } });
-  const app = new OpenAPIHono<{ Variables: { principal: Principal } }>({
+    requestId: string = crypto.randomUUID(),
+  ) => ({ error: { code, message, requestId } });
+  const app = new OpenAPIHono<ApiEnvironment>({
     defaultHook: (result, c) => {
       if (!result.success)
-        return c.json(error("INVALID_INPUT", "Invalid request input"), 400);
+        return c.json(
+          error("INVALID_INPUT", "Invalid request input", c.get("requestId")),
+          400,
+        );
     },
   });
+  const logger = options.logger ?? createLogger();
+  app.use("*", async (c, next) => {
+    c.set("requestId", crypto.randomUUID());
+    await next();
+    c.header("X-Request-Id", c.get("requestId"));
+  });
+  options.configure?.(app);
+  const routes = scope === "public" ? publicRoutes : privateRoutes;
+  for (const route of routes) {
+    app.use(route.path.replace(/\{([^}]+)\}/g, ":$1"), async (c, next) => {
+      if (c.req.method.toLowerCase() !== route.method) return next();
+      await next();
+      const definitions = route.responses as Record<
+        string,
+        { content?: Record<string, { schema: z.ZodType }> }
+      >;
+      const schema =
+        definitions[String(c.res.status)]?.content?.["application/json"]
+          ?.schema;
+      let valid = false;
+      try {
+        valid =
+          Boolean(schema?.safeParse(await c.res.clone().json()).success) &&
+          Boolean(
+            c.res.headers.get("Content-Type")?.includes("application/json"),
+          );
+      } catch {}
+      if (!valid) {
+        logger.error("API response validation failed", {
+          requestId: c.get("requestId"),
+          operation: route.operationId,
+          status: c.res.status,
+        });
+        // A direct, independently checked fallback avoids re-entering the response pipeline.
+        c.res = c.json(
+          errorSchema.parse(
+            error(
+              "INTERNAL_ERROR",
+              "Internal server error",
+              c.get("requestId"),
+            ),
+          ),
+          500,
+        );
+      }
+    });
+  }
   app.use("*", async (c, next) => {
     const protectedRequest =
       (scope === "private" && c.req.path === "/products") ||
@@ -295,17 +357,22 @@ export function createContractApp(
           error: {
             code,
             message: failure.message,
-            requestId: crypto.randomUUID(),
+            requestId: c.get("requestId"),
           },
         },
         failure.status,
       );
     }
   });
-  for (const route of scope === "public" ? publicRoutes : privateRoutes)
+  options.beforeRoutes?.(app);
+  for (const route of routes)
     app.openapi(route, (c) =>
       c.json(
-        error("NOT_IMPLEMENTED", "This operation is not implemented yet"),
+        error(
+          "NOT_IMPLEMENTED",
+          "This operation is not implemented yet",
+          c.get("requestId"),
+        ),
         501,
       ),
     );
@@ -313,12 +380,26 @@ export function createContractApp(
   app.onError((failure, c) => {
     if (failure instanceof HTTPException && failure.status === 415)
       return c.json(
-        error("UNSUPPORTED_MEDIA_TYPE", "JSON content type required"),
+        error(
+          "UNSUPPORTED_MEDIA_TYPE",
+          "JSON content type required",
+          c.get("requestId"),
+        ),
         415,
       );
     if (failure instanceof HTTPException && failure.status === 400)
-      return c.json(error("INVALID_INPUT", "Invalid JSON request"), 400);
-    return c.json(error("INTERNAL_ERROR", "Internal server error"), 500);
+      return c.json(
+        error("INVALID_INPUT", "Invalid JSON request", c.get("requestId")),
+        400,
+      );
+    logger.error("API handler failed", {
+      requestId: c.get("requestId"),
+      failure: "UNEXPECTED_ERROR",
+    });
+    return c.json(
+      error("INTERNAL_ERROR", "Internal server error", c.get("requestId")),
+      500,
+    );
   });
   return app;
 }
