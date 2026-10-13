@@ -1,10 +1,17 @@
 {
   "name": "@training2/api-client",
-  "version": "0.0.0",
   "private": true,
+  "version": "0.0.0",
   "type": "module",
+  "exports": {
+    "./public": "./src/public.ts",
+    "./private": "./src/private.ts"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc"
+  },
+  "dependencies": {
+    "axios": "1.20.0"
   }
 }

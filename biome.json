@@ -11,7 +11,11 @@
       "!**/pnpm-lock.yaml",
       "!**/devcontainer-lock.json",
       "!**/.devcontainer/runtime",
-      "!**/packages/prisma/generated"
+      "!**/packages/prisma/generated",
+      "!**/api-client/src/public.ts",
+      "!**/api-client/src/private.ts",
+      "!**/api-client/src/*.types.ts",
+      "!**/schemas/openapi"
     ]
   },
   "formatter": {

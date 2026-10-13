@@ -9,3 +9,9 @@ RUN apt-get update \
 WORKDIR /workspaces/training2
 USER node
 CMD ["sleep", "infinity"]
+
+USER root
+RUN curl -fsSL https://github.com/oasdiff/oasdiff/releases/download/v1.33.0/oasdiff_1.33.0_linux_amd64.tar.gz -o /tmp/oasdiff.tar.gz \
+    && tar -xzf /tmp/oasdiff.tar.gz -C /usr/local/bin oasdiff \
+    && rm /tmp/oasdiff.tar.gz
+USER node

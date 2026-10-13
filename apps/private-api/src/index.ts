@@ -1,7 +1,7 @@
 import { serve } from "@hono/node-server";
-import { Hono } from "hono";
+import { createContractApp } from "@training2/api-contracts";
 
-const app = new Hono();
+const app = createContractApp("private");
 app.get("/health", (c) =>
   c.json({ status: "ok", service: "private-api", stage: "foundation" }),
 );
