@@ -25,7 +25,7 @@
     "codegen": "node tools/codegen/api.ts",
     "codegen:check": "node tools/codegen/api.ts --check",
     "screen:generate": "node packages/screen-contracts/scripts/check.ts --write",
-    "screen:check": "node packages/screen-contracts/scripts/check.ts --require-implemented",
+    "screen:check": "node packages/screen-contracts/scripts/check.ts --require-implemented --require-e2e",
     "test:e2e": "playwright test"
   },
   "devDependencies": {

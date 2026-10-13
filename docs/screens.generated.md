@@ -176,7 +176,7 @@
 
 ### E2E-FLOW
 
-- 状态：planned；阶段：Step12；实际 spec：尚未实现
+- 状态：implemented；阶段：Step12；实际 spec：tests/e2e/flow.spec.ts
 - 页面：PUB-LOGIN、PUB-PRODUCTS、PUB-ORDER-CREATE、PUB-ORDER、ADM-LOGIN、ADM-PRODUCTS、ADM-PRODUCT-CREATE
 - 验收：AC-E01、AC-E02
 - 操作：管理员登录注册→买家登录搜索→创建→确认→取消；观察加载、空数据、失败、重试和重复点击
