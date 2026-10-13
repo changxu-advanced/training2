@@ -60,4 +60,9 @@ Step3 PR #2 已于 2026-10-13 经用户授权合并。Step4 使用 Prisma 7.10�
 
 ## Step7 后端共通处理
 
-状态：レビュー待ち。两个 API 使用共通运行模块接入 config、Prisma、认证、CORS、日志、DB 健康检查和退出清理。所有业务响应按契约在发送前验证；不合法响应改为经独立检查的 500，不返回或记录原始内容，不递归。DTO 显式投影 bigint 日元与 ISO 日期，提供测试库工具。只新增两个集成测试，总计 30 个；容器内 pnpm check、codegen:check，以及两个 HTTP 服务实际启动/DB 健康/正常退出均通过。开发 API 已更新至此实现。CI 以 PR 最新 checks 为依据。详见 backend.md。
+状态：完了。用户授权合并 Step7 PR #6，main 合并提交 cbc2643。两个 API 使用共通运行模块接入 config、Prisma、认证、CORS、日志、DB 健康检查和退出清理。所有业务响应按契约在发送前验证；不合法响应改为经独立检查的 500，不返回或记录原始内容，不递归。DTO 显式投影 bigint 日元与 ISO 日期，提供测试库工具。只新增两个集成测试，总计 30 个；容器内 pnpm check、codegen:check，以及两个 HTTP 服务实际启动/DB 健康/正常退出均通过。开发 API 已更新至此实现。CI 以 PR 最新 checks 为依据。详见 backend.md。
+
+
+## Step8 页面契约
+
+状态：レビュー待ち。定义 7 个页面、两端计划路由（含首页跳转）及 6 组浏览器业务场景，记录权限、输入/API、迁移和加载/空/成功/失败反馈。页面文档由正本生成；CI 检查路由、API、验收/E2E 对应与生成差异。路由和浏览器业务测试仍明确为 planned，Step9〜12 再与实际 Vue Router/Playwright 接入，不能算作当前业务通过。仅新增两个检查器组合测试，总计 32 个；容器内 pnpm screen:check、pnpm check 和 screen-contract 技能校验通过。CI 以 PR 最新 checks 为依据。详见 screen-contracts.md 和 screens.generated.md。

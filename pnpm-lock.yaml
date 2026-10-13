@@ -196,6 +196,9 @@ importers:
 
   apps/private-frontend:
     dependencies:
+      '@training2/screen-contracts':
+        specifier: workspace:*
+        version: link:../../packages/screen-contracts
       vue:
         specifier: 3.5.43
         version: 3.5.43(typescript@7.0.2)
@@ -212,6 +215,9 @@ importers:
 
   apps/public-frontend:
     dependencies:
+      '@training2/screen-contracts':
+        specifier: workspace:*
+        version: link:../../packages/screen-contracts
       vue:
         specifier: 3.5.43
         version: 3.5.43(typescript@7.0.2)
@@ -330,7 +336,11 @@ importers:
         specifier: 7.10.0
         version: 7.10.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@7.0.2)
 
-  packages/screen-contracts: {}
+  packages/screen-contracts:
+    devDependencies:
+      '@training2/api-contracts':
+        specifier: workspace:*
+        version: link:../api-contracts
 
   packages/test-utils:
     dependencies:
