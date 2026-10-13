@@ -19,7 +19,9 @@
     "db:migrate": "pnpm --filter @training2/postgres migrate",
     "db:seed": "pnpm --filter @training2/postgres seed",
     "db:schema": "pnpm --filter @training2/postgres schema:generate",
-    "db:schema:check": "pnpm --filter @training2/postgres schema:check"
+    "db:schema:check": "pnpm --filter @training2/postgres schema:check",
+    "prisma:generate": "pnpm --filter @training2/prisma generate",
+    "prisma:check": "pnpm --filter @training2/prisma generate:check"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

@@ -8,3 +8,5 @@ coverage/
 playwright-report/
 test-results/
 .devcontainer/runtime/
+packages/prisma/generated/
+packages/prisma/.generation-*.prisma
