@@ -3,8 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./validate": "./src/validate.ts"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "tsc"
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.ts"
+  },
+  "devDependencies": {
+    "@training2/api-contracts": "workspace:*"
   }
 }

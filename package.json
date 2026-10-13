@@ -23,7 +23,9 @@
     "prisma:generate": "pnpm --filter @training2/prisma generate",
     "prisma:check": "pnpm --filter @training2/prisma generate:check",
     "codegen": "node tools/codegen/api.ts",
-    "codegen:check": "node tools/codegen/api.ts --check"
+    "codegen:check": "node tools/codegen/api.ts --check",
+    "screen:generate": "node packages/screen-contracts/scripts/check.ts --write",
+    "screen:check": "node packages/screen-contracts/scripts/check.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
