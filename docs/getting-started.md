@@ -26,7 +26,7 @@
 - pnpm dev:public-api：买家 API，3000。
 - pnpm dev:private-api：管理 API，3001。
 
-分别在四个容器终端启动应用。通过 VS Code Ports 面板访问前端。此阶段页面只显示开发骨架，API 只有 /health，没有商城业务接口。pnpm test 当前执行 config/logger 的实际基础测试；商品、订单和浏览器业务测试尚未实现，不将无测试包计为已验证。
+分别在四个容器终端启动应用。通过 VS Code Ports 面板访问前端。此阶段页面只显示开发骨架，API 只有 /health，没有商城业务接口。pnpm test 当前执行 config/logger 和 PostgreSQL 的实际测试；商品、订单 API 和浏览器业务测试尚未实现，不将无测试包计为已验证。
 
 ## 配置和数据
 
@@ -40,4 +40,4 @@ Compose 显式提供本地配置。运行任何 Compose 或 Dev Container 启动
 
 ## 下一阶段
 
-阅读 requirements.md 的默认业务规则和 acceptance-scenarios.md。Step0/1 已验证并首次推送。Step2 的 CI、config/logger 和开发流程在专用分支提交 PR；用户决定合并后，再从最新 main 开始 Step3 数据库契约。
+阅读 requirements.md 的默认业务规则和 acceptance-scenarios.md。Step0/1 已验证并首次推送。Step2 已合并。Step3 已建立 SQL 数据库契约并扩展实际 DB 检查；完成对应 PR 后，Step4 从 SQL 迁移结果生成 Prisma。

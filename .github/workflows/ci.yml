@@ -13,6 +13,22 @@ jobs:
   quality:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/training2
+    services:
+      postgres:
+        image: postgres:17.6-bookworm
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: training2
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d training2"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -21,7 +37,7 @@ jobs:
         run: docker build -t training2-ci infra/docker
       - name: Install and run project checks inside container
         run: |
-          docker run --rm --user root \
-            -e CI=true -e HUSKY=0 \
+          docker run --rm --user root --network host \
+            -e CI=true -e HUSKY=0 -e NODE_ENV=test -e DATABASE_URL \
             -v "${{ github.workspace }}:/workspaces/training2" \
-            training2-ci bash -lc 'pnpm install --frozen-lockfile && pnpm check'
+            training2-ci bash -lc 'pnpm install --frozen-lockfile && pnpm db:migrate && pnpm db:seed && pnpm check && pnpm db:schema:check'

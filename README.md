@@ -10,6 +10,7 @@
 - [启动和日常操作](docs/getting-started.md)
 - [业务需求](docs/requirements.md)
 - [架构说明](docs/architecture.md)
+- [数据库设计](docs/database.md)
 - [验收场景](docs/acceptance-scenarios.md)
 - [当前进度](docs/progress.md)
 - [待处理事项](ISSUES.md)

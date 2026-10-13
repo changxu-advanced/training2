@@ -15,7 +15,11 @@
     "dev:public-frontend": "pnpm --filter @training2/public-frontend dev",
     "dev:private-frontend": "pnpm --filter @training2/private-frontend dev",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:migrate": "pnpm --filter @training2/postgres migrate",
+    "db:seed": "pnpm --filter @training2/postgres seed",
+    "db:schema": "pnpm --filter @training2/postgres schema:generate",
+    "db:schema:check": "pnpm --filter @training2/postgres schema:check"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
