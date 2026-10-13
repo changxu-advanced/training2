@@ -19,6 +19,6 @@ async function logout() {
 <header class="topbar"><router-link to="/products" class="brand"><span class="brand-icon">t<span>²</span></span><span>training<span class="brand-light"> store</span><small>{{runtime.scope==='private'?'管理工作台':'让好物，走进日常。'}}</small></span></router-link>
 <nav aria-label="主导航"><router-link v-if="runtime.scope==='public'||admin" to="/products">{{runtime.scope==='private'?'商品列表':'探索商品'}}</router-link><router-link v-if="runtime.scope==='private'&&admin" to="/products/new">注册商品</router-link><router-link v-if="runtime.scope==='public'" to="/orders/new">创建订单</router-link></nav>
 <div class="account"><span v-if="session.sub" class="account-email">{{session.email}}</span><span v-if="admin" class="role-pill">管理员</span><el-button v-if="session.sub" :loading="loggingOut" @click="logout">退出登录</el-button><router-link v-else to="/login" class="login-link">{{runtime.scope==='private'?'管理员登录':'登录账户'}} <span>↗</span></router-link></div></header>
-<main class="page-body"><router-view /></main><footer><span>training store · 日常好物</span><span>开发预览 · 商品与订单功能即将开放</span></footer>
+<main class="page-body"><router-view /></main><footer><span>training store · 日常好物</span><span>商品功能已开放 · 订单功能即将开放</span></footer>
 </div>
 </template>

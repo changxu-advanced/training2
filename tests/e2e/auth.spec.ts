@@ -18,7 +18,7 @@ test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-
   await login(page, "buyer@training2.test");
   await expect(page).toHaveURL(/\/products$/);
   await expect(
-    page.getByText("此功能即将开放，当前还不能完成操作。"),
+    page.getByRole("heading", { name: /商品列表|全部商品/ }),
   ).toBeVisible();
   await page.route("**/api/orders/**", (route) =>
     route.continue({
@@ -46,18 +46,12 @@ test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-
   await login(page, "admin@training2.test");
   await expect(page).toHaveURL(/\/products$/);
   await expect(
-    page.getByText("此功能即将开放，当前还不能完成操作。"),
+    page.getByRole("heading", { name: /商品列表|全部商品/ }),
   ).toBeVisible();
   await page.getByRole("link", { name: "注册商品", exact: true }).click();
   await expect(page).toHaveURL(/\/products\/new$/);
   await page.getByRole("button", { name: "注册商品", exact: true }).click();
   await expect(page.getByText(/请检查以下字段/)).toBeVisible();
-  await page.getByLabel("商品代码", { exact: true }).fill(" abc-1 ");
-  await page.getByLabel("商品名称", { exact: true }).fill("测试商品");
-  await page.getByRole("button", { name: "注册商品", exact: true }).click();
-  await expect(
-    page.getByText("此功能即将开放，当前还不能完成操作。"),
-  ).toBeVisible();
   await page.getByRole("button", { name: "退出登录" }).click();
   await expect(page).toHaveURL(/\/login$/);
 });

@@ -144,7 +144,7 @@
 
 ### E2E-PRODUCTS
 
-- 状态：planned；阶段：Step10；实际 spec：尚未实现
+- 状态：implemented；阶段：Step10；实际 spec：tests/e2e/products.spec.ts
 - 页面：ADM-PRODUCT-CREATE、ADM-PRODUCTS、PUB-PRODUCTS
 - 验收：AC-P01、AC-P02、AC-P03、AC-P04、AC-P05、AC-P06、AC-E01、AC-E02
 - 操作：管理员注册后在两端查找商品；验证重复代码、非法输入、搜索组合及空分页
