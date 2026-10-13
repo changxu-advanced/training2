@@ -25,7 +25,8 @@
     "codegen": "node tools/codegen/api.ts",
     "codegen:check": "node tools/codegen/api.ts --check",
     "screen:generate": "node packages/screen-contracts/scripts/check.ts --write",
-    "screen:check": "node packages/screen-contracts/scripts/check.ts"
+    "screen:check": "node packages/screen-contracts/scripts/check.ts --require-implemented",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
@@ -34,7 +35,8 @@
     "typescript": "7.0.2",
     "aws-amplify": "6.22.1",
     "aws-jwt-verify": "5.2.1",
-    "@aws-sdk/client-cognito-identity-provider": "3.1150.0"
+    "@aws-sdk/client-cognito-identity-provider": "3.1150.0",
+    "@playwright/test": "1.64.0"
   },
   "packageManager": "pnpm@12.9.1",
   "engines": {

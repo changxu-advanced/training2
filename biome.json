@@ -15,7 +15,11 @@
       "!**/api-client/src/public.ts",
       "!**/api-client/src/private.ts",
       "!**/api-client/src/*.types.ts",
-      "!**/schemas/openapi"
+      "!**/schemas/openapi",
+      "!**/*.vue",
+      "!**/test-results",
+      "!**/playwright-report",
+      "!**/coverage"
     ]
   },
   "formatter": {

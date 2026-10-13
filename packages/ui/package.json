@@ -4,7 +4,30 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit",
-    "build": "tsc"
+    "typecheck": "vue-tsc --noEmit",
+    "build": "vue-tsc --noEmit",
+    "test": "vitest run"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./vite": "./vite.config.ts"
+  },
+  "dependencies": {
+    "vue": "3.5.43",
+    "vue-router": "5.4.0",
+    "element-plus": "2.14.7",
+    "@tanstack/vue-query": "5.104.2",
+    "axios": "1.20.0",
+    "@training2/auth": "workspace:*",
+    "@training2/api-contracts": "workspace:*",
+    "@training2/api-client": "workspace:*",
+    "@training2/screen-contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "8.3.4",
+    "@vitejs/plugin-vue": "6.0.10",
+    "vue-tsc": "3.3.13",
+    "typescript": "5.9.3",
+    "vitest": "5.0.4"
   }
 }

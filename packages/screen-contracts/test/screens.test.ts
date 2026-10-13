@@ -78,7 +78,7 @@ test("route guard detects drift and planned routes cannot count as implemented",
   for (const manifest of [publicManifest, privateManifest]) {
     validateRoutes(screens, manifest);
     assert.throws(
-      () => validateRoutes(screens, manifest, true),
+      () => validateRoutes(screens, { ...manifest, status: "planned" }, true),
       /only planned/,
     );
     assert.throws(

@@ -5,14 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173 --strictPort",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "vue-tsc --noEmit",
     "build": "vite build"
   },
   "dependencies": {
     "vue": "3.5.43",
-    "@training2/screen-contracts": "workspace:*"
+    "@training2/screen-contracts": "workspace:*",
+    "@training2/ui": "workspace:*"
   },
   "devDependencies": {
-    "vite": "8.3.4"
+    "vite": "8.3.4",
+    "vue-tsc": "3.3.13",
+    "typescript": "5.9.3"
   }
 }

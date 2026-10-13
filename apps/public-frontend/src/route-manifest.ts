@@ -1,8 +1,8 @@
-// Planned route declarations; Step9 must use and verify actual Vue Router routes.
+// Used to construct Vue Router; runtime and Vitest verify router.getRoutes().
 import type { RouteManifest } from "@training2/screen-contracts";
 export const routeManifest: RouteManifest = {
   scope: "public",
-  status: "planned",
+  status: "implemented",
   routes: [
     {
       screenId: "PUB-LOGIN",

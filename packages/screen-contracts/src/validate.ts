@@ -116,7 +116,7 @@ export function validateActualRoutes(
   routes: readonly {
     path: string;
     redirect?: unknown;
-    meta?: { screenId?: unknown };
+    meta?: { screenId?: unknown; [key: string]: unknown };
   }[],
 ) {
   validateRoutes(

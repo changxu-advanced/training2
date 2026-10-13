@@ -65,4 +65,9 @@ Step3 PR #2 已于 2026-10-13 经用户授权合并。Step4 使用 Prisma 7.10�
 
 ## Step8 页面契约
 
-状态：レビュー待ち。定义 7 个页面、两端计划路由（含首页跳转）及 6 组浏览器业务场景，记录权限、输入/API、迁移和加载/空/成功/失败反馈。页面文档由正本生成；CI 检查路由、API、验收/E2E 对应与生成差异。路由和浏览器业务测试仍明确为 planned，Step9〜12 再与实际 Vue Router/Playwright 接入，不能算作当前业务通过。仅新增两个检查器组合测试，总计 32 个；容器内 pnpm screen:check、pnpm check 和 screen-contract 技能校验通过。CI 以 PR 最新 checks 为依据。详见 screen-contracts.md 和 screens.generated.md。
+状态：完了。用户授权合并 Step8 PR #7，main 合并提交 e2d4006。定义 7 个页面、两端计划路由（含首页跳转）及 6 组浏览器业务场景，记录权限、输入/API、迁移和加载/空/成功/失败反馈。页面文档由正本生成；CI 检查路由、API、验收/E2E 对应与生成差异。路由和浏览器业务测试仍明确为 planned，Step9〜12 再与实际 Vue Router/Playwright 接入，不能算作当前业务通过。仅新增两个检查器组合测试，总计 32 个；容器内 pnpm screen:check、pnpm check 和 screen-contract 技能校验通过。CI 以 PR 最新 checks 为依据。详见 screen-contracts.md 和 screens.generated.md。
+
+
+## Step9 前端框架与登录
+
+状态：レビュー待ち。两个 Vue 前端使用共享布局、Element Plus、TanStack Query、生成 Axios Client 和 Amplify；实际7个路由与契约验证，登录/退出、权限与安全回跳、表单校验、错误反馈已接入。商品/订单业务尚未实现时展示明确提示，不显示假成功。新增2个 Vitest 组合用例及1组真实浏览器认证流程；pnpm check（34个单元/集成测试）、screen:check、Playwright均通过，已目视检查买家登录和管理商品表单。CI新增模拟器/浏览器执行，最新结果以PR checks为准。实际商品/订单 E2E 仍有5组 planned。详见 frontend.md。
