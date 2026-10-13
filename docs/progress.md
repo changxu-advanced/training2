@@ -38,6 +38,6 @@ Step2 已实现 CI、Husky 提交钩子、config 和 logger、Node Test Runner/C
 
 ## Step3 数据库契约
 
-状态：作業中。商品、订单、明细、约束、索引、状态枚举和更新时间触发器已由 0001_initial.sql 定义。迁移 runner 保存 SHA256 历史、检查连续编号并用事务和 advisory lock 处理重复或并发执行。
+状态：レビュー待ち。商品、订单、明细、约束、索引、状态枚举和更新时间触发器已由 0001_initial.sql 定义。迁移 runner 保存 SHA256 历史、检查连续编号并用事务和 advisory lock 处理重复或并发执行。
 
-开发库已通过迁移初始化，示例商品已写入。13 个实际 PostgreSQL 测试通过，与 Step2 合计 23 个测试。最新结构从临时空库生成并提交 schemas/current.json；检查命令验证可重复。CI 已加入同版本 PostgreSQL，待 PR 验证。详见 database.md。
+开发库已通过迁移初始化，示例商品已写入。13 个实际 PostgreSQL 测试通过，与 Step2 合计 23 个测试。最新结构从临时空库生成并提交 schemas/current.json；检查命令验证可重复。CI 已加入同版本 PostgreSQL，当前结果以 [PR #2](https://github.com/changxu-advanced/training2/pull/2) checks 为准。详见 database.md。
