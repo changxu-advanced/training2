@@ -323,7 +323,8 @@ export const scenarios: readonly Scenario[] = [
     acceptance: ["AC-E01", "AC-E02"],
     step: 12,
     kind: "business",
-    status: "planned",
+    status: "implemented",
+    specFile: "tests/e2e/flow.spec.ts",
     actions: [
       "管理员登录注册→买家登录搜索→创建→确认→取消",
       "观察加载、空数据、失败、重试和重复点击",

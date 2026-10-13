@@ -12,4 +12,4 @@ Vite 的本地 /auth-config.json 只返回忽略的 runtime/cognito.json 中的�
 
 固定前端工具：vue-router 5.4.0、Element Plus 2.14.7、TanStack Vue Query 5.104.2、plugin-vue 6.0.10、vue-tsc 3.3.13、Vitest 5.0.4、Playwright 1.64.0。Vue 检查使用 TypeScript 5.9.3 的编译 API；其余包继续项目 TypeScript 7.0.2。Biome 不检查 .vue 的模板绑定，避免错误的 unused 自动修复；由 vue-tsc、Vite 和实际浏览器测试检查 SFC。vue-demi 的已核验安装脚本只选择 Vue3 兼容入口。
 
-容器内 pnpm check 包含2个新增 Vitest 用例；pnpm screen:check 强制实现路由；PLAYWRIGHT_BROWSERS_PATH=/opt/playwright pnpm test:e2e 执行1组真实 Cognito 浏览器流程。首次以容器 root 执行 pnpm exec playwright install --with-deps chromium，设置同一浏览器目录供 node 使用。CI 启动临时模拟器并在容器内安装浏览器，运行真实登录、退出、权限、401 提示、站内跳转和表单验证/501 反馈；没有 mock 成功登录。商品浏览器场景已在 Step10 实现；3组订单场景已由 Step11 的一个组合浏览器测试覆盖；完整 E2E-FLOW 仍在 Step12。
+容器内 pnpm check 包含2个新增 Vitest 用例；pnpm screen:check 强制实现路由；PLAYWRIGHT_BROWSERS_PATH=/opt/playwright pnpm test:e2e 执行1组真实 Cognito 浏览器流程。首次以容器 root 执行 pnpm exec playwright install --with-deps chromium，设置同一浏览器目录供 node 使用。CI 启动临时模拟器并在容器内安装浏览器，运行真实登录、退出、权限、401 提示、站内跳转和表单验证/501 反馈；没有 mock 成功登录。商品浏览器场景已在 Step10 实现；3组订单场景已由 Step11 的一个组合浏览器测试覆盖；完整 E2E-FLOW 已在 Step12 实施。

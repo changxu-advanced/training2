@@ -55,3 +55,7 @@ AC-P01〜P06 对应 packages/backend/test/products.test.ts：容器内实际 Pos
 ## Step11 验证记录
 
 AC-O01〜O07、AC-S01〜S06 对应 packages/backend/test/orders.test.ts 的订单组合测试，在实际PostgreSQL/API验证创建、规范化key/输入重试、价格快照、权限、状态及全量库存回滚。AC-C01/C07 有独立连接的基本竞争证据；完整竞争矩阵仍待Step12。tests/e2e/orders.spec.ts 对应三组订单场景，验证实际浏览器创建重试、所有者404、确认/取消与库存反馈；完整 AC-E01 和高级故障验收不因此标记为通过。
+
+## Step12 验证记录
+
+完整对应表与实际并发、故障、重试和再生成的证据见 [重点验证](verification.md)。AC-C01〜C08已在真实PostgreSQL检查，AC-E01完整浏览器主要流程已执行；六个E2E场景ID均已实现，仍必须通过对应检查和实际执行两道CI。
