@@ -122,7 +122,7 @@ export const screens: readonly Screen[] = [
       loading: "加载中；操作中禁止重复点击",
       empty: "不存在或非本人统一显示未找到订单",
       success:
-        "展示draft/confirmed/cancelled、价格快照及金额；操作后刷新订单与库存",
+        "展示draft/confirmed/cancelled、价格快照及金额；草稿显示确认/取消，已确认仅显示柔和红色取消按钮且在右下与金额右侧对齐；取消请求期间及已取消隐藏两个按钮，失败可重试；操作后刷新订单与库存",
       error: "401转登录；404统一未找到；409显示库存/状态冲突；503可重试",
     },
     acceptance: [

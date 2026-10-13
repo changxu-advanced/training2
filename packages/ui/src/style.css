@@ -371,6 +371,28 @@ h3 {
   text-align: right;
   margin: 28px 0;
 }
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.order-actions .el-button + .el-button {
+  margin-left: 0;
+}
+.order-cancel-button {
+  --el-button-text-color: #a5534b;
+  --el-button-bg-color: #f7ebea;
+  --el-button-border-color: #dfb6b1;
+  --el-button-hover-text-color: #91453e;
+  --el-button-hover-bg-color: #f0dbd8;
+  --el-button-hover-border-color: #cb9790;
+  --el-button-active-text-color: #91453e;
+  --el-button-active-bg-color: #ead0cc;
+  --el-button-active-border-color: #cb9790;
+}
+.order-action-status {
+  text-align: right;
+}
 footer {
   display: flex;
   justify-content: space-between;

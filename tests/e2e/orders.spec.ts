@@ -109,19 +109,42 @@ test("[E2E-ORDER-CREATE] [E2E-ORDER-OWNER] [E2E-ORDER-STOCK] real order retry, l
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "确认订单", exact: true }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   const allocated = await find(page, code + "-A");
   await expect(
     allocated.getByRole("cell", { name: "3", exact: true }),
   ).toBeVisible();
   await page.goto("http://localhost:5173/orders/" + orderId);
+  let releaseCancel: () => void = () => {};
+  const cancelGate = new Promise<void>((resolve) => {
+    releaseCancel = resolve;
+  });
+  await page.route("**/api/orders/" + orderId + "/cancel", async (route) => {
+    await cancelGate;
+    await route.continue();
+  });
   await page.getByRole("button", { name: "取消订单", exact: true }).click();
+  try {
+    await expect(page.getByRole("status")).toHaveText("正在取消订单…");
+    await expect(
+      page.getByRole("button", { name: "取消订单", exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "确认订单", exact: true }),
+    ).toHaveCount(0);
+  } finally {
+    releaseCancel();
+  }
   await expect(
     page.getByRole("heading", { name: "已取消", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "取消订单", exact: true }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "确认订单", exact: true }),
+  ).toHaveCount(0);
+  await page.unroute("**/api/orders/" + orderId + "/cancel");
   const restored = await find(page, code + "-A");
   await expect(
     restored.getByRole("cell", { name: "5", exact: true }),
