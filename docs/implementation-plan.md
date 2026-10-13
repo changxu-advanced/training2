@@ -20,7 +20,7 @@ GraphQLは対象外。決済・配送・商品編集や削除などREADMEにな�
 
 ## 2. 現状と進捗の扱い
 
-2026-10-13 の実施結果は [現在の進捗](progress.md) を参照。Step0〜1 はユーザー承認を経て main へ初回push済み。Step2 は専用ブランチで開発・検証中。
+2026-10-13 の実施結果は [現在の進捗](progress.md) を参照。Step0〜1 はユーザー承認を経て main へ初回push済み。Step2 は PR #1 でレビュー待ち。
 
 初期確認時（2026-10-07）の作業フォルダで確認できたものはREADME.md、AGENTS.md、Dev Container設定2ファイル、計画文書。
 Dev Container設定が参照する以下のファイルは未作成。
@@ -98,7 +98,7 @@ Gitリポジトリも現在の作業フォルダでは確認できない。
 | 0 | 業務仕様・受け入れ条件 | なし | 完了 |
 | 1 | Dev Container・モノレポ基盤 | 0 | 完了 |
 | 手動 | GitHub作成・初回push | 1 | 完了 |
-| 2 | CI・commit hook・共通基盤 | 手動 | 作業中 |
+| 2 | CI・commit hook・共通基盤 | 手動 | レビュー待ち |
 | 3 | PostgreSQLのDB契約 | 0、2 | 未着手 |
 | 4 | Prisma生成フロー | 3 | 未着手 |
 | 5 | API契約・OpenAPI・Client | 0、4 | 未着手 |

@@ -33,4 +33,4 @@
 
 Step0/1 首次推送已完成。仓库为 changxu-advanced/training2，容器内 GitHub 已由本人完成登录；Git 使用 HTTPS 凭据连接同一仓库。Step2 分支为 step/02-ci-foundation。
 
-Step2 已实现 CI、Husky 提交钩子、config 和 logger、Node Test Runner/Chai 测试、测试推进说明，以及 step-workflow 技能。容器内 pnpm check 通过；10 个实际测试通过；人为引入类型和格式错误均被检查拒绝；技能校验通过。GitHub CI 和 PR 待验证，未合并前不标为完了，也不进入 Step3。
+Step2 已实现 CI、Husky 提交钩子、config 和 logger、Node Test Runner/Chai 测试、测试推进说明，以及 step-workflow 技能。容器内 pnpm check 通过；10 个实际测试通过；人为引入类型和格式错误均被检查拒绝；技能校验通过。PR：[Step2 检查基盘](https://github.com/changxu-advanced/training2/pull/1)。GitHub CI 的当前结果以该 PR checks 为准。状态为レビュー待ち；未合并前不标为完了，也不进入 Step3。
