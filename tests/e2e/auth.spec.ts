@@ -12,13 +12,30 @@ test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-
 }) => {
   await page.goto("http://localhost:5173/orders/new");
   await expect(page).toHaveURL(/\/login/);
+  await expect(
+    page.getByRole("navigation", { name: "メインナビゲーション" }),
+  ).toHaveCount(0);
+  await expect(page.locator("header .account")).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: "商品を見る →", exact: true }),
+  ).toBeVisible();
   await login(page, "buyer@training2.test");
   await expect(page).toHaveURL(/\/orders\/new$/);
+  await expect(
+    page.getByRole("navigation", { name: "メインナビゲーション" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "ログアウト", exact: true }),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "注文管理", exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "ログアウト" }).click();
   await expect(page).toHaveURL(/\/login$/);
+  await expect(
+    page.getByRole("navigation", { name: "メインナビゲーション" }),
+  ).toHaveCount(0);
+  await expect(page.locator("header .account")).toHaveCount(0);
   await login(page, "buyer@training2.test");
   await expect(page).toHaveURL(/\/products$/);
   await expect(
@@ -50,7 +67,7 @@ test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-
   await expect(
     page.getByRole("link", { name: "商品登録", exact: true }),
   ).toHaveCount(0);
-  await page.getByRole("button", { name: "ログアウト" }).click();
+  await expect(page.locator("header .account")).toHaveCount(0);
   await login(page, "admin@training2.test");
   await expect(page).toHaveURL(/\/products$/);
   await expect(
