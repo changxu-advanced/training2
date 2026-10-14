@@ -211,6 +211,33 @@ export const publicRoutes = [
       ...failures([400, 401, 404, 500, 501, 503]),
     },
   }),
+  createRoute({
+    method: "get",
+    path: "/orders",
+    operationId: "listOrders",
+    summary:
+      "List own orders newest first with current confirmation availability",
+    security: secured,
+    request: {
+      query: pagination.extend({
+        status: z.enum(["draft", "confirmed", "cancelled"]).optional(),
+      }),
+    },
+    responses: {
+      200: json(
+        z
+          .strictObject({
+            items: z.array(orderSchema.extend({ canConfirm: z.boolean() })),
+            page: z.number().int().min(1),
+            pageSize: z.number().int().min(1).max(100),
+            total: z.number().int().min(0),
+          })
+          .openapi("OrdersPage"),
+        "Own orders, never another buyer's orders",
+      ),
+      ...failures([400, 401, 500, 501]),
+    },
+  }),
 ] as const;
 export const privateRoutes = [
   createRoute({

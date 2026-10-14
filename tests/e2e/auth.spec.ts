@@ -14,7 +14,9 @@ test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-
   await expect(page).toHaveURL(/\/login/);
   await login(page, "buyer@training2.test");
   await expect(page).toHaveURL(/\/orders\/new$/);
-  await expect(page.getByText("商品が選択されていません")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "注文", exact: true }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "ログアウト" }).click();
   await expect(page).toHaveURL(/\/login$/);
   await login(page, "buyer@training2.test");

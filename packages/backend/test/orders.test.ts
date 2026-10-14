@@ -168,6 +168,12 @@ test("AC-O/S: real orders enforce snapshot pricing, idempotency, ownership and a
         409,
       );
       const own = await create([{ productId: p.id, quantity: 2 }]);
+      const available = await request("/orders?status=draft").then(
+        jsonResponse,
+      );
+      assert.equal(available.body.items.length, 1);
+      assert.equal(available.body.items[0].id, own.body.id);
+      assert.equal(available.body.items[0].canConfirm, true);
       await prisma.products.update({
         where: { id: p.id },
         data: { price_jpy: 900n, name: "新名称" },
@@ -206,6 +212,38 @@ test("AC-O/S: real orders enforce snapshot pricing, idempotency, ownership and a
       const read = await request("/orders/" + own.body.id).then(jsonResponse);
       assert.equal(read.body.status, "cancelled");
       assert.ok(!("owner_sub" in read.body));
+      const history = await request("/orders?pageSize=1").then(jsonResponse);
+      assert.equal(history.status, 200);
+      assert.equal(history.body.total, 2);
+      assert.equal(history.body.items.length, 1);
+      assert.equal(history.body.items[0].id, own.body.id);
+      assert.equal(history.body.items[0].canConfirm, false);
+      const older = await request("/orders?page=2&pageSize=1").then(
+        jsonResponse,
+      );
+      assert.equal(older.body.items[0].id, draft.body.id);
+      const empty = await request("/orders?status=confirmed").then(
+        jsonResponse,
+      );
+      assert.equal(empty.body.total, 0);
+      assert.equal(
+        (await request("/orders?page=99").then(jsonResponse)).body.items.length,
+        0,
+      );
+      assert.equal(
+        (await request("/orders", "GET", undefined, "")).status,
+        401,
+      );
+      assert.equal((await request("/orders?owner=other")).status, 400);
+      const other = await request("/orders", "GET", undefined, "other").then(
+        jsonResponse,
+      );
+      assert.equal(other.body.total, 1);
+      assert.ok(
+        !other.body.items.some((item: { id: string }) =>
+          [own.body.id, draft.body.id].includes(item.id),
+        ),
+      );
     } finally {
       await api.close();
     }

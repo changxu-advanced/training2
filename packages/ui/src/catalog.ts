@@ -17,11 +17,12 @@ export function useCatalog(queryClient: QueryClient) {
     refreshing = true;
     try {
       await Promise.all(
-        ["products", "selection-stock", "order-stock", "order"].map((key) =>
-          queryClient.invalidateQueries(
-            { queryKey: [key] },
-            { cancelRefetch: false },
-          ),
+        ["products", "selection-stock", "order-stock", "order", "orders"].map(
+          (key) =>
+            queryClient.invalidateQueries(
+              { queryKey: [key] },
+              { cancelRefetch: false },
+            ),
         ),
       );
     } finally {

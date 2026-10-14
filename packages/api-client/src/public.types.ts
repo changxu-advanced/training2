@@ -40,7 +40,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List own orders newest first with current confirmation availability */
+        get: operations["listOrders"];
         put?: never;
         /** Create draft without reserving stock */
         post: operations["createOrder"];
@@ -179,6 +180,14 @@ export interface components {
                 quantity: number;
             }[];
         };
+        OrdersPage: {
+            items: (components["schemas"]["Order"] & {
+                canConfirm: boolean;
+            })[];
+            page: number;
+            pageSize: number;
+            total: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -273,6 +282,66 @@ export interface operations {
             };
             /** @description Not found or not owner */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Internal response or service error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Operation not implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    listOrders: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                status?: "draft" | "confirmed" | "cancelled";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Own orders, never another buyer's orders */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrdersPage"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

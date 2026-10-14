@@ -63,6 +63,10 @@ test("catalog invalidation is commit-only, cross-connection and stream-safe", as
         ),
       ]);
       assert.match(new TextDecoder().decode(frame.value), /data: changed/);
+      // Independent listener callbacks can run after the API stream callback.
+      const deadline = Date.now() + 2000;
+      while (!notices.length && Date.now() < deadline)
+        await new Promise((resolve) => setTimeout(resolve, 10));
       assert.deepEqual(notices, ["changed"]);
     } finally {
       controller.abort();

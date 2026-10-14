@@ -75,7 +75,7 @@ export const screens: readonly Screen[] = [
   {
     id: "PUB-ORDER-CREATE",
     scope: "public",
-    name: "注文作成",
+    name: "注文一覧・新規作成",
     path: "/orders/new",
     access: "authenticated",
     inputs: [
@@ -83,19 +83,27 @@ export const screens: readonly Screen[] = [
       "Idempotency-Key（同一次创建/重试保持 UUID）",
     ],
     inputContract: "@training2/api-contracts/inputs#orderInput",
-    apis: ["createOrder", "getStock"],
+    apis: [
+      "listOrders",
+      "createOrder",
+      "getStock",
+      "confirmOrder",
+      "cancelOrder",
+    ],
     authActions: [],
     transitions: ["PUB-LOGIN", "PUB-PRODUCTS", "PUB-ORDER"],
     states: {
-      idle: "显示所选明细，重查库存；数量即时限制为1到min(库存,1000)的整数；零库存禁用；不允许输入价格或所有者",
+      idle: "统一订单入口：没有所选商品时显示本人的订单列表，按状态筛选，未确定可确认/取消，已确定仅取消，已取消无操作；所有操作先确认；底部新建订单进入商品选择。有所选商品时显示所选明细，重查库存；数量即时限制为1到min(库存,1000)的整数；零库存禁用；不允许输入价格或所有者",
       loading:
         "仅首次查询库存时禁用输入/创建；后台更新保留输入节点，库存不足提示并禁用创建，不自动改变已选数量；提交中禁止重复点击或取消选择，不创建新key",
-      empty: "无明细时引导返回商品页",
+      empty: "无历史订单显示空白提示及创建新订单按钮；状态筛选无结果另有提示",
       success:
         "201或200跳转订单详情；取消选择需确认，确认清空全部选择/数量/key并返回商品页，保留或关闭不清空",
       error: "保留明细及key，输入/商品不存在/幂等冲突分别提示",
     },
     acceptance: [
+      "AC-O09",
+      "AC-O10",
       "AC-O08",
       "AC-O01",
       "AC-O02",
@@ -211,6 +219,23 @@ export const screens: readonly Screen[] = [
 ];
 export const scenarios: readonly Scenario[] = [
   {
+    id: "E2E-ORDER-HISTORY",
+    screens: ["PUB-ORDER-CREATE", "PUB-ORDER"],
+    acceptance: ["AC-O09", "AC-O10"],
+    step: 11,
+    kind: "business",
+    status: "implemented",
+    specFile: "tests/e2e/order-history.spec.ts",
+    actions: [
+      "统一入口空白/历史、状态过滤、本人订单权限",
+      "确认框返回不提交；确认/取消后刷新状态按钮及库存",
+    ],
+    expectations: [
+      "他人订单不展示",
+      "未确定/确定/取消操作正确；列表底部创建新订单",
+    ],
+  },
+  {
     id: "E2E-AUTH",
     screens: [
       "PUB-LOGIN",
@@ -321,7 +346,7 @@ export const scenarios: readonly Scenario[] = [
     ],
     expectations: [
       "库存轨迹符合验收规格，失败全回滚",
-      "操作后刷新状态及库存，重复提交不重复扣减/返还",
+      "操作前弹确认框，返回不发请求；操作后刷新状态及库存，重复提交不重复扣减/返还",
     ],
   },
   {

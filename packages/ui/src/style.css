@@ -533,3 +533,72 @@ footer {
   outline: 2px solid #527898;
   outline-offset: -2px;
 }
+
+.orders-page {
+  max-width: 1000px;
+  margin: auto;
+}
+.order-filters {
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+}
+.history-order {
+  background: #f7fafd;
+  border: 1px solid #dce6ef;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 18px;
+}
+.history-order-heading,
+.history-order-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.history-order-title {
+  color: #1c4c75;
+  font-weight: 600;
+}
+.history-order-items {
+  margin: 20px 0;
+  color: #38566f;
+}
+.history-order-items p {
+  margin: 8px 0;
+}
+.history-order-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.history-order-controls .el-button + .el-button {
+  margin-left: 0;
+}
+.new-order-action {
+  border-top: 1px solid #e1e9f1;
+  margin-top: 26px;
+  padding-top: 26px;
+  text-align: center;
+}
+.new-order-action p {
+  margin-top: 10px;
+}
+@media (max-width: 600px) {
+  .history-order {
+    padding: 18px;
+  }
+  .history-order-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .history-order-controls {
+    justify-content: flex-start;
+  }
+  .order-filters .el-radio-button__inner {
+    padding: 9px 12px;
+  }
+}

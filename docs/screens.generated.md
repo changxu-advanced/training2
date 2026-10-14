@@ -40,21 +40,21 @@
 | success | 显示代码、名称、说明、JPY价格、自动更新库存和分页；仅商品选择按钮，零库存不可选择 |
 | error | 保留条件并支持重试，501提示功能未实现 |
 
-## PUB-ORDER-CREATE · 注文作成
+## PUB-ORDER-CREATE · 注文一覧・新規作成
 
 - 端：public；路由：/orders/new；权限：authenticated
 - 输入：items(productId,quantity)、Idempotency-Key（同一次创建/重试保持 UUID）
 - 输入契约：@training2/api-contracts/inputs#orderInput
-- API：createOrder、getStock
+- API：listOrders、createOrder、getStock、confirmOrder、cancelOrder
 - 认证 SDK：无
 - 遷移：PUB-LOGIN、PUB-PRODUCTS、PUB-ORDER
-- 验收：AC-O08、AC-O01、AC-O02、AC-O03、AC-O04、AC-O05、AC-O07、AC-E01、AC-E02
+- 验收：AC-O09、AC-O10、AC-O08、AC-O01、AC-O02、AC-O03、AC-O04、AC-O05、AC-O07、AC-E01、AC-E02
 
 | 状态 | 页面反馈 |
 | --- | --- |
-| idle | 显示所选明细，重查库存；数量即时限制为1到min(库存,1000)的整数；零库存禁用；不允许输入价格或所有者 |
+| idle | 统一订单入口：没有所选商品时显示本人的订单列表，按状态筛选，未确定可确认/取消，已确定仅取消，已取消无操作；所有操作先确认；底部新建订单进入商品选择。有所选商品时显示所选明细，重查库存；数量即时限制为1到min(库存,1000)的整数；零库存禁用；不允许输入价格或所有者 |
 | loading | 仅首次查询库存时禁用输入/创建；后台更新保留输入节点，库存不足提示并禁用创建，不自动改变已选数量；提交中禁止重复点击或取消选择，不创建新key |
-| empty | 无明细时引导返回商品页 |
+| empty | 无历史订单显示空白提示及创建新订单按钮；状态筛选无结果另有提示 |
 | success | 201或200跳转订单详情；取消选择需确认，确认清空全部选择/数量/key并返回商品页，保留或关闭不清空 |
 | error | 保留明细及key，输入/商品不存在/幂等冲突分别提示 |
 
@@ -134,6 +134,14 @@
 
 以下映射不代表测试已运行；路由存在检查不能替代业务 E2E。
 
+### E2E-ORDER-HISTORY
+
+- 状态：implemented；阶段：Step11；实际 spec：tests/e2e/order-history.spec.ts
+- 页面：PUB-ORDER-CREATE、PUB-ORDER
+- 验收：AC-O09、AC-O10
+- 操作：统一入口空白/历史、状态过滤、本人订单权限；确认框返回不提交；确认/取消后刷新状态按钮及库存
+- 预期：他人订单不展示；未确定/确定/取消操作正确；列表底部创建新订单
+
 ### E2E-AUTH
 
 - 状态：implemented；阶段：Step9；实际 spec：tests/e2e/auth.spec.ts
@@ -172,7 +180,7 @@
 - 页面：PUB-PRODUCTS、PUB-ORDER
 - 验收：AC-P07、AC-S01、AC-S02、AC-S03、AC-S04、AC-S05、AC-S06、AC-E01、AC-E02
 - 操作：足量确认、重复确认、取消和重复取消；多商品部分不足；查看快照后库存改变；确认已取消订单
-- 预期：库存轨迹符合验收规格，失败全回滚；操作后刷新状态及库存，重复提交不重复扣减/返还
+- 预期：库存轨迹符合验收规格，失败全回滚；操作前弹确认框，返回不发请求；操作后刷新状态及库存，重复提交不重复扣减/返还
 
 ### E2E-FLOW
 

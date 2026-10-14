@@ -198,6 +198,55 @@ export async function changeOrder(
     return orderDto(changed);
   });
 }
+export async function listOrders(
+  prisma: PrismaClient,
+  owner: string,
+  query: {
+    page: number;
+    pageSize: number;
+    status?: "draft" | "confirmed" | "cancelled";
+  },
+) {
+  const where = {
+    owner_sub: owner,
+    ...(query.status ? { status: query.status } : {}),
+  };
+  return prisma.$transaction(
+    async (tx) => {
+      const total = await tx.orders.count({ where });
+      const offset = BigInt(query.page - 1) * BigInt(query.pageSize);
+      const rows =
+        offset >= BigInt(total)
+          ? []
+          : await tx.orders.findMany({
+              where,
+              orderBy: [{ created_at: "desc" }, { id: "desc" }],
+              skip: Number(offset),
+              take: query.pageSize,
+              include: {
+                order_items: {
+                  orderBy: { product_id: "asc" },
+                  include: { products: { select: { stock: true } } },
+                },
+              },
+            });
+      return {
+        items: rows.map((row) => ({
+          ...orderDto(row),
+          canConfirm:
+            row.status === "draft" &&
+            row.order_items.every(
+              (item) => item.products.stock >= item.quantity,
+            ),
+        })),
+        page: query.page,
+        pageSize: query.pageSize,
+        total,
+      };
+    },
+    { isolationLevel: "RepeatableRead" },
+  );
+}
 export function bindOrderRoutes(
   app: ContractApp,
   prisma: PrismaClient,
@@ -241,5 +290,17 @@ export function bindOrderRoutes(
       200,
     ),
   );
-  return ["createOrder", "getOrder", "confirmOrder", "cancelOrder"];
+  app.openapi(publicRoutes[6], async (c) =>
+    c.json(
+      await listOrders(prisma, c.get("principal").sub, c.req.valid("query")),
+      200,
+    ),
+  );
+  return [
+    "createOrder",
+    "getOrder",
+    "confirmOrder",
+    "cancelOrder",
+    "listOrders",
+  ];
 }

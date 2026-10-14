@@ -122,6 +122,10 @@ test("[E2E-ORDER-CREATE] [E2E-ORDER-OWNER] [E2E-ORDER-STOCK] real order retry, l
   await page
     .getByRole("button", { name: "注文を確定", exact: true })
     .dblclick();
+  await page
+    .getByRole("dialog", { name: "注文確定の確認" })
+    .getByRole("button", { name: "注文を確定", exact: true })
+    .click();
   await expect(
     page.getByRole("heading", { name: "確定済み", exact: true }),
   ).toBeVisible();
@@ -142,6 +146,10 @@ test("[E2E-ORDER-CREATE] [E2E-ORDER-OWNER] [E2E-ORDER-STOCK] real order retry, l
     await route.continue();
   });
   await page
+    .getByRole("button", { name: "注文をキャンセル", exact: true })
+    .click();
+  await page
+    .getByRole("dialog", { name: "注文キャンセルの確認" })
     .getByRole("button", { name: "注文をキャンセル", exact: true })
     .click();
   try {
@@ -202,6 +210,10 @@ test("[E2E-ORDER-CREATE] [E2E-ORDER-OWNER] [E2E-ORDER-STOCK] real order retry, l
     page.getByRole("heading", { name: "下書き", exact: true }),
   ).toBeVisible();
   await page
+    .getByRole("button", { name: "注文をキャンセル", exact: true })
+    .click();
+  await page
+    .getByRole("dialog", { name: "注文キャンセルの確認" })
     .getByRole("button", { name: "注文をキャンセル", exact: true })
     .click();
   await expect(
