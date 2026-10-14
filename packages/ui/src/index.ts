@@ -1,6 +1,7 @@
 import ElementPlus from "element-plus";
 import { createApp } from "vue";
 import { createWebHistory } from "vue-router";
+import { japaneseLocale } from "./locale.ts";
 import "element-plus/dist/index.css";
 import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 import { createPrivateClient } from "@training2/api-client/private";
@@ -112,13 +113,14 @@ export async function mountFrontend(scope: Scope, manifest: RouteManifest) {
       logout,
     });
     app.use(router);
-    app.use(ElementPlus);
+    app.use(ElementPlus, { locale: japaneseLocale });
     app.use(VueQueryPlugin, { queryClient });
     await router.isReady();
     app.mount("#app");
   } catch {
     const root = document.querySelector("#app");
     if (root)
-      root.textContent = "登录配置暂不可用。请初始化本地认证后刷新页面。";
+      root.textContent =
+        "認証設定を読み込めません。管理者に確認してから再読み込みしてください。";
   }
 }

@@ -34,7 +34,7 @@ export const screens: readonly Screen[] = [
   {
     id: "PUB-LOGIN",
     scope: "public",
-    name: "买家登录",
+    name: "購入者ログイン",
     path: "/login",
     access: "any",
     inputs: ["username", "password", "returnTo（仅同站受保护路由）"],
@@ -54,7 +54,7 @@ export const screens: readonly Screen[] = [
   {
     id: "PUB-PRODUCTS",
     scope: "public",
-    name: "商品搜索与库存",
+    name: "商品検索と在庫",
     path: "/products",
     access: "any",
     inputs: ["code", "name", "page", "pageSize", "所选商品与数量"],
@@ -74,7 +74,7 @@ export const screens: readonly Screen[] = [
   {
     id: "PUB-ORDER-CREATE",
     scope: "public",
-    name: "创建订单",
+    name: "注文作成",
     path: "/orders/new",
     access: "authenticated",
     inputs: [
@@ -109,7 +109,7 @@ export const screens: readonly Screen[] = [
   {
     id: "PUB-ORDER",
     scope: "public",
-    name: "订单详情、确认与取消",
+    name: "注文詳細・確定・キャンセル",
     path: "/orders/:id",
     access: "owner",
     inputs: ["id(UUID)", "confirm/cancel 操作"],
@@ -142,7 +142,7 @@ export const screens: readonly Screen[] = [
   {
     id: "ADM-LOGIN",
     scope: "private",
-    name: "管理员登录",
+    name: "管理者ログイン",
     path: "/login",
     access: "any",
     inputs: ["username", "password", "returnTo（仅管理端受保护路由）"],
@@ -162,7 +162,7 @@ export const screens: readonly Screen[] = [
   {
     id: "ADM-PRODUCTS",
     scope: "private",
-    name: "管理商品列表",
+    name: "商品一覧（管理）",
     path: "/products",
     access: "admin",
     inputs: ["page", "pageSize"],
@@ -182,7 +182,7 @@ export const screens: readonly Screen[] = [
   {
     id: "ADM-PRODUCT-CREATE",
     scope: "private",
-    name: "注册商品",
+    name: "商品登録",
     path: "/products/new",
     access: "admin",
     inputs: ["code", "name", "description", "priceJpy", "stock"],
@@ -191,13 +191,21 @@ export const screens: readonly Screen[] = [
     authActions: [],
     transitions: ["ADM-LOGIN", "ADM-PRODUCTS"],
     states: {
-      idle: "显示商品表单，价格单位JPY",
+      idle: "日文登记表单；价格即时限制非负整数，初期库存即时限制0～2000；公司Logo与柔和蓝色",
       loading: "提交按钮禁用",
       empty: "必填缺失提示",
       success: "201后返回管理列表并刷新商品查询",
       error: "400显示字段问题；409重复代码；401/403权限提示；保留输入",
     },
-    acceptance: ["AC-P01", "AC-P02", "AC-P03", "AC-P04", "AC-E01", "AC-E02"],
+    acceptance: [
+      "AC-P08",
+      "AC-P01",
+      "AC-P02",
+      "AC-P03",
+      "AC-P04",
+      "AC-E01",
+      "AC-E02",
+    ],
   },
 ];
 export const scenarios: readonly Scenario[] = [
@@ -226,6 +234,7 @@ export const scenarios: readonly Scenario[] = [
     id: "E2E-PRODUCTS",
     screens: ["ADM-PRODUCT-CREATE", "ADM-PRODUCTS", "PUB-PRODUCTS"],
     acceptance: [
+      "AC-P08",
       "AC-P01",
       "AC-P02",
       "AC-P03",

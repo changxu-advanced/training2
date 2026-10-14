@@ -1,15 +1,17 @@
 :root {
-  font-family: Inter, "Segoe UI", "Microsoft YaHei", sans-serif;
-  color: #223832;
-  background: #f7f8f4;
+  font-family:
+    "Noto Sans JP", "Yu Gothic", "Hiragino Kaku Gothic ProN", "Meiryo",
+    sans-serif;
+  color: #243b50;
+  background: #f4f7fa;
   font-synthesis: none;
-  --el-color-primary: #286650;
-  --el-color-primary-light-3: #548874;
-  --el-color-primary-light-5: #7ba593;
-  --el-color-primary-light-7: #b3ccbf;
-  --el-color-primary-light-8: #d2e3da;
-  --el-color-primary-light-9: #edf4ef;
-  --el-color-primary-dark-2: #1a4d3b;
+  --el-color-primary: #1c4c75;
+  --el-color-primary-light-3: #527898;
+  --el-color-primary-light-5: #7e9bb4;
+  --el-color-primary-light-7: #b2c5d6;
+  --el-color-primary-light-8: #d5e2ec;
+  --el-color-primary-light-9: #edf3f8;
+  --el-color-primary-dark-2: #163d5e;
   --el-border-radius-base: 8px;
   --el-font-size-base: 14px;
 }
@@ -36,8 +38,8 @@ input {
   align-items: center;
   justify-content: space-between;
   padding: 26px 5%;
-  border-bottom: 1px solid #e1e6de;
-  background: #fffdf9;
+  border-bottom: 1px solid #dde5ec;
+  background: #ffffff;
   gap: 28px;
 }
 .brand {
@@ -48,23 +50,11 @@ input {
   font-size: 23px;
   letter-spacing: -0.7px;
 }
-.brand-icon {
-  width: 45px;
-  height: 45px;
-  border-radius: 13px;
-  background: #286650;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 27px;
-}
-.brand-icon span {
-  font-size: 19px;
-  margin-top: -10px;
-}
-.brand-light {
-  font-weight: 400;
+.company-logo {
+  display: block;
+  width: 270px;
+  height: auto;
+  max-width: 100%;
 }
 .brand small {
   display: block;
@@ -72,7 +62,7 @@ input {
   letter-spacing: 2px;
   font-weight: 400;
   margin-top: 3px;
-  color: #78837c;
+  color: #627689;
 }
 .topbar nav {
   display: flex;
@@ -81,11 +71,11 @@ input {
 }
 .topbar nav a {
   padding: 12px 0;
-  color: #738079;
+  color: #647789;
 }
 .topbar nav a.router-link-active {
-  color: #286650;
-  border-bottom: 2px solid #286650;
+  color: #1c4c75;
+  border-bottom: 2px solid #1c4c75;
 }
 .account {
   display: flex;
@@ -99,10 +89,10 @@ input {
   text-overflow: ellipsis;
 }
 .role-pill {
-  background: #e8eee7;
+  background: #eaf0f6;
   padding: 5px 9px;
   border-radius: 5px;
-  color: #45644e;
+  color: #456681;
 }
 .login-link {
   font-size: 14px;
@@ -115,7 +105,7 @@ input {
   padding: 48px 6% 64px;
 }
 .eyebrow {
-  color: #647b6d;
+  color: #627c91;
   font-size: 11px;
   font-weight: 650;
   letter-spacing: 2.5px;
@@ -137,7 +127,7 @@ h3 {
   font-weight: 550;
 }
 .muted {
-  color: #7e8781;
+  color: #657688;
   font-size: 14px;
   line-height: 1.8;
   margin: 0;
@@ -149,15 +139,19 @@ h3 {
   margin-bottom: 32px;
   gap: 20px;
 }
+.page-heading .quiet-link {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
 .heading-count {
-  color: #7a877b;
+  color: #6d8092;
   font-size: 12px;
   letter-spacing: 2px;
 }
 .content-card,
 .search-panel {
   background: #fff;
-  border: 1px solid #e4e8e0;
+  border: 1px solid #dde5ed;
   border-radius: 14px;
   padding: 30px;
   margin-bottom: 22px;
@@ -179,14 +173,14 @@ h3 {
   padding: 55px 20px 70px;
 }
 .empty-panel p {
-  color: #7e8781;
+  color: #657688;
   font-size: 14px;
   margin-bottom: 24px;
 }
 .empty-icon {
   font-size: 35px;
-  background: #f1f5ee;
-  color: #70937a;
+  background: #edf3f8;
+  color: #6285a2;
   width: 70px;
   height: 70px;
   border-radius: 20px;
@@ -195,7 +189,7 @@ h3 {
   place-items: center;
 }
 .subtle-note {
-  color: #839083;
+  color: #6b7f91;
   font-size: 12px;
   line-height: 1.8;
 }
@@ -218,7 +212,7 @@ h3 {
 }
 .story-copy {
   max-width: 400px;
-  color: #78847b;
+  color: #647b8e;
   line-height: 1.9;
   font-size: 14px;
 }
@@ -226,13 +220,13 @@ h3 {
   background: #fff;
   padding: 38px;
   border-radius: 16px;
-  border: 1px solid #e4e8e0;
-  box-shadow: 0 12px 40px #20372b06;
+  border: 1px solid #dde5ed;
+  box-shadow: 0 12px 40px #1c4c7508;
 }
 .mini-label {
   font-size: 11px;
   letter-spacing: 2px;
-  color: #7a8d7c;
+  color: #698196;
 }
 .login-card h2 {
   font-size: 28px;
@@ -243,7 +237,7 @@ h3 {
 }
 .el-form-item__label {
   font-weight: 500;
-  color: #52645a;
+  color: #4e6479;
 }
 .el-input__wrapper {
   min-height: 44px;
@@ -256,20 +250,20 @@ h3 {
   margin: 18px 0;
 }
 .local-help {
-  border-top: 1px solid #eef0eb;
+  border-top: 1px solid #e9eef3;
   padding-top: 18px;
   margin-top: 24px;
-  color: #8a938d;
+  color: #708293;
   font-size: 11px;
   line-height: 1.9;
 }
 .local-help strong {
   font-weight: 500;
-  color: #67756a;
+  color: #587188;
 }
 .quiet-link {
   font-size: 13px;
-  color: #55735e;
+  color: #486b89;
 }
 .illustration {
   height: 220px;
@@ -281,7 +275,7 @@ h3 {
   position: absolute;
   width: 235px;
   height: 190px;
-  background: #e6ede0;
+  background: #e7eff6;
   border-radius: 50%;
   left: 25px;
   top: 18px;
@@ -290,26 +284,26 @@ h3 {
   position: absolute;
   width: 144px;
   height: 153px;
-  background: #9cb399;
+  background: #a3bed2;
   border-radius: 12px 12px 25px 25px;
   left: 90px;
   top: 55px;
   transform: rotate(-9deg);
-  box-shadow: 15px 18px 0 #7c997526;
+  box-shadow: 15px 18px 0 #1c4c7514;
 }
 .bag span {
   position: absolute;
   top: 51px;
-  left: 47px;
-  font-size: 47px;
-  color: #eff4e6;
+  left: 36px;
+  font-size: 22px;
+  color: #f6f9fc;
   font-weight: 550;
 }
 .handle {
   position: absolute;
   width: 60px;
   height: 54px;
-  border: 8px solid #799471;
+  border: 8px solid #6e95b2;
   border-bottom: none;
   left: 42px;
   top: -30px;
@@ -318,7 +312,7 @@ h3 {
 .mini-bag {
   width: 65px;
   height: 79px;
-  background: #e2c58c;
+  background: #c6d6e3;
   position: absolute;
   left: 224px;
   top: 143px;
@@ -326,23 +320,23 @@ h3 {
   transform: rotate(12deg);
   display: grid;
   place-items: center;
-  color: #907544;
+  color: #557997;
   font-size: 27px;
 }
 .spark {
   position: absolute;
   left: 300px;
   top: 43px;
-  color: #c0a261;
+  color: #8eaac0;
   font-size: 26px;
 }
 .story-note {
   font-size: 12px;
-  color: #82907f;
+  color: #6b8296;
   margin-top: 16px;
 }
 .story-note span {
-  color: #adb7a4;
+  color: #9eafbf;
   margin-right: 16px;
 }
 .form-page {
@@ -358,10 +352,15 @@ h3 {
   margin-top: 18px;
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
+}
+.input-help {
+  flex-basis: 100%;
+  margin-top: 6px;
 }
 .order-line {
   padding: 18px 0;
-  border-bottom: 1px solid #edf0e9;
+  border-bottom: 1px solid #e9eef4;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -398,25 +397,29 @@ footer {
   justify-content: space-between;
   margin: 0 5%;
   padding: 22px 0;
-  border-top: 1px solid #e1e6de;
-  color: #929d90;
+  border-top: 1px solid #dde5ec;
+  color: #718498;
   font-size: 11px;
   letter-spacing: 0.5px;
 }
-.admin-shell .brand-icon {
-  background: #354d65;
-}
 .admin-shell .eyebrow {
-  color: #708292;
+  color: #627c91;
 }
 .el-pagination {
   justify-content: flex-end;
   margin-top: 24px;
 }
 @media (max-width: 900px) {
+  .company-logo {
+    width: min(230px, 56vw);
+  }
   .topbar {
     flex-wrap: wrap;
     padding: 20px 5%;
+    gap: 12px;
+  }
+  .account .role-pill {
+    display: none;
   }
   .account-email {
     display: none;

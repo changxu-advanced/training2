@@ -62,7 +62,7 @@ describe("frontend foundation", () => {
     );
     expect(apiMessage(error)).not.toContain("private-marker");
     expect(apiMessage(new AxiosError("timeout", "ECONNABORTED"))).toContain(
-      "超时",
+      "タイムアウト",
     );
   });
 });

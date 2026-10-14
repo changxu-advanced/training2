@@ -4,7 +4,7 @@
 
 根路由 / 在两端跳转 /products。权限 owner 包含已登录要求，服务器仍验证订单所有者。
 
-## PUB-LOGIN · 买家登录
+## PUB-LOGIN · 購入者ログイン
 
 - 端：public；路由：/login；权限：any
 - 输入：username、password、returnTo（仅同站受保护路由）
@@ -22,7 +22,7 @@
 | success | 安全跳转回来源页，默认商品页 |
 | error | 登录失败或会话到期提示，不回显密码 |
 
-## PUB-PRODUCTS · 商品搜索与库存
+## PUB-PRODUCTS · 商品検索と在庫
 
 - 端：public；路由：/products；权限：any
 - 输入：code、name、page、pageSize、所选商品与数量
@@ -40,7 +40,7 @@
 | success | 显示代码、名称、说明、JPY价格、库存快照和分页 |
 | error | 保留条件并支持重试，501提示功能未实现 |
 
-## PUB-ORDER-CREATE · 创建订单
+## PUB-ORDER-CREATE · 注文作成
 
 - 端：public；路由：/orders/new；权限：authenticated
 - 输入：items(productId,quantity)、Idempotency-Key（同一次创建/重试保持 UUID）
@@ -58,7 +58,7 @@
 | success | 201或200跳转订单详情；取消选择需确认，确认清空全部选择/数量/key并返回商品页，保留或关闭不清空 |
 | error | 保留明细及key，输入/商品不存在/幂等冲突分别提示 |
 
-## PUB-ORDER · 订单详情、确认与取消
+## PUB-ORDER · 注文詳細・確定・キャンセル
 
 - 端：public；路由：/orders/:id；权限：owner
 - 输入：id(UUID)、confirm/cancel 操作
@@ -76,7 +76,7 @@
 | success | 展示draft/confirmed/cancelled、价格快照及金额；草稿显示确认/取消，已确认仅显示柔和红色取消按钮且在右下与金额右侧对齐；取消请求期间及已取消隐藏两个按钮，失败可重试；操作后刷新订单与库存 |
 | error | 401转登录；404统一未找到；409显示库存/状态冲突；503可重试 |
 
-## ADM-LOGIN · 管理员登录
+## ADM-LOGIN · 管理者ログイン
 
 - 端：private；路由：/login；权限：any
 - 输入：username、password、returnTo（仅管理端受保护路由）
@@ -94,7 +94,7 @@
 | success | 验证admin组后进入管理页 |
 | error | 登录失败、会话到期或非管理员提示 |
 
-## ADM-PRODUCTS · 管理商品列表
+## ADM-PRODUCTS · 商品一覧（管理）
 
 - 端：private；路由：/products；权限：admin
 - 输入：page、pageSize
@@ -112,7 +112,7 @@
 | success | 按代码升序显示产品和分页 |
 | error | 401转登录；403无管理权限；其他错误可重试 |
 
-## ADM-PRODUCT-CREATE · 注册商品
+## ADM-PRODUCT-CREATE · 商品登録
 
 - 端：private；路由：/products/new；权限：admin
 - 输入：code、name、description、priceJpy、stock
@@ -120,11 +120,11 @@
 - API：registerProduct
 - 认证 SDK：无
 - 遷移：ADM-LOGIN、ADM-PRODUCTS
-- 验收：AC-P01、AC-P02、AC-P03、AC-P04、AC-E01、AC-E02
+- 验收：AC-P08、AC-P01、AC-P02、AC-P03、AC-P04、AC-E01、AC-E02
 
 | 状态 | 页面反馈 |
 | --- | --- |
-| idle | 显示商品表单，价格单位JPY |
+| idle | 日文登记表单；价格即时限制非负整数，初期库存即时限制0～2000；公司Logo与柔和蓝色 |
 | loading | 提交按钮禁用 |
 | empty | 必填缺失提示 |
 | success | 201后返回管理列表并刷新商品查询 |
@@ -146,7 +146,7 @@
 
 - 状态：implemented；阶段：Step10；实际 spec：tests/e2e/products.spec.ts
 - 页面：ADM-PRODUCT-CREATE、ADM-PRODUCTS、PUB-PRODUCTS
-- 验收：AC-P01、AC-P02、AC-P03、AC-P04、AC-P05、AC-P06、AC-E01、AC-E02
+- 验收：AC-P08、AC-P01、AC-P02、AC-P03、AC-P04、AC-P05、AC-P06、AC-E01、AC-E02
 - 操作：管理员注册后在两端查找商品；验证重复代码、非法输入、搜索组合及空分页
 - 预期：代码规范化、商品只写入一次；价格和库存正确；搜索字面匹配；错误不丢输入
 

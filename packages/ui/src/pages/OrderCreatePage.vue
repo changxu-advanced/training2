@@ -79,7 +79,7 @@ function submit() {
     items: draft.items.map(i => ({productId: i.productId, quantity: i.quantity})),
   });
   if (!parsed.success) {
-    validation.value = "请检查商品与数量。";
+    validation.value = "商品と数量をご確認ください。";
     return;
   }
   validation.value = "";
@@ -90,9 +90,9 @@ async function cancelSelection() {
   cancelling.value = true;
   try {
     await ElMessageBox.confirm(
-      "确定取消目前的商品选择吗？确认后将清空已选商品和数量。",
-      "取消商品选择",
-      {confirmButtonText: "确定取消", cancelButtonText: "保留选择", type: "warning"},
+      "選択した商品を取り消しますか？商品と数量をクリアして商品一覧へ戻ります。",
+      "商品選択を取り消す",
+      {confirmButtonText: "取り消す", cancelButtonText: "選択を続ける", type: "warning"},
     );
   } catch {
     cancelling.value = false;
@@ -108,22 +108,22 @@ async function cancelSelection() {
 <template>
   <section class="form-page">
     <div class="page-heading">
-      <div><p class="eyebrow">YOUR NEXT FAVORITES</p><h1>创建订单</h1><p class="muted">确认所选商品和数量，价格由服务器计算。</p></div>
-      <router-link to="/products" class="quiet-link">← 继续选购</router-link>
+      <div><p class="eyebrow">ご注文の商品</p><h1>注文作成</h1><p class="muted">商品と数量をご確認ください。金額は注文作成時に計算されます。</p></div>
+      <router-link to="/products" class="quiet-link">← 買い物を続ける</router-link>
     </div>
     <div class="content-card">
-      <el-empty v-if="!draft.items.length" description="还没有选择商品">
-        <router-link to="/products"><el-button type="primary">去探索商品</el-button></router-link>
+      <el-empty v-if="!draft.items.length" description="商品が選択されていません">
+        <router-link to="/products"><el-button type="primary">商品を選ぶ</el-button></router-link>
       </el-empty>
       <template v-else>
         <el-alert v-if="validation || mutation.isError.value" :title="validation || apiMessage(mutation.error.value)" type="error" :closable="false"/>
-        <el-alert v-if="stock.isError.value" title="暂时无法获取当前库存，请重试。" type="error" :closable="false"/>
-        <el-button v-if="stock.isError.value" @click="stock.refetch()">重新获取库存</el-button>
-        <p v-if="stock.isFetching.value" class="muted">正在获取当前库存…</p>
+        <el-alert v-if="stock.isError.value" title="現在の在庫を取得できません。再試行してください。" type="error" :closable="false"/>
+        <el-button v-if="stock.isError.value" @click="stock.refetch()">在庫を再取得</el-button>
+        <p v-if="stock.isFetching.value" class="muted">在庫を確認しています…</p>
         <div v-for="item in draft.items" :key="item.productId" class="order-line">
           <div>
             <strong>{{item.productName}}</strong><p class="muted">{{item.productCode}}</p>
-            <p v-if="stock.data.value" class="muted">{{ maximum(item) > 0 ? '当前库存 ' + stock.data.value[item.productId] + ' · 可选 1–' + maximum(item) + ' 件' : '当前无库存，请返回商品页重新选择。' }}</p>
+            <p v-if="stock.data.value" class="muted">{{ maximum(item) > 0 ? '現在の在庫 ' + stock.data.value[item.productId] + ' · 選択可能 1–' + maximum(item) + ' 件' : '在庫がありません。商品一覧で選び直してください。' }}</p>
           </div>
           <el-input-number v-if="stock.data.value && !stock.isFetching.value" :key="maximum(item)" v-model="item.quantity" :aria-label="item.productName + '数量'"
             :min="1" :max="Math.max(1, maximum(item))" :step="1" step-strictly :precision="0" :value-on-clear="1"
@@ -131,11 +131,11 @@ async function cancelSelection() {
             @input.capture="limitInput($event, item)" @change="changed"/>
         </div>
         <div class="form-actions">
-          <el-button type="primary" :disabled="!ready || cancelling" :loading="mutation.isPending.value" @click="submit">创建草稿订单</el-button>
-          <el-button :disabled="mutation.isPending.value || cancelling" @click="cancelSelection">取消商品选择</el-button>
+          <el-button type="primary" :disabled="!ready || cancelling" :loading="mutation.isPending.value" @click="submit">注文を作成</el-button>
+          <el-button :disabled="mutation.isPending.value || cancelling" @click="cancelSelection">商品選択を取り消す</el-button>
         </div>
       </template>
     </div>
-    <p class="subtle-note">创建草稿不会扣减库存；确认订单时才会引当库存。</p>
+    <p class="subtle-note">注文の作成時には在庫を減らしません。注文確定時に在庫を確保します。</p>
   </section>
 </template>

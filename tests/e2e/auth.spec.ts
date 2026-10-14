@@ -1,9 +1,11 @@
 import { expect, type Page, test } from "@playwright/test";
 
 async function login(page: Page, email: string) {
-  await page.getByLabel("邮箱", { exact: true }).fill(email);
-  await page.getByLabel("密码", { exact: true }).fill("Training2-local-2026!");
-  await page.getByRole("button", { name: /登录买家端|登录管理端/ }).click();
+  await page.getByLabel("メールアドレス", { exact: true }).fill(email);
+  await page
+    .getByLabel("パスワード", { exact: true })
+    .fill("Training2-local-2026!");
+  await page.getByRole("button", { name: /ログイン|管理者ログイン/ }).click();
 }
 test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-session feedback", async ({
   page,
@@ -12,13 +14,13 @@ test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-
   await expect(page).toHaveURL(/\/login/);
   await login(page, "buyer@training2.test");
   await expect(page).toHaveURL(/\/orders\/new$/);
-  await expect(page.getByText("还没有选择商品")).toBeVisible();
-  await page.getByRole("button", { name: "退出登录" }).click();
+  await expect(page.getByText("商品が選択されていません")).toBeVisible();
+  await page.getByRole("button", { name: "ログアウト" }).click();
   await expect(page).toHaveURL(/\/login$/);
   await login(page, "buyer@training2.test");
   await expect(page).toHaveURL(/\/products$/);
   await expect(
-    page.getByRole("heading", { name: /商品列表|全部商品/ }),
+    page.getByRole("heading", { name: /商品一覧|すべての商品/ }),
   ).toBeVisible();
   await page.route("**/api/orders/**", (route) =>
     route.continue({
@@ -32,26 +34,30 @@ test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-
     "http://localhost:5173/orders/00000000-0000-4000-8000-000000000000",
   );
   await expect(page).toHaveURL(/\/login/);
-  await expect(page.getByText("登录已失效，请重新登录")).toBeVisible();
+  await expect(
+    page.getByText(
+      "セッションの有効期限が切れました。再度ログインしてください",
+    ),
+  ).toBeVisible();
   await page.goto("http://localhost:5174/products");
   await expect(page).toHaveURL(/\/login/);
   await login(page, "buyer@training2.test");
   await expect(
-    page.getByText("当前账号没有管理权限", { exact: true }),
+    page.getByText("管理権限がありません", { exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "注册商品", exact: true }),
+    page.getByRole("link", { name: "商品登録", exact: true }),
   ).toHaveCount(0);
-  await page.getByRole("button", { name: "退出登录" }).click();
+  await page.getByRole("button", { name: "ログアウト" }).click();
   await login(page, "admin@training2.test");
   await expect(page).toHaveURL(/\/products$/);
   await expect(
-    page.getByRole("heading", { name: /商品列表|全部商品/ }),
+    page.getByRole("heading", { name: /商品一覧|すべての商品/ }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "注册商品", exact: true }).click();
+  await page.getByRole("link", { name: "商品登録", exact: true }).click();
   await expect(page).toHaveURL(/\/products\/new$/);
-  await page.getByRole("button", { name: "注册商品", exact: true }).click();
-  await expect(page.getByText(/请检查以下字段/)).toBeVisible();
-  await page.getByRole("button", { name: "退出登录" }).click();
+  await page.getByRole("button", { name: "商品登録", exact: true }).click();
+  await expect(page.getByText(/次の項目をご確認ください/)).toBeVisible();
+  await page.getByRole("button", { name: "ログアウト" }).click();
   await expect(page).toHaveURL(/\/login$/);
 });
