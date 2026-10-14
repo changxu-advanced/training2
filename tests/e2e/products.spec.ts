@@ -47,6 +47,28 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   await page.getByRole("heading", { name: "商品登録" }).click();
   await page.getByRole("button", { name: "商品登録", exact: true }).click();
   await expect(page).toHaveURL(/\/products$/);
+  const registered = page.getByRole("row").filter({ hasText: code });
+  await registered
+    .getByRole("button", { name: "在庫を追加", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/products\/new\?restock=/);
+  await expect(page.getByLabel("商品コード", { exact: true })).toHaveValue(
+    code,
+  );
+  await expect(page.getByLabel("商品名", { exact: true })).toHaveValue(name);
+  await expect(page.getByLabel("商品コード", { exact: true })).toBeDisabled();
+  const additional = page.getByLabel("追加数量", { exact: true });
+  await expect(additional).toHaveValue("1");
+  await page.reload();
+  await expect(additional).toHaveValue("1");
+  await expect(page.getByLabel("商品説明", { exact: true })).toHaveValue(
+    "<b>プレーンテキストの説明</b>",
+  );
+  await page.getByRole("button", { name: "在庫を追加", exact: true }).click();
+  await expect(page).toHaveURL(/\/products$/);
+  await expect(
+    registered.getByRole("cell", { name: "8", exact: true }),
+  ).toBeVisible();
   await page.goto("http://localhost:5173/products/new");
   await page.getByLabel("商品コード", { exact: true }).fill(code.toLowerCase());
   await page.getByLabel("商品名", { exact: true }).fill(name);
@@ -74,6 +96,32 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   ]);
   await expect(row.getByRole("button", { name: "在庫を更新" })).toHaveCount(0);
   await expect(row.getByRole("cell", { name: "9", exact: true })).toBeVisible();
+  const filter = page.getByRole("button", {
+    name: "在庫ありのみ",
+    exact: true,
+  });
+  await filter.click();
+  await expect(filter).toHaveAttribute("aria-pressed", "true");
+  function updateStock(value: number) {
+    execFileSync(process.execPath, [
+      "--input-type=module",
+      "-e",
+      "import {createPrismaClient} from './packages/prisma/src/index.ts';const db=createPrismaClient(process.env.DATABASE_URL);try{await db.products.update({where:{code:process.argv[1]},data:{stock:Number(process.argv[2])}});}finally{await db.$disconnect();}",
+      code,
+      String(value),
+    ]);
+  }
+  updateStock(0);
+  await expect(row).toHaveCount(0);
+  await expect(page.getByText("0 件の商品", { exact: true })).toBeVisible();
+  await filter.click();
+  await expect(filter).toHaveAttribute("aria-pressed", "false");
+  await expect(row.getByText("在庫なし", { exact: true })).toBeVisible();
+  await filter.click();
+  await expect(row).toHaveCount(0);
+  updateStock(9);
+  await expect(row.getByRole("cell", { name: "9", exact: true })).toBeVisible();
+  await filter.click();
   await page
     .getByLabel("商品名", { exact: true })
     .fill("該当なし-" + randomUUID());

@@ -367,6 +367,20 @@
           {
             "schema": {
               "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "true: stock greater than zero; false or omitted: all products"
+            },
+            "required": false,
+            "description": "true: stock greater than zero; false or omitted: all products",
+            "name": "inStock",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
               "description": "Trim and uppercase; blank means absent; exact match"
             },
             "required": false,

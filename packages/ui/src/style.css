@@ -177,6 +177,13 @@ h3 {
 .search-panel .el-button + .el-button {
   margin-left: 0;
 }
+.product-heading-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+}
 .card-heading {
   display: flex;
   align-items: center;

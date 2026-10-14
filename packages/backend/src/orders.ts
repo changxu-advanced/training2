@@ -43,7 +43,7 @@ function retryable(error: unknown) {
     )
   );
 }
-async function transaction<T>(
+export async function transaction<T>(
   prisma: PrismaClient,
   run: (tx: Transaction) => Promise<T>,
 ): Promise<T> {

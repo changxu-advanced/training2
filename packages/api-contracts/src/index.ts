@@ -8,7 +8,7 @@ import {
 } from "@training2/auth";
 import { createLogger } from "@training2/logger";
 import { HTTPException } from "hono/http-exception";
-import { orderInput, productInput } from "./inputs.ts";
+import { orderInput, productInput, restockInput } from "./inputs.ts";
 
 export { orderInput, productInput };
 export const errorSchema = z
@@ -76,6 +76,10 @@ const pagination = z.strictObject({
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
 });
 const search = pagination.extend({
+  inStock: z
+    .enum(["true", "false"])
+    .optional()
+    .describe("true: stock greater than zero; false or omitted: all products"),
   code: z
     .string()
     .optional()
@@ -281,6 +285,42 @@ export const privateRoutes = [
       ...failures([400, 401, 403, 500, 501]),
     },
   }),
+  createRoute({
+    method: "get",
+    path: "/products/{id}",
+    operationId: "getProduct",
+    summary: "Admin reads product for restocking",
+    security: secured,
+    request: { params },
+    responses: {
+      200: json(productSchema, "Current product"),
+      ...failures([400, 401, 403, 404, 500, 501]),
+    },
+  }),
+  createRoute({
+    method: "post",
+    path: "/products/{id}/restock",
+    operationId: "restockProduct",
+    summary: "Admin adds stock atomically; same owner/key never adds twice",
+    security: secured,
+    request: {
+      params,
+      headers: z.object({
+        "idempotency-key": z
+          .string()
+          .uuid()
+          .openapi({ param: { name: "idempotency-key", in: "header" } }),
+      }),
+      body: body(restockInput.openapi("RestockInput")),
+    },
+    responses: {
+      200: json(
+        productSchema,
+        "Current product after this restock or an idempotent replay",
+      ),
+      ...failures([400, 401, 403, 404, 409, 415, 500, 501, 503]),
+    },
+  }),
 ] as const;
 // Public invalidation stream; authoritative data remains in JSON snapshot routes.
 export const catalogEventsRoute = createRoute({
@@ -412,7 +452,8 @@ export function createContractApp(
   }
   app.use("*", async (c, next) => {
     const protectedRequest =
-      (scope === "private" && c.req.path === "/products") ||
+      (scope === "private" &&
+        (c.req.path === "/products" || c.req.path.startsWith("/products/"))) ||
       c.req.path === "/orders" ||
       c.req.path.startsWith("/orders/");
     if (!protectedRequest) return next();

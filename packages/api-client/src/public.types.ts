@@ -222,6 +222,8 @@ export interface operations {
             query?: {
                 page?: number;
                 pageSize?: number;
+                /** @description true: stock greater than zero; false or omitted: all products */
+                inStock?: "true" | "false";
                 /** @description Trim and uppercase; blank means absent; exact match */
                 code?: string;
                 /** @description Trim; blank means absent; literal case-insensitive substring; combined with code using AND */

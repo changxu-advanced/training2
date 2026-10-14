@@ -47,17 +47,30 @@ model orders {
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model product_restocks {
+  owner_sub       String
+  idempotency_key String   @db.Uuid
+  product_id      String   @db.Uuid
+  quantity        Int
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+  products        products @relation(fields: [product_id], references: [id], onUpdate: NoAction)
+
+  @@id([owner_sub, idempotency_key])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 model products {
-  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  code        String        @unique
-  name        String
-  description String        @default("")
-  price_jpy   BigInt
-  stock       Int
-  created_at  DateTime      @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime      @default(now()) @db.Timestamptz(6)
-  order_items order_items[]
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code             String             @unique
+  name             String
+  description      String             @default("")
+  price_jpy        BigInt
+  stock            Int
+  created_at       DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime           @default(now()) @db.Timestamptz(6)
+  order_items      order_items[]
+  product_restocks product_restocks[]
 }
 
 model schema_migrations {

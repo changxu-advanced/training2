@@ -171,6 +171,56 @@
       "collation_name": null
     },
     {
+      "table_name": "product_restocks",
+      "column_name": "owner_sub",
+      "ordinal_position": 1,
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "product_restocks",
+      "column_name": "idempotency_key",
+      "ordinal_position": 2,
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "product_restocks",
+      "column_name": "product_id",
+      "ordinal_position": 3,
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "product_restocks",
+      "column_name": "quantity",
+      "ordinal_position": 4,
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "product_restocks",
+      "column_name": "created_at",
+      "ordinal_position": 5,
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "collation_name": null
+    },
+    {
       "table_name": "products",
       "column_name": "id",
       "ordinal_position": 1,
@@ -373,6 +423,30 @@
       "definition": "CHECK (((total_jpy >= 0) AND (total_jpy <= '5000000000000'::bigint)))"
     },
     {
+      "table_name": "product_restocks",
+      "name": "product_restocks_owner_sub_check",
+      "type": "c",
+      "definition": "CHECK (((char_length(owner_sub) >= 1) AND (char_length(owner_sub) <= 255)))"
+    },
+    {
+      "table_name": "product_restocks",
+      "name": "product_restocks_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (owner_sub, idempotency_key)"
+    },
+    {
+      "table_name": "product_restocks",
+      "name": "product_restocks_product_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "product_restocks",
+      "name": "product_restocks_quantity_check",
+      "type": "c",
+      "definition": "CHECK (((quantity >= 1) AND (quantity <= 2000)))"
+    },
+    {
       "table_name": "products",
       "name": "products_code_format",
       "type": "c",
@@ -451,6 +525,11 @@
       "table_name": "orders",
       "name": "orders_visible_owner_created_idx",
       "definition": "CREATE INDEX orders_visible_owner_created_idx ON public.orders USING btree (owner_sub, created_at DESC, id DESC) WHERE (deleted_at IS NULL)"
+    },
+    {
+      "table_name": "product_restocks",
+      "name": "product_restocks_pkey",
+      "definition": "CREATE UNIQUE INDEX product_restocks_pkey ON public.product_restocks USING btree (owner_sub, idempotency_key)"
     },
     {
       "table_name": "products",

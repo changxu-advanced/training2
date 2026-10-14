@@ -123,6 +123,26 @@ test("AC-P01..P06: real product registration, literal search, paging, stock and 
         }),
       );
       assert.equal(listed.body.total, 2);
+      // Filtering happens before pagination/counting, including stock changes between snapshots.
+      await prisma.products.update({
+        where: { code: "AAA" },
+        data: { stock: 0 },
+      });
+      const filtered = await search("inStock=true&pageSize=1");
+      assert.equal(filtered.body.total, 1);
+      assert.equal(filtered.body.items[0].code, "ABC-1");
+      assert.equal(
+        (await search("inStock=true&page=2&pageSize=1")).body.items.length,
+        0,
+      );
+      assert.equal((await search("inStock=false")).body.total, 2);
+      assert.equal((await search("inStock=true&code=AAA")).body.total, 0);
+      assert.equal((await search("inStock=invalid")).status, 400);
+      await prisma.products.update({
+        where: { code: "AAA" },
+        data: { stock: 1 },
+      });
+      assert.equal((await search("inStock=true")).body.total, 2);
       const stock = await jsonResponse(
         await pub.app.request("/products/" + created.body.id + "/stock"),
       );
@@ -140,6 +160,87 @@ test("AC-P01..P06: real product registration, literal search, paging, stock and 
           .status,
         201,
       );
+      for (const [user, status] of [
+        ["", 401],
+        ["buyer", 403],
+      ] as const)
+        assert.equal(
+          (
+            await admin.app.request("/products/" + created.body.id, {
+              headers: user ? { Authorization: "Bearer " + user } : {},
+            })
+          ).status,
+          status,
+        );
+      const restockKey = randomUUID();
+      const restock = (
+        quantity: number,
+        key = restockKey,
+        user = "admin",
+        id = created.body.id,
+      ) =>
+        admin.app.request("/products/" + id + "/restock", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Idempotency-Key": key,
+            ...(user ? { Authorization: "Bearer " + user } : {}),
+          },
+          body: JSON.stringify({ quantity }),
+        });
+      const repeated = await Promise.all([restock(2), restock(2)]);
+      assert.deepEqual(
+        repeated.map((r) => r.status),
+        [200, 200],
+      );
+      assert.equal(
+        (
+          await prisma.products.findUniqueOrThrow({
+            where: { id: created.body.id },
+          })
+        ).stock,
+        9,
+      );
+      assert.equal(await prisma.product_restocks.count(), 1);
+      assert.equal((await restock(3)).status, 409);
+      assert.equal((await restock(1, randomUUID(), "buyer")).status, 403);
+      assert.equal((await restock(1, randomUUID(), "")).status, 401);
+      for (const quantity of [0, -1, 1.5, 2001])
+        assert.equal((await restock(quantity, randomUUID())).status, 400);
+      assert.equal(
+        (await restock(1, randomUUID(), "admin", randomUUID())).status,
+        404,
+      );
+      const made = await jsonResponse(
+        await pub.app.request("/orders", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer buyer",
+            "Content-Type": "application/json",
+            "Idempotency-Key": randomUUID(),
+          },
+          body: JSON.stringify({
+            items: [{ productId: created.body.id, quantity: 2 }],
+          }),
+        }),
+      );
+      const concurrent = await Promise.all([
+        restock(2, randomUUID()),
+        pub.app.request("/orders/" + made.body.id + "/confirm", {
+          method: "POST",
+          headers: { Authorization: "Bearer buyer" },
+        }),
+      ]);
+      assert.deepEqual(
+        concurrent.map((r) => r.status),
+        [200, 200],
+      );
+      const unchanged = await prisma.products.findUniqueOrThrow({
+        where: { id: created.body.id },
+      });
+      assert.equal(unchanged.stock, 9);
+      assert.equal(unchanged.price_jpy, 1280n);
+      assert.equal(unchanged.name, created.body.name);
     } finally {
       await pub.close();
       await admin.close();

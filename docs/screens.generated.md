@@ -9,14 +9,14 @@
 - 端：public；路由：/products/new；权限：admin
 - 输入：code、name、description、priceJpy、stock
 - 输入契约：@training2/api-contracts/inputs#productInput
-- API：private:registerProduct
+- API：private:registerProduct、private:getProduct、private:restockProduct
 - 认证 SDK：无
 - 遷移：PUB-LOGIN、PUB-PRODUCTS
-- 验收：AC-P01、AC-P03、AC-P08、AC-A03
+- 验收：AC-P01、AC-P03、AC-P08、AC-P09、AC-A03
 
 | 状态 | 页面反馈 |
 | --- | --- |
-| idle | 管理员登记商品，顾客无入口且直接URL拒绝 |
+| idle | 管理员登记商品，顾客无入口且直接URL拒绝；restock查询参数选定已有商品，自动填入只读信息，追加数量默认1，范围1～2000；按增量补货且保留同次提交key避免重复 |
 | loading | 提交禁止重复 |
 | empty | 提示必填 |
 | success | 登记后回商品一覧，顾客收到自动更新 |
@@ -43,7 +43,7 @@
 ## PUB-PRODUCTS · 商品検索と在庫
 
 - 端：public；路由：/products；权限：any
-- 输入：code、name、page、pageSize、所选商品与数量
+- 输入：code、name、page、pageSize、所选商品与数量、inStock（有库存筛选）
 - 输入契约：searchProducts request；数量由 orderInput 验证
 - API：searchProducts、getStock、private:listProducts
 - 认证 SDK：无
@@ -52,7 +52,7 @@
 
 | 状态 | 页面反馈 |
 | --- | --- |
-| idle | 显示搜索条件 |
+| idle | 显示搜索条件；件数左侧在庫ありのみ切换，服务器跨页过滤及计数，切换回第一页，搜索条件保留且库存变化自动更新 |
 | loading | 仅首次加载展示占位；后台自动更新保留列表、搜索、分页和滚动 |
 | empty | 没有匹配商品，可清空条件 |
 | success | 显示代码、名称、说明、JPY价格、自动更新库存和分页；仅商品选择按钮，零库存不可选择 |
@@ -127,7 +127,7 @@
 | idle | 显示列表入口 |
 | loading | 显示加载状态 |
 | empty | 无商品或末页外时提供注册/上一页入口 |
-| success | 按代码升序显示产品和分页，自动更新商品和库存；浅蓝表头及条纹行 |
+| success | 按代码升序显示产品和分页，自动更新商品和库存；每行库存右侧提供在庫を追加，跳转登记页预填信息；浅蓝表头及条纹行 |
 | error | 401转登录；403无管理权限；其他错误可重试 |
 
 ## ADM-PRODUCT-CREATE · 商品登録
@@ -135,14 +135,14 @@
 - 端：private；路由：/products/new；权限：admin
 - 输入：code、name、description、priceJpy、stock
 - 输入契约：@training2/api-contracts/inputs#productInput
-- API：registerProduct
+- API：registerProduct、getProduct、restockProduct
 - 认证 SDK：无
 - 遷移：ADM-LOGIN、ADM-PRODUCTS
-- 验收：AC-P08、AC-P01、AC-P02、AC-P03、AC-P04、AC-E01、AC-E02
+- 验收：AC-P09、AC-P08、AC-P01、AC-P02、AC-P03、AC-P04、AC-E01、AC-E02
 
 | 状态 | 页面反馈 |
 | --- | --- |
-| idle | 日文登记表单；价格即时限制非负整数，初期库存即时限制0～2000；公司Logo与柔和蓝色 |
+| idle | 已有商品补货复用登记表单，只读信息自动填写，追加数量默认1且限制1～2000；日文登记表单；价格即时限制非负整数，初期库存即时限制0～2000；公司Logo与柔和蓝色 |
 | loading | 提交按钮禁用 |
 | empty | 必填缺失提示 |
 | success | 201后返回管理列表并刷新商品查询 |
@@ -172,7 +172,7 @@
 
 - 状态：implemented；阶段：Step10；实际 spec：tests/e2e/products.spec.ts
 - 页面：ADM-PRODUCT-CREATE、PUB-PRODUCT-CREATE、ADM-PRODUCTS、PUB-PRODUCTS
-- 验收：AC-P08、AC-P01、AC-P02、AC-P03、AC-P04、AC-P05、AC-P06、AC-E01、AC-E02
+- 验收：AC-P09、AC-P08、AC-P01、AC-P02、AC-P03、AC-P04、AC-P05、AC-P06、AC-E01、AC-E02
 - 操作：管理员注册后在两端查找商品；验证重复代码、非法输入、搜索组合及空分页
 - 预期：代码规范化、商品只写入一次；价格和库存正确；搜索字面匹配；错误不丢输入
 
