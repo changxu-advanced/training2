@@ -11,3 +11,5 @@ API 只接收 Bearer access token。@training2/auth 使用 aws-jwt-verify 验证
 两个新增组合测试使用实际 RSA 签名 token 覆盖篡改、到期、issuer/client/用途、权限及生产配置边界；现有契约测试同时检查 API 的 401/403 和管理员放行。商品与订单的已授权请求已在 Step10/11 接入业务。
 
 2026-10-14：本地初始化提供 admin@training2.test、buyer@training2.test、buyer2@training2.test、buyer3@training2.test。后三个为独立sub的普通买家，无管理权限；密码沿用本地测试密码，登录及JWT验证通过 seed:cognito。
+
+统一入口按admin组控制界面，但所有管理写入仍由private API验证JWT/admin组。HTTP请求记录发起时的会话身份，旧账号延迟401或获取令牌失败不能清除新账号会话；切换前先清理界面缓存和选择，再结束SDK会话。既有E2E-AUTH加入延迟旧401后新买家仍能进入注文管理的验收。

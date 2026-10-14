@@ -27,9 +27,9 @@ async function login() {
   pending.value = true;
   failure.value = "";
   try {
-    await signOut();
     clearSession(!session.sub);
     runtime.queryClient.clear();
+    await signOut();
     const result = await signIn({
       username: username.value.trim(),
       password: password.value,

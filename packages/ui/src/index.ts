@@ -80,18 +80,24 @@ export async function mountFrontend(scope: Scope, manifest: RouteManifest) {
     });
     function authenticatedHttp(baseURL: string) {
       const http = axios.create({ baseURL, timeout: 8000 });
+      const requestOwners = new WeakMap<object, string>();
       http.interceptors.request.use(async (request) => {
-        if (session.sub) {
+        const owner = session.sub;
+        if (owner) {
+          requestOwners.set(request, owner);
           try {
             const auth = await fetchAuthSession();
+            if (session.sub !== owner) throw new Error("Session changed");
             const token = auth.tokens?.accessToken?.toString();
             if (!token) throw new Error("session");
             request.headers.set("Authorization", `Bearer ${token}`);
           } catch {
-            clearSession();
-            queryClient.clear();
-            if (router.currentRoute.value.meta.access !== "any")
-              void router.replace("/login");
+            if (session.sub === owner) {
+              clearSession();
+              queryClient.clear();
+              if (router.currentRoute.value.meta.access !== "any")
+                void router.replace("/login");
+            }
             throw new Error("session");
           }
         }
@@ -101,6 +107,11 @@ export async function mountFrontend(scope: Scope, manifest: RouteManifest) {
         (response) => response,
         async (error) => {
           if (error.response?.status === 401) {
+            // A response from a previous account must not sign out the new session.
+            const owner = error.config
+              ? requestOwners.get(error.config)
+              : undefined;
+            if (!owner || owner !== session.sub) return Promise.reject(error);
             const returnTo = router.currentRoute.value.fullPath;
             clearSession();
             queryClient.clear();
@@ -120,9 +131,9 @@ export async function mountFrontend(scope: Scope, manifest: RouteManifest) {
     const adminHttp =
       scope === "public" ? authenticatedHttp("/admin-api") : http;
     const logout = async () => {
-      await signOut();
       clearSession();
       queryClient.clear();
+      await signOut();
       await router.replace("/login");
     };
     const app = createApp(App);
