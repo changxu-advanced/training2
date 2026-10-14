@@ -44,6 +44,20 @@ Search products and current stock
   {
     "schema": {
       "type": "string",
+      "enum": [
+        "true",
+        "false"
+      ],
+      "description": "true: stock greater than zero; false or omitted: all products"
+    },
+    "required": false,
+    "description": "true: stock greater than zero; false or omitted: all products",
+    "name": "inStock",
+    "in": "query"
+  },
+  {
+    "schema": {
+      "type": "string",
       "description": "Trim and uppercase; blank means absent; exact match"
     },
     "required": false,
@@ -339,6 +353,120 @@ Create draft without reserving stock
   },
   "503": {
     "description": "Retry exhausted",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  }
+}
+```
+
+### listOrders
+
+`GET /orders`
+
+List own orders newest first with current confirmation availability
+
+#### 认证
+
+```json
+[
+  {
+    "bearerAuth": []
+  }
+]
+```
+
+#### 参数
+
+```json
+[
+  {
+    "schema": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "required": false,
+    "name": "page",
+    "in": "query"
+  },
+  {
+    "schema": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "default": 20
+    },
+    "required": false,
+    "name": "pageSize",
+    "in": "query"
+  },
+  {
+    "schema": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "confirmed",
+        "cancelled"
+      ]
+    },
+    "required": false,
+    "name": "status",
+    "in": "query"
+  }
+]
+```
+
+#### 响应
+
+```json
+{
+  "200": {
+    "description": "Own orders, never another buyer's orders",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/OrdersPage"
+        }
+      }
+    }
+  },
+  "400": {
+    "description": "Invalid input",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "401": {
+    "description": "Authentication required",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "500": {
+    "description": "Internal response or service error",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "501": {
+    "description": "Operation not implemented",
     "content": {
       "application/json": {
         "schema": {
@@ -677,6 +805,128 @@ Cancel once; restore stock only when previously confirmed
 }
 ```
 
+### deleteCancelledOrders
+
+`DELETE /orders/cancelled`
+
+Remove all own cancelled orders from history; preserve durable idempotency records
+
+#### 认证
+
+```json
+[
+  {
+    "bearerAuth": []
+  }
+]
+```
+
+#### 响应
+
+```json
+{
+  "200": {
+    "description": "Number of newly deleted cancelled orders",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/OrderCleanupResult"
+        }
+      }
+    }
+  },
+  "401": {
+    "description": "Authentication required",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "500": {
+    "description": "Internal response or service error",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "501": {
+    "description": "Operation not implemented",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "503": {
+    "description": "Retry exhausted",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  }
+}
+```
+
+### catalogEvents
+
+`GET /catalog/events`
+
+Committed catalog invalidation hints over SSE; reconnect and refetch snapshots
+
+#### 认证
+
+```json
+[]
+```
+
+#### 响应
+
+```json
+{
+  "200": {
+    "description": "Events catalog: changed and heartbeat: ok; no buyer or order information",
+    "content": {
+      "text/event-stream": {
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "500": {
+    "description": "Internal response or service error",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "503": {
+    "description": "Retry exhausted",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  }
+}
+```
+
 ### 共享模型与认证定义
 
 ```json
@@ -948,6 +1198,66 @@ Cancel once; restore stock only when previously confirmed
         "items"
       ],
       "additionalProperties": false
+    },
+    "OrdersPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Order"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "canConfirm": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "canConfirm"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pageSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "items",
+        "page",
+        "pageSize",
+        "total"
+      ],
+      "additionalProperties": false
+    },
+    "OrderCleanupResult": {
+      "type": "object",
+      "properties": {
+        "deletedCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "deletedCount"
+      ],
+      "additionalProperties": false
     }
   },
   "parameters": {}
@@ -1185,6 +1495,327 @@ Admin lists products
 }
 ```
 
+### getProduct
+
+`GET /products/{id}`
+
+Admin reads product for restocking
+
+#### 认证
+
+```json
+[
+  {
+    "bearerAuth": []
+  }
+]
+```
+
+#### 参数
+
+```json
+[
+  {
+    "schema": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "required": true,
+    "name": "id",
+    "in": "path"
+  }
+]
+```
+
+#### 响应
+
+```json
+{
+  "200": {
+    "description": "Current product",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/Product"
+        }
+      }
+    }
+  },
+  "400": {
+    "description": "Invalid input",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "401": {
+    "description": "Authentication required",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "403": {
+    "description": "Admin role required",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "404": {
+    "description": "Not found or not owner",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "500": {
+    "description": "Internal response or service error",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "501": {
+    "description": "Operation not implemented",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  }
+}
+```
+
+### restockProduct
+
+`POST /products/{id}/restock`
+
+Admin adds stock atomically; same owner/key never adds twice
+
+#### 认证
+
+```json
+[
+  {
+    "bearerAuth": []
+  }
+]
+```
+
+#### 参数
+
+```json
+[
+  {
+    "schema": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "required": true,
+    "name": "id",
+    "in": "path"
+  },
+  {
+    "schema": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "required": true,
+    "name": "idempotency-key",
+    "in": "header"
+  }
+]
+```
+
+#### 请求体
+
+```json
+{
+  "required": true,
+  "content": {
+    "application/json": {
+      "schema": {
+        "$ref": "#/components/schemas/RestockInput"
+      }
+    }
+  }
+}
+```
+
+#### 响应
+
+```json
+{
+  "200": {
+    "description": "Current product after this restock or an idempotent replay",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/Product"
+        }
+      }
+    }
+  },
+  "400": {
+    "description": "Invalid input",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "401": {
+    "description": "Authentication required",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "403": {
+    "description": "Admin role required",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "404": {
+    "description": "Not found or not owner",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "409": {
+    "description": "Business or idempotency conflict",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "415": {
+    "description": "Unsupported content type",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "500": {
+    "description": "Internal response or service error",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "501": {
+    "description": "Operation not implemented",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "503": {
+    "description": "Retry exhausted",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  }
+}
+```
+
+### catalogEvents
+
+`GET /catalog/events`
+
+Committed catalog invalidation hints over SSE; reconnect and refetch snapshots
+
+#### 认证
+
+```json
+[]
+```
+
+#### 响应
+
+```json
+{
+  "200": {
+    "description": "Events catalog: changed and heartbeat: ok; no buyer or order information",
+    "content": {
+      "text/event-stream": {
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "500": {
+    "description": "Internal response or service error",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  },
+  "503": {
+    "description": "Retry exhausted",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/ApiError"
+        }
+      }
+    }
+  }
+}
+```
+
 ### 共享模型与认证定义
 
 ```json
@@ -1349,6 +1980,20 @@ Admin lists products
         "page",
         "pageSize",
         "total"
+      ],
+      "additionalProperties": false
+    },
+    "RestockInput": {
+      "type": "object",
+      "properties": {
+        "quantity": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2000
+        }
+      },
+      "required": [
+        "quantity"
       ],
       "additionalProperties": false
     }

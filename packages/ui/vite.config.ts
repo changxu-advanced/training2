@@ -38,7 +38,12 @@ export function frontendConfig(scope: "public" | "private") {
       },
     ],
     server: {
+      watch: { usePolling: true, interval: 300 },
       proxy: {
+        "/admin-api": {
+          target: "http://localhost:3001",
+          rewrite: (path) => path.replace(/^\/admin-api/, ""),
+        },
         "/api": {
           target: `http://localhost:${scope === "public" ? 3000 : 3001}`,
           rewrite: (path) => path.replace(/^\/api/, ""),

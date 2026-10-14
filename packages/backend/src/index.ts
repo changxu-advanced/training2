@@ -11,6 +11,7 @@ import { type ApiConfig, parseApiConfig } from "@training2/config";
 import { createLogger } from "@training2/logger";
 import { createPrismaClient, type PrismaClient } from "@training2/prisma";
 import { cors } from "hono/cors";
+import { createCatalogEvents } from "./catalog-events.ts";
 import { bindOrderRoutes } from "./orders.ts";
 import { bindProductRoutes } from "./products.ts";
 export type ApiRuntime = {
@@ -32,6 +33,12 @@ export async function createApi(
     await prisma.$disconnect();
     throw new Error("Database startup check failed");
   }
+  const events = await createCatalogEvents(config.databaseUrl, logger).catch(
+    async () => {
+      await prisma.$disconnect();
+      throw new Error("Catalog listener startup failed");
+    },
+  );
   const app = createContractApp(scope, authenticator, {
     ...options,
     logger,
@@ -44,7 +51,7 @@ export async function createApi(
         "*",
         cors({
           origin: config.corsOrigins,
-          allowMethods: ["GET", "POST", "OPTIONS"],
+          allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
           allowHeaders: ["Authorization", "Content-Type", "Idempotency-Key"],
           exposeHeaders: ["X-Request-Id"],
           maxAge: 600,
@@ -63,6 +70,7 @@ export async function createApi(
       });
     },
   });
+  events.bind(app);
   app.get("/health", async (c) => {
     try {
       await prisma.$queryRaw`SELECT 1`;
@@ -89,7 +97,9 @@ export async function createApi(
     app,
     prisma,
     close() {
-      closing ??= prisma.$disconnect();
+      closing ??= Promise.all([events.close(), prisma.$disconnect()]).then(
+        () => {},
+      );
       return closing;
     },
   };

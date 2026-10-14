@@ -43,7 +43,7 @@ function retryable(error: unknown) {
     )
   );
 }
-async function transaction<T>(
+export async function transaction<T>(
   prisma: PrismaClient,
   run: (tx: Transaction) => Promise<T>,
 ): Promise<T> {
@@ -88,6 +88,12 @@ export async function createOrder(
       include,
     });
     if (existing) {
+      if (existing.deleted_at)
+        throw new ApiFailure(
+          409,
+          "IDEMPOTENCY_CONFLICT",
+          "Key belongs to a deleted order",
+        );
       if (
         JSON.stringify(
           canonical(orderInput.parse({ items: existing.request_items })),
@@ -136,7 +142,7 @@ export async function readOrder(
   id: string,
 ) {
   const row = await prisma.orders.findFirst({
-    where: { id, owner_sub: owner },
+    where: { id, owner_sub: owner, deleted_at: null },
     include,
   });
   if (!row) throw missing();
@@ -151,7 +157,7 @@ export async function changeOrder(
   return transaction(prisma, async (tx) => {
     const owned = await tx.$queryRaw<
       { id: string }[]
-    >`SELECT id FROM public.orders WHERE id=${id}::uuid AND owner_sub=${owner} FOR UPDATE`;
+    >`SELECT id FROM public.orders WHERE id=${id}::uuid AND owner_sub=${owner} AND deleted_at IS NULL FOR UPDATE`;
     if (!owned.length) throw missing();
     const order = await tx.orders.findUniqueOrThrow({ where: { id }, include });
     if (action === "confirm" && order.status === "cancelled")
@@ -198,6 +204,69 @@ export async function changeOrder(
     return orderDto(changed);
   });
 }
+export async function listOrders(
+  prisma: PrismaClient,
+  owner: string,
+  query: {
+    page: number;
+    pageSize: number;
+    status?: "draft" | "confirmed" | "cancelled";
+  },
+) {
+  const where = {
+    owner_sub: owner,
+    deleted_at: null,
+    ...(query.status ? { status: query.status } : {}),
+  };
+  return prisma.$transaction(
+    async (tx) => {
+      const total = await tx.orders.count({ where });
+      const offset = BigInt(query.page - 1) * BigInt(query.pageSize);
+      const rows =
+        offset >= BigInt(total)
+          ? []
+          : await tx.orders.findMany({
+              where,
+              orderBy: [{ created_at: "desc" }, { id: "desc" }],
+              skip: Number(offset),
+              take: query.pageSize,
+              include: {
+                order_items: {
+                  orderBy: { product_id: "asc" },
+                  include: { products: { select: { stock: true } } },
+                },
+              },
+            });
+      return {
+        items: rows.map((row) => ({
+          ...orderDto(row),
+          canConfirm:
+            row.status === "draft" &&
+            row.order_items.every(
+              (item) => item.products.stock >= item.quantity,
+            ),
+        })),
+        page: query.page,
+        pageSize: query.pageSize,
+        total,
+      };
+    },
+    { isolationLevel: "RepeatableRead" },
+  );
+}
+export async function deleteCancelledOrders(
+  prisma: PrismaClient,
+  owner: string,
+) {
+  return transaction(prisma, async (tx) => {
+    // Keep durable owner/key records so delayed create retries cannot resurrect a deleted order.
+    const result = await tx.orders.updateMany({
+      where: { owner_sub: owner, status: "cancelled", deleted_at: null },
+      data: { deleted_at: new Date() },
+    });
+    return { deletedCount: result.count };
+  });
+}
 export function bindOrderRoutes(
   app: ContractApp,
   prisma: PrismaClient,
@@ -241,5 +310,21 @@ export function bindOrderRoutes(
       200,
     ),
   );
-  return ["createOrder", "getOrder", "confirmOrder", "cancelOrder"];
+  app.openapi(publicRoutes[6], async (c) =>
+    c.json(
+      await listOrders(prisma, c.get("principal").sub, c.req.valid("query")),
+      200,
+    ),
+  );
+  app.openapi(publicRoutes[7], async (c) =>
+    c.json(await deleteCancelledOrders(prisma, c.get("principal").sub), 200),
+  );
+  return [
+    "deleteCancelledOrders",
+    "createOrder",
+    "getOrder",
+    "confirmOrder",
+    "cancelOrder",
+    "listOrders",
+  ];
 }

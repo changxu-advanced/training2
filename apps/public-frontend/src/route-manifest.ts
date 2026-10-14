@@ -12,6 +12,7 @@ export const routeManifest: RouteManifest = {
       screenId: "PUB-PRODUCTS",
       path: "/products",
     },
+    { screenId: "PUB-PRODUCT-CREATE", path: "/products/new" },
     {
       screenId: "PUB-ORDER-CREATE",
       path: "/orders/new",

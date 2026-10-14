@@ -161,6 +161,66 @@
       "collation_name": null
     },
     {
+      "table_name": "orders",
+      "column_name": "deleted_at",
+      "ordinal_position": 11,
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "YES",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "product_restocks",
+      "column_name": "owner_sub",
+      "ordinal_position": 1,
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "product_restocks",
+      "column_name": "idempotency_key",
+      "ordinal_position": 2,
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "product_restocks",
+      "column_name": "product_id",
+      "ordinal_position": 3,
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "product_restocks",
+      "column_name": "quantity",
+      "ordinal_position": 4,
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
+      "table_name": "product_restocks",
+      "column_name": "created_at",
+      "ordinal_position": 5,
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "collation_name": null
+    },
+    {
       "table_name": "products",
       "column_name": "id",
       "ordinal_position": 1,
@@ -316,6 +376,12 @@
     },
     {
       "table_name": "orders",
+      "name": "orders_deleted_cancelled",
+      "type": "c",
+      "definition": "CHECK (((deleted_at IS NULL) OR (status = 'cancelled'::order_status)))"
+    },
+    {
+      "table_name": "orders",
       "name": "orders_owner_key_unique",
       "type": "u",
       "definition": "UNIQUE (owner_sub, idempotency_key)"
@@ -355,6 +421,30 @@
       "name": "orders_total_range",
       "type": "c",
       "definition": "CHECK (((total_jpy >= 0) AND (total_jpy <= '5000000000000'::bigint)))"
+    },
+    {
+      "table_name": "product_restocks",
+      "name": "product_restocks_owner_sub_check",
+      "type": "c",
+      "definition": "CHECK (((char_length(owner_sub) >= 1) AND (char_length(owner_sub) <= 255)))"
+    },
+    {
+      "table_name": "product_restocks",
+      "name": "product_restocks_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (owner_sub, idempotency_key)"
+    },
+    {
+      "table_name": "product_restocks",
+      "name": "product_restocks_product_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "product_restocks",
+      "name": "product_restocks_quantity_check",
+      "type": "c",
+      "definition": "CHECK (((quantity >= 1) AND (quantity <= 2000)))"
     },
     {
       "table_name": "products",
@@ -432,6 +522,16 @@
       "definition": "CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)"
     },
     {
+      "table_name": "orders",
+      "name": "orders_visible_owner_created_idx",
+      "definition": "CREATE INDEX orders_visible_owner_created_idx ON public.orders USING btree (owner_sub, created_at DESC, id DESC) WHERE (deleted_at IS NULL)"
+    },
+    {
+      "table_name": "product_restocks",
+      "name": "product_restocks_pkey",
+      "definition": "CREATE UNIQUE INDEX product_restocks_pkey ON public.product_restocks USING btree (owner_sub, idempotency_key)"
+    },
+    {
       "table_name": "products",
       "name": "products_code_key",
       "definition": "CREATE UNIQUE INDEX products_code_key ON public.products USING btree (code)"
@@ -468,6 +568,11 @@
   ],
   "functions": [
     {
+      "name": "notify_catalog_change",
+      "arguments": "",
+      "definition": "CREATE OR REPLACE FUNCTION public.notify_catalog_change()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n  PERFORM pg_notify('training2_catalog', 'changed');\n  RETURN NULL;\nEND;\n$function$\n"
+    },
+    {
       "name": "set_updated_at",
       "arguments": "",
       "definition": "CREATE OR REPLACE FUNCTION public.set_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n  NEW.updated_at = clock_timestamp();\n  RETURN NEW;\nEND;\n$function$\n"
@@ -478,6 +583,11 @@
       "table_name": "orders",
       "name": "orders_updated_at",
       "definition": "CREATE TRIGGER orders_updated_at BEFORE UPDATE ON public.orders FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "table_name": "products",
+      "name": "catalog_changed",
+      "definition": "CREATE TRIGGER catalog_changed AFTER INSERT OR DELETE OR UPDATE ON public.products FOR EACH STATEMENT EXECUTE FUNCTION notify_catalog_change()"
     },
     {
       "table_name": "products",

@@ -22,26 +22,32 @@ export function safeReturnTo(value: unknown, manifest: RouteManifest) {
     : "/products";
 }
 const messages: Record<string, string> = {
-  NOT_IMPLEMENTED: "此功能即将开放，当前还不能完成操作。",
-  INVALID_INPUT: "请检查输入内容。",
-  DUPLICATE_PRODUCT: "商品代码已存在，请换一个代码。",
-  UNAUTHENTICATED: "登录已失效，请重新登录。",
-  FORBIDDEN: "当前账号没有管理权限。",
-  NOT_FOUND: "未找到内容，或你无权查看。",
-  IDEMPOTENCY_CONFLICT: "这次提交的内容已改变，请重新创建订单。",
-  INSUFFICIENT_STOCK: "库存不足，请返回商品页查看最新库存。",
-  INVALID_ORDER_STATE: "订单当前状态不允许此操作。",
-  TEMPORARILY_UNAVAILABLE: "服务暂时繁忙，请稍后重试。",
+  NOT_IMPLEMENTED: "この機能は準備中です。",
+  INVALID_INPUT: "入力内容をご確認ください。",
+  DUPLICATE_PRODUCT:
+    "商品コードは既に登録されています。別のコードを入力してください。",
+  UNAUTHENTICATED:
+    "セッションの有効期限が切れました。再度ログインしてください。",
+  FORBIDDEN: "管理権限がありません。",
+  NOT_FOUND: "見つからないか、閲覧する権限がありません。",
+  IDEMPOTENCY_CONFLICT:
+    "注文内容が変更されています。注文を作成し直してください。",
+  INSUFFICIENT_STOCK:
+    "在庫が不足しています。商品一覧で最新の在庫をご確認ください。",
+  INVALID_ORDER_STATE: "現在の注文状態ではこの操作はできません。",
+  TEMPORARILY_UNAVAILABLE:
+    "ただいま混み合っています。時間をおいて再試行してください。",
 };
 export function apiMessage(error: unknown) {
   if (axios.isAxiosError(error)) {
     if (error.code === "ECONNABORTED")
-      return "请求超时，可重试；创建订单会沿用同一个提交编号。";
-    if (!error.response) return "连接失败，请检查网络并重试。";
+      return "通信がタイムアウトしました。再試行できます。注文は同じ受付番号で処理されます。";
+    if (!error.response)
+      return "接続できません。ネットワークを確認して再試行してください。";
     return (
       messages[error.response.data?.error?.code] ??
-      "服务暂时无法完成请求，请稍后重试。"
+      "処理を完了できません。時間をおいて再試行してください。"
     );
   }
-  return "操作未完成，请重试。";
+  return "処理を完了できません。再試行してください。";
 }

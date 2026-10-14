@@ -38,9 +38,11 @@ pnpm dev:public-frontend
 pnpm dev:private-frontend
 ```
 
-在 VS Code 的 Ports 面板确认端口转发。买家端 [localhost:5173](http://localhost:5173)、管理端 [localhost:5174](http://localhost:5174)；API 健康检查为 [3000/health](http://localhost:3000/health) 和 [3001/health](http://localhost:3001/health)。认证模拟器由 Compose 启动，浏览器地址为 localhost:9230，容器内地址为 cognito-local:9229。
+在 VS Code 的 Ports 面板确认端口转发。主入口 [localhost:5173](http://localhost:5173)、独立管理端 [localhost:5174](http://localhost:5174)；API 健康检查为 [3000/health](http://localhost:3000/health) 和 [3001/health](http://localhost:3001/health)。认证模拟器由 Compose 启动，浏览器地址为 localhost:9230，容器内地址为 cognito-local:9229。
 
-本地账号为 admin@training2.test 与 buyer@training2.test，共用开发密码 Training2-local-2026!，仅适用于模拟器。管理员可注册商品；买家可搜索、查看库存、创建草稿、确认与取消自己的订单。草稿不扣库存，确认扣减，取消已确认订单返还一次。详细条件见 [业务规则](./requirements.md)。
+验收可以使用三种方式：5173登录顾客验证购物；5173分别登录顾客与管理员验证统一入口；5174登录管理员验证独立管理端。两端共用相同API业务实现和数据库，5174管理页面与5173管理员页面功能一致。
+
+本地账号为 admin@training2.test、buyer@training2.test、buyer2@training2.test 与 buyer3@training2.test，共用开发密码 Training2-local-2026!，仅适用于模拟器。管理员可登记商品及增量补货；买家可搜索、筛选有库存商品、查看实时库存、管理自己的草稿/已确认/已取消订单及清理已取消记录。草稿不扣库存，确认扣减，取消已确认订单返还一次。详细条件见 [业务规则](./requirements.md)。
 
 第五个容器终端运行：
 

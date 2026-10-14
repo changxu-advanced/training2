@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import NavButton from "../components/NavButton.vue";
 import { signIn, signOut } from "@training2/auth/browser";
 import { screens } from "@training2/screen-contracts";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
-import { clearSession, session, useRuntime } from "../context.ts";
+import { clearSession, draft, isAdministrator, session, useRuntime } from "../context.ts";
 import { safeReturnTo } from "../helpers.ts";
 
 const runtime = useRuntime();
@@ -21,28 +22,29 @@ const denied = computed(
 );
 async function login() {
   if (!username.value.trim() || !password.value) {
-    failure.value = "请填写邮箱和密码。";
+    failure.value = "メールアドレスとパスワードを入力してください。";
     return;
   }
   pending.value = true;
   failure.value = "";
   try {
-    await signOut();
     clearSession(!session.sub);
     runtime.queryClient.clear();
+    await signOut();
     const result = await signIn({
       username: username.value.trim(),
       password: password.value,
       options: { authFlowType: "USER_PASSWORD_AUTH" },
     });
     if (!result.isSignedIn) {
-      failure.value = "登录需要进一步验证，请联系管理员。";
+      failure.value = "追加の認証が必要です。管理者にお問い合わせください。";
       return;
     }
     await runtime.refreshSession();
     runtime.queryClient.clear();
+    if(isAdministrator.value){draft.items=[];draft.key="";}
     if (runtime.scope === "private" && !session.groups.includes("admin")) {
-      failure.value = "当前账号没有管理权限，请使用管理员账号。";
+      failure.value = "管理権限がありません。管理者アカウントをご利用ください。";
       return;
     }
     const manifest = {
@@ -55,14 +57,14 @@ async function login() {
     };
     await runtime.router.replace(safeReturnTo(route.query.returnTo, manifest));
   } catch {
-    failure.value = "登录失败，请检查邮箱和密码后重试。";
+    failure.value = "ログインできません。メールアドレスとパスワードをご確認ください。";
   } finally {
     password.value = "";
     pending.value = false;
   }
 }
 </script>
-<template><section class="login-layout"><div class="login-story"><p class="eyebrow">{{runtime.scope==='private'?'YOUR WORKSPACE':'WELCOME TO TRAINING STORE'}}</p><h1><template v-if="runtime.scope==='private'">好商品，<br/>从这里开始。</template><template v-else>把喜欢的，<br/>带回日常。</template></h1><p class="story-copy">{{runtime.scope==='private'?'统一管理商品信息、价格与库存。登录管理员账号，进入你的工作台。':'探索心仪商品，查看实时库存。登录后，管理属于你的每一笔订单。'}}</p><div class="illustration" aria-hidden="true"><div class="orb"></div><div class="bag"><div class="handle"></div><span>t²</span></div><div class="mini-bag"><span>↗</span></div><span class="spark">✦</span></div><div class="story-note"><span>01 /</span> 简单、清晰的购物体验</div></div>
-<div class="login-card"><span class="mini-label">{{runtime.scope==='private'?'管理端':'买家端'}}账户</span><h2>{{runtime.scope==='private'?'登录工作台':'欢迎回来'}}</h2><p class="muted">使用已准备好的账户继续</p><el-alert v-if="denied" title="当前账号没有管理权限" type="warning" :closable="false" show-icon/><el-alert v-if="route.query.expired" title="登录已失效，请重新登录" type="warning" :closable="false" show-icon/><el-alert v-if="failure" :title="failure" type="error" :closable="false" show-icon/>
-<el-form label-position="top" @submit.prevent="login"><el-form-item label="邮箱" for="login-email"><el-input id="login-email" v-model="username" placeholder="请输入邮箱" autocomplete="username" :disabled="pending"/></el-form-item><el-form-item label="密码" for="login-password"><el-input id="login-password" v-model="password" type="password" placeholder="请输入密码" autocomplete="current-password" show-password :disabled="pending"/></el-form-item><el-button class="wide-button" type="primary" native-type="submit" :loading="pending">{{runtime.scope==='private'?'登录管理端':'登录买家端'}}</el-button></el-form>
-<p class="local-help">本地体验账号<br/><strong>{{runtime.scope==='private'?'admin@training2.test':'buyer@training2.test'}}</strong><br/>开发密码：Training2-local-2026!</p><router-link v-if="runtime.scope==='public'" to="/products" class="quiet-link">先逛逛商品 →</router-link></div></section></template>
+<template><section class="login-layout"><div class="login-story"><p class="eyebrow">{{runtime.scope==='private'?'管理者向け':'オンラインストア'}}</p><h1><template v-if="runtime.scope==='private'">商品の管理は、<br/>ここから。</template><template v-else>お気に入りを、<br/>毎日の暮らしに。</template></h1><p class="story-copy">{{runtime.scope==='private'?'商品情報・価格・在庫を管理できます。管理者アカウントでログインしてください。':'同じ入口からログインできます。ご利用権限に応じて、注文管理または商品管理の画面を表示します。'}}</p><div class="illustration" aria-hidden="true"><div class="orb"></div><div class="bag"><div class="handle"></div><span>暮らし</span></div><div class="mini-bag"><span>↗</span></div><span class="spark">✦</span></div><div class="story-note"><span>01 /</span> シンプルでわかりやすいお買い物</div></div>
+<div class="login-card"><span class="mini-label">{{runtime.scope==='private'?'管理者':'共通'}}アカウント</span><h2>{{runtime.scope==='private'?'管理画面へログイン':'ログイン'}}</h2><p class="muted">アカウントを入力してログインしてください</p><el-alert v-if="denied" title="管理権限がありません" type="warning" :closable="false" show-icon/><el-alert v-if="route.query.expired" title="セッションの有効期限が切れました。再度ログインしてください" type="warning" :closable="false" show-icon/><el-alert v-if="failure" :title="failure" type="error" :closable="false" show-icon/>
+<el-form label-position="top" @submit.prevent="login"><el-form-item label="メールアドレス" for="login-email"><el-input id="login-email" v-model="username" placeholder="メールアドレスを入力" autocomplete="username" :disabled="pending"/></el-form-item><el-form-item label="パスワード" for="login-password"><el-input id="login-password" v-model="password" type="password" placeholder="パスワードを入力" autocomplete="current-password" show-password :disabled="pending"/></el-form-item><el-button class="wide-button" type="primary" native-type="submit" :loading="pending">{{runtime.scope==='private'?'管理者ログイン':'ログイン'}}</el-button></el-form>
+<p class="local-help">ローカルテスト用アカウント<br/><strong>{{runtime.scope==='private'?'admin@training2.test':'buyer@training2.test'}}</strong><br/>テスト用パスワード：Training2-local-2026!</p><NavButton v-if="runtime.scope==='public'" to="/products">商品を見る →</NavButton></div></section></template>

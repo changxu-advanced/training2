@@ -34,6 +34,8 @@ for (const scope of ["public", "private"] as const) {
         parameters?: { in: string; required?: boolean }[];
         requestBody?: unknown;
       };
+      // EventSource owns streaming transport, never buffer SSE with Axios.
+      if (op.operationId === "catalogEvents") continue;
       const id = op.operationId;
       const params = op.parameters ?? [];
       const fields: string[] = [];
