@@ -122,6 +122,10 @@ test("[E2E-ORDER-CREATE] [E2E-ORDER-OWNER] [E2E-ORDER-STOCK] real order retry, l
   await page
     .getByRole("button", { name: "注文を確定", exact: true })
     .dblclick();
+  await page
+    .getByRole("dialog", { name: "注文確定の確認" })
+    .getByRole("button", { name: "注文を確定", exact: true })
+    .click();
   await expect(
     page.getByRole("heading", { name: "確定済み", exact: true }),
   ).toBeVisible();
@@ -142,6 +146,10 @@ test("[E2E-ORDER-CREATE] [E2E-ORDER-OWNER] [E2E-ORDER-STOCK] real order retry, l
     await route.continue();
   });
   await page
+    .getByRole("button", { name: "注文をキャンセル", exact: true })
+    .click();
+  await page
+    .getByRole("dialog", { name: "注文キャンセルの確認" })
     .getByRole("button", { name: "注文をキャンセル", exact: true })
     .click();
   try {
@@ -204,6 +212,10 @@ test("[E2E-ORDER-CREATE] [E2E-ORDER-OWNER] [E2E-ORDER-STOCK] real order retry, l
   await page
     .getByRole("button", { name: "注文をキャンセル", exact: true })
     .click();
+  await page
+    .getByRole("dialog", { name: "注文キャンセルの確認" })
+    .getByRole("button", { name: "注文をキャンセル", exact: true })
+    .click();
   await expect(
     page.getByRole("heading", { name: "キャンセル済み", exact: true }),
   ).toBeVisible();
@@ -218,20 +230,22 @@ test("[E2E-ORDER-CREATE] [E2E-ORDER-OWNER] [E2E-ORDER-STOCK] real order retry, l
     unchanged.getByRole("cell", { name: "5", exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "ログアウト" }).click();
-  await login(page, "admin@training2.test");
-  await page.waitForURL("**/products");
   const observed = page.waitForRequest(
     (request) =>
-      request.url().endsWith("/api/orders/" + orderId) &&
+      new URL(request.url()).pathname === "/admin-api/products" &&
       request.method() === "GET",
   );
-  await page.goto("http://localhost:5173/orders/" + orderId);
-  const otherRequest = await observed;
-  await expect(
-    page.getByText("見つからないか、閲覧する権限がありません。"),
-  ).toBeVisible();
-  const authorization = otherRequest.headers().authorization;
+  await login(page, "admin@training2.test");
+  await page.waitForURL("**/products");
+  const authorization = (await observed).headers().authorization;
   expect(authorization).toBeTruthy();
+  await page.goto("http://localhost:5173/orders/" + orderId);
+  await expect(page).toHaveURL(/\/products$/);
+  const read = await page.request.get(
+    "http://localhost:5173/api/orders/" + orderId,
+    { headers: { Authorization: authorization } },
+  );
+  expect(read.status()).toBe(404);
   for (const action of ["confirm", "cancel"]) {
     const response = await page.request.post(
       "http://localhost:5173/api/orders/" + orderId + "/" + action,

@@ -168,6 +168,12 @@ test("AC-O/S: real orders enforce snapshot pricing, idempotency, ownership and a
         409,
       );
       const own = await create([{ productId: p.id, quantity: 2 }]);
+      const available = await request("/orders?status=draft").then(
+        jsonResponse,
+      );
+      assert.equal(available.body.items.length, 1);
+      assert.equal(available.body.items[0].id, own.body.id);
+      assert.equal(available.body.items[0].canConfirm, true);
       await prisma.products.update({
         where: { id: p.id },
         data: { price_jpy: 900n, name: "新名称" },
@@ -206,6 +212,126 @@ test("AC-O/S: real orders enforce snapshot pricing, idempotency, ownership and a
       const read = await request("/orders/" + own.body.id).then(jsonResponse);
       assert.equal(read.body.status, "cancelled");
       assert.ok(!("owner_sub" in read.body));
+      const history = await request("/orders?pageSize=1").then(jsonResponse);
+      assert.equal(history.status, 200);
+      assert.equal(history.body.total, 2);
+      assert.equal(history.body.items.length, 1);
+      assert.equal(history.body.items[0].id, own.body.id);
+      assert.equal(history.body.items[0].canConfirm, false);
+      const older = await request("/orders?page=2&pageSize=1").then(
+        jsonResponse,
+      );
+      assert.equal(older.body.items[0].id, draft.body.id);
+      const empty = await request("/orders?status=confirmed").then(
+        jsonResponse,
+      );
+      assert.equal(empty.body.total, 0);
+      assert.equal(
+        (await request("/orders?page=99").then(jsonResponse)).body.items.length,
+        0,
+      );
+      assert.equal(
+        (await request("/orders", "GET", undefined, "")).status,
+        401,
+      );
+      assert.equal((await request("/orders?owner=other")).status, 400);
+      const other = await request("/orders", "GET", undefined, "other").then(
+        jsonResponse,
+      );
+      assert.equal(other.body.total, 1);
+      // Cleanup spans pages and remains owner/status scoped; durable keys cannot resurrect rows.
+      const retainedDraft = await create([{ productId: p.id, quantity: 1 }]);
+      const retainedConfirmed = await create([
+        { productId: p.id, quantity: 1 },
+      ]);
+      await request(
+        "/orders/" + retainedConfirmed.body.id + "/confirm",
+        "POST",
+      );
+      await request(
+        "/orders/" + other.body.items[0].id + "/cancel",
+        "POST",
+        undefined,
+        "other",
+      );
+      for (let i = 0; i < 21; i++) {
+        const extra = await create([{ productId: p.id, quantity: 1 }]);
+        await request("/orders/" + extra.body.id + "/cancel", "POST");
+      }
+      const stockBefore = (
+        await prisma.products.findUniqueOrThrow({ where: { id: p.id } })
+      ).stock;
+      assert.equal(
+        (await request("/orders/cancelled", "DELETE", undefined, "")).status,
+        401,
+      );
+      const cleaned = await request("/orders/cancelled", "DELETE").then(
+        jsonResponse,
+      );
+      assert.equal(cleaned.status, 200);
+      assert.equal(cleaned.body.deletedCount, 23);
+      assert.equal(
+        (await request("/orders/cancelled", "DELETE").then(jsonResponse)).body
+          .deletedCount,
+        0,
+      );
+      assert.equal(
+        (await request("/orders?status=cancelled").then(jsonResponse)).body
+          .total,
+        0,
+      );
+      assert.equal((await request("/orders").then(jsonResponse)).body.total, 2);
+      assert.equal(
+        (await request("/orders/" + retainedDraft.body.id).then(jsonResponse))
+          .body.status,
+        "draft",
+      );
+      assert.equal(
+        (
+          await request("/orders/" + retainedConfirmed.body.id).then(
+            jsonResponse,
+          )
+        ).body.status,
+        "confirmed",
+      );
+      assert.equal(
+        (await request("/orders", "GET", undefined, "other").then(jsonResponse))
+          .body.total,
+        1,
+      );
+      for (const suffix of ["", "/confirm", "/cancel"])
+        assert.equal(
+          (
+            await request(
+              "/orders/" + draft.body.id + suffix,
+              suffix ? "POST" : "GET",
+            )
+          ).status,
+          404,
+        );
+      assert.equal((await create(items, key)).status, 409);
+      assert.equal(
+        await prisma.orders.count({
+          where: { owner_sub: "buyer", deleted_at: { not: null } },
+        }),
+        23,
+      );
+      assert.equal(
+        (await prisma.products.findUniqueOrThrow({ where: { id: p.id } }))
+          .stock,
+        stockBefore,
+      );
+      await assert.rejects(
+        prisma.orders.update({
+          where: { id: retainedDraft.body.id },
+          data: { deleted_at: new Date() },
+        }),
+      );
+      assert.ok(
+        !other.body.items.some((item: { id: string }) =>
+          [own.body.id, draft.body.id].includes(item.id),
+        ),
+      );
     } finally {
       await api.close();
     }

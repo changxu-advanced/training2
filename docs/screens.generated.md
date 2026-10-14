@@ -4,7 +4,25 @@
 
 根路由 / 在两端跳转 /products。权限 owner 包含已登录要求，服务器仍验证订单所有者。
 
-## PUB-LOGIN · 購入者ログイン
+## PUB-PRODUCT-CREATE · 商品登録（共通入口・管理者専用）
+
+- 端：public；路由：/products/new；权限：admin
+- 输入：code、name、description、priceJpy、stock
+- 输入契约：@training2/api-contracts/inputs#productInput
+- API：private:registerProduct、private:getProduct、private:restockProduct
+- 认证 SDK：无
+- 遷移：PUB-LOGIN、PUB-PRODUCTS
+- 验收：AC-P01、AC-P03、AC-P08、AC-P09、AC-A03
+
+| 状态 | 页面反馈 |
+| --- | --- |
+| idle | 管理员登记商品，顾客无入口且直接URL拒绝；restock查询参数选定已有商品，自动填入只读信息，追加数量默认1，范围1～2000；按增量补货且保留同次提交key避免重复 |
+| loading | 提交禁止重复 |
+| empty | 提示必填 |
+| success | 登记后回商品一覧，顾客收到自动更新 |
+| error | 401登录，403权限提示，409重复，保留输入 |
+
+## PUB-LOGIN · 共通ログイン
 
 - 端：public；路由：/login；权限：any
 - 输入：username、password、returnTo（仅同站受保护路由）
@@ -16,7 +34,7 @@
 
 | 状态 | 页面反馈 |
 | --- | --- |
-| idle | 显示登录表单 |
+| idle | 显示登录表单；顶部仅保留无链接的公司Logo，隐藏页面导航和右侧登录/账号区，表单下方保留商品浏览入口 |
 | loading | 登录按钮禁用 |
 | empty | 提示填写账号与密码 |
 | success | 安全跳转回来源页，默认商品页 |
@@ -25,36 +43,36 @@
 ## PUB-PRODUCTS · 商品検索と在庫
 
 - 端：public；路由：/products；权限：any
-- 输入：code、name、page、pageSize、所选商品与数量
+- 输入：code、name、page、pageSize、所选商品与数量、inStock（有库存筛选）
 - 输入契约：searchProducts request；数量由 orderInput 验证
-- API：searchProducts、getStock
+- API：searchProducts、getStock、private:listProducts
 - 认证 SDK：无
-- 遷移：PUB-LOGIN、PUB-ORDER-CREATE
+- 遷移：PUB-LOGIN、PUB-ORDER-CREATE、PUB-PRODUCT-CREATE
 - 验收：AC-P05、AC-P06、AC-P07、AC-E01、AC-E02
 
 | 状态 | 页面反馈 |
 | --- | --- |
-| idle | 显示搜索条件 |
+| idle | 全站Logo为不可点击展示，非登录页未登录时右侧登录入口使用统一描边导航按钮；显示搜索条件；件数左侧筛选按钮未选中显示在庫ありのみ，选中显示在庫ありのみを解除并保持蓝色，两种文案的右边缘均与商品选择按钮对齐，文字变长向左扩展；服务器跨页过滤及计数，切换回第一页，搜索条件保留且库存变化自动更新 |
 | loading | 仅首次加载展示占位；后台自动更新保留列表、搜索、分页和滚动 |
 | empty | 没有匹配商品，可清空条件 |
 | success | 显示代码、名称、说明、JPY价格、自动更新库存和分页；仅商品选择按钮，零库存不可选择 |
 | error | 保留条件并支持重试，501提示功能未实现 |
 
-## PUB-ORDER-CREATE · 注文作成
+## PUB-ORDER-CREATE · 注文管理・新規作成
 
 - 端：public；路由：/orders/new；权限：authenticated
 - 输入：items(productId,quantity)、Idempotency-Key（同一次创建/重试保持 UUID）
 - 输入契约：@training2/api-contracts/inputs#orderInput
-- API：createOrder、getStock
+- API：listOrders、deleteCancelledOrders、createOrder、getStock、confirmOrder、cancelOrder
 - 认证 SDK：无
 - 遷移：PUB-LOGIN、PUB-PRODUCTS、PUB-ORDER
-- 验收：AC-O08、AC-O01、AC-O02、AC-O03、AC-O04、AC-O05、AC-O07、AC-E01、AC-E02
+- 验收：AC-O11、AC-O09、AC-O10、AC-O08、AC-O01、AC-O02、AC-O03、AC-O04、AC-O05、AC-O07、AC-E01、AC-E02
 
 | 状态 | 页面反馈 |
 | --- | --- |
-| idle | 显示所选明细，重查库存；数量即时限制为1到min(库存,1000)的整数；零库存禁用；不允许输入价格或所有者 |
+| idle | 统一订单入口：没有所选商品时显示本人的订单列表，按状态筛选，未确定可确认/取消，已确定仅取消，已取消无操作；所有操作先确认；顶部状态筛选右侧新建订单进入商品选择；清理本人全部已取消订单需确认，数据库逻辑删除保留幂等记录。有所选商品时显示所选明细，重查库存；数量即时限制为1到min(库存,1000)的整数；零库存禁用；不允许输入价格或所有者 |
 | loading | 仅首次查询库存时禁用输入/创建；后台更新保留输入节点，库存不足提示并禁用创建，不自动改变已选数量；提交中禁止重复点击或取消选择，不创建新key |
-| empty | 无明细时引导返回商品页 |
+| empty | 无历史订单显示空白提示及创建新订单按钮；状态筛选无结果另有提示 |
 | success | 201或200跳转订单详情；取消选择需确认，确认清空全部选择/数量/key并返回商品页，保留或关闭不清空 |
 | error | 保留明细及key，输入/商品不存在/幂等冲突分别提示 |
 
@@ -88,7 +106,7 @@
 
 | 状态 | 页面反馈 |
 | --- | --- |
-| idle | 显示管理员登录表单 |
+| idle | 显示管理员登录表单；顶部仅保留无链接的公司Logo，隐藏页面导航和右侧登录/账号区 |
 | loading | 登录按钮禁用 |
 | empty | 提示填写账号与密码 |
 | success | 验证admin组后进入管理页 |
@@ -109,7 +127,7 @@
 | idle | 显示列表入口 |
 | loading | 显示加载状态 |
 | empty | 无商品或末页外时提供注册/上一页入口 |
-| success | 按代码升序显示产品和分页，自动更新商品和库存；浅蓝表头及条纹行 |
+| success | 按代码升序显示产品和分页，自动更新商品和库存；每行库存右侧提供在庫を追加，跳转登记页预填信息；商品登録移至件数左侧同一行，和补货按钮左边缘对齐、大小及描边悬停样式相同；浅蓝表头及条纹行 |
 | error | 401转登录；403无管理权限；其他错误可重试 |
 
 ## ADM-PRODUCT-CREATE · 商品登録
@@ -117,14 +135,14 @@
 - 端：private；路由：/products/new；权限：admin
 - 输入：code、name、description、priceJpy、stock
 - 输入契约：@training2/api-contracts/inputs#productInput
-- API：registerProduct
+- API：registerProduct、getProduct、restockProduct
 - 认证 SDK：无
 - 遷移：ADM-LOGIN、ADM-PRODUCTS
-- 验收：AC-P08、AC-P01、AC-P02、AC-P03、AC-P04、AC-E01、AC-E02
+- 验收：AC-P09、AC-P08、AC-P01、AC-P02、AC-P03、AC-P04、AC-E01、AC-E02
 
 | 状态 | 页面反馈 |
 | --- | --- |
-| idle | 日文登记表单；价格即时限制非负整数，初期库存即时限制0～2000；公司Logo与柔和蓝色 |
+| idle | 已有商品补货复用登记表单，只读信息自动填写，追加数量默认1且限制1～2000；日文登记表单；价格即时限制非负整数，初期库存即时限制0～2000；公司Logo与柔和蓝色 |
 | loading | 提交按钮禁用 |
 | empty | 必填缺失提示 |
 | success | 201后返回管理列表并刷新商品查询 |
@@ -134,19 +152,27 @@
 
 以下映射不代表测试已运行；路由存在检查不能替代业务 E2E。
 
+### E2E-ORDER-HISTORY
+
+- 状态：implemented；阶段：Step11；实际 spec：tests/e2e/order-history.spec.ts
+- 页面：PUB-ORDER-CREATE、PUB-ORDER
+- 验收：AC-O09、AC-O10、AC-O11
+- 操作：统一入口空白/历史、状态过滤、本人订单权限；确认框返回不提交；确认/取消后刷新状态按钮及库存
+- 预期：他人订单不展示；未确定/确定/取消操作正确；顶部创建新订单；取消清理不发送DELETE，确认后仅删除本人全部已取消订单
+
 ### E2E-AUTH
 
 - 状态：implemented；阶段：Step9；实际 spec：tests/e2e/auth.spec.ts
-- 页面：PUB-LOGIN、ADM-LOGIN、ADM-PRODUCTS、ADM-PRODUCT-CREATE、PUB-ORDER-CREATE、PUB-ORDER
-- 验收：AC-A01、AC-P03、AC-O07、AC-E02
+- 页面：PUB-LOGIN、PUB-PRODUCT-CREATE、ADM-LOGIN、ADM-PRODUCTS、ADM-PRODUCT-CREATE、PUB-ORDER-CREATE、PUB-ORDER
+- 验收：AC-A01、AC-P03、AC-P01、AC-P08、AC-A03、AC-O07、AC-E02
 - 操作：登录/退出与过期会话处理；未登录跳转，买家不能进入管理页，API仍返回401/403
 - 预期：returnTo仅允许同站路由；不展示受保护数据；错误状态清晰
 
 ### E2E-PRODUCTS
 
 - 状态：implemented；阶段：Step10；实际 spec：tests/e2e/products.spec.ts
-- 页面：ADM-PRODUCT-CREATE、ADM-PRODUCTS、PUB-PRODUCTS
-- 验收：AC-P08、AC-P01、AC-P02、AC-P03、AC-P04、AC-P05、AC-P06、AC-E01、AC-E02
+- 页面：ADM-PRODUCT-CREATE、PUB-PRODUCT-CREATE、ADM-PRODUCTS、PUB-PRODUCTS
+- 验收：AC-P09、AC-P08、AC-P01、AC-P02、AC-P03、AC-P04、AC-P05、AC-P06、AC-E01、AC-E02
 - 操作：管理员注册后在两端查找商品；验证重复代码、非法输入、搜索组合及空分页
 - 预期：代码规范化、商品只写入一次；价格和库存正确；搜索字面匹配；错误不丢输入
 
@@ -172,7 +198,7 @@
 - 页面：PUB-PRODUCTS、PUB-ORDER
 - 验收：AC-P07、AC-S01、AC-S02、AC-S03、AC-S04、AC-S05、AC-S06、AC-E01、AC-E02
 - 操作：足量确认、重复确认、取消和重复取消；多商品部分不足；查看快照后库存改变；确认已取消订单
-- 预期：库存轨迹符合验收规格，失败全回滚；操作后刷新状态及库存，重复提交不重复扣减/返还
+- 预期：库存轨迹符合验收规格，失败全回滚；操作前弹确认框，返回不发请求；操作后刷新状态及库存，重复提交不重复扣减/返还
 
 ### E2E-FLOW
 

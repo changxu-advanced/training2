@@ -8,7 +8,7 @@ import {
 } from "@training2/auth";
 import { createLogger } from "@training2/logger";
 import { HTTPException } from "hono/http-exception";
-import { orderInput, productInput } from "./inputs.ts";
+import { orderInput, productInput, restockInput } from "./inputs.ts";
 
 export { orderInput, productInput };
 export const errorSchema = z
@@ -76,6 +76,10 @@ const pagination = z.strictObject({
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
 });
 const search = pagination.extend({
+  inStock: z
+    .enum(["true", "false"])
+    .optional()
+    .describe("true: stock greater than zero; false or omitted: all products"),
   code: z
     .string()
     .optional()
@@ -211,6 +215,50 @@ export const publicRoutes = [
       ...failures([400, 401, 404, 500, 501, 503]),
     },
   }),
+  createRoute({
+    method: "get",
+    path: "/orders",
+    operationId: "listOrders",
+    summary:
+      "List own orders newest first with current confirmation availability",
+    security: secured,
+    request: {
+      query: pagination.extend({
+        status: z.enum(["draft", "confirmed", "cancelled"]).optional(),
+      }),
+    },
+    responses: {
+      200: json(
+        z
+          .strictObject({
+            items: z.array(orderSchema.extend({ canConfirm: z.boolean() })),
+            page: z.number().int().min(1),
+            pageSize: z.number().int().min(1).max(100),
+            total: z.number().int().min(0),
+          })
+          .openapi("OrdersPage"),
+        "Own orders, never another buyer's orders",
+      ),
+      ...failures([400, 401, 500, 501]),
+    },
+  }),
+  createRoute({
+    method: "delete",
+    path: "/orders/cancelled",
+    operationId: "deleteCancelledOrders",
+    summary:
+      "Remove all own cancelled orders from history; preserve durable idempotency records",
+    security: secured,
+    responses: {
+      200: json(
+        z
+          .strictObject({ deletedCount: z.number().int().min(0) })
+          .openapi("OrderCleanupResult"),
+        "Number of newly deleted cancelled orders",
+      ),
+      ...failures([401, 500, 501, 503]),
+    },
+  }),
 ] as const;
 export const privateRoutes = [
   createRoute({
@@ -235,6 +283,42 @@ export const privateRoutes = [
     responses: {
       200: json(productsPage, "Products sorted by code"),
       ...failures([400, 401, 403, 500, 501]),
+    },
+  }),
+  createRoute({
+    method: "get",
+    path: "/products/{id}",
+    operationId: "getProduct",
+    summary: "Admin reads product for restocking",
+    security: secured,
+    request: { params },
+    responses: {
+      200: json(productSchema, "Current product"),
+      ...failures([400, 401, 403, 404, 500, 501]),
+    },
+  }),
+  createRoute({
+    method: "post",
+    path: "/products/{id}/restock",
+    operationId: "restockProduct",
+    summary: "Admin adds stock atomically; same owner/key never adds twice",
+    security: secured,
+    request: {
+      params,
+      headers: z.object({
+        "idempotency-key": z
+          .string()
+          .uuid()
+          .openapi({ param: { name: "idempotency-key", in: "header" } }),
+      }),
+      body: body(restockInput.openapi("RestockInput")),
+    },
+    responses: {
+      200: json(
+        productSchema,
+        "Current product after this restock or an idempotent replay",
+      ),
+      ...failures([400, 401, 403, 404, 409, 415, 500, 501, 503]),
     },
   }),
 ] as const;
@@ -368,7 +452,8 @@ export function createContractApp(
   }
   app.use("*", async (c, next) => {
     const protectedRequest =
-      (scope === "private" && c.req.path === "/products") ||
+      (scope === "private" &&
+        (c.req.path === "/products" || c.req.path.startsWith("/products/"))) ||
       c.req.path === "/orders" ||
       c.req.path.startsWith("/orders/");
     if (!protectedRequest) return next();

@@ -27,5 +27,8 @@ export const orderInput = z.strictObject({
     .min(1)
     .max(50),
 });
+export const restockInput = z.strictObject({
+  quantity: z.number().int().min(1).max(2000),
+});
 export type ProductInput = z.infer<typeof productInput>;
 export type OrderInput = z.infer<typeof orderInput>;

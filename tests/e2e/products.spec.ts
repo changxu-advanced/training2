@@ -7,16 +7,62 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
 }) => {
   const code = "E2E-" + randomUUID().slice(0, 8).toUpperCase();
   const name = "サンプル商品 %_ " + code;
-  await page.goto("http://localhost:5174/login");
+  await page.goto("http://localhost:5173/login");
+  const logo = page.getByRole("img", {
+    name: "アドバンスト・ソフト",
+    exact: true,
+  });
+  await expect(
+    page.getByRole("link", { name: /アドバンスト・ソフト/ }),
+  ).toHaveCount(0);
+  await logo.click();
+  await expect(page).toHaveURL(/\/login$/);
+  const browse = page.getByRole("link", { name: "商品を見る →", exact: true });
+  await expect(browse).toHaveClass(/navigation-button/);
+  const beforeHover = await browse.evaluate(
+    (el) => getComputedStyle(el).backgroundColor,
+  );
+  await browse.hover();
+  await expect
+    .poll(() => browse.evaluate((el) => getComputedStyle(el).backgroundColor))
+    .not.toBe(beforeHover);
+  await browse.focus();
+  await expect(browse).toBeFocused();
+  await browse.press("Enter");
+  await expect(page).toHaveURL(/\/products$/);
+  const headerLogin = page
+    .locator("header")
+    .getByRole("link", { name: /^ログイン\s*↗$/ });
+  await expect(headerLogin).toHaveClass(/navigation-button/);
+  const loginNormal = await headerLogin.evaluate(
+    (el) => getComputedStyle(el).backgroundColor,
+  );
+  await headerLogin.hover();
+  await expect
+    .poll(() =>
+      headerLogin.evaluate((el) => getComputedStyle(el).backgroundColor),
+    )
+    .not.toBe(loginNormal);
+  await headerLogin.click();
+  await expect(page).toHaveURL(/\/login$/);
   await page
     .getByLabel("メールアドレス", { exact: true })
     .fill("admin@training2.test");
   await page
     .getByLabel("パスワード", { exact: true })
     .fill("Training2-local-2026!");
-  await page.getByRole("button", { name: "管理者ログイン" }).click();
+  await page.getByRole("button", { name: "ログイン" }).click();
   await page.waitForURL("**/products");
-  await page.goto("http://localhost:5174/products/new");
+  await page.goto("http://localhost:5173/products/new");
+  await logo.click();
+  await expect(page).toHaveURL(/\/products\/new$/);
+  const back = page.getByRole("link", { name: "← 一覧へ戻る", exact: true });
+  await expect(back).toHaveClass(/navigation-button/);
+  await back.focus();
+  await back.press("Enter");
+  await expect(page).toHaveURL(/\/products$/);
+  await page.getByRole("button", { name: "商品登録", exact: true }).click();
+  await expect(page).toHaveURL(/\/products\/new$/);
   await page
     .getByLabel("商品コード", { exact: true })
     .fill(" " + code.toLowerCase() + " ");
@@ -47,7 +93,65 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   await page.getByRole("heading", { name: "商品登録" }).click();
   await page.getByRole("button", { name: "商品登録", exact: true }).click();
   await expect(page).toHaveURL(/\/products$/);
-  await page.goto("http://localhost:5174/products/new");
+  const registered = page.getByRole("row").filter({ hasText: code });
+  const registerButton = page.getByRole("button", {
+    name: "商品登録",
+    exact: true,
+  });
+  const addButton = registered.getByRole("button", {
+    name: "在庫を追加",
+    exact: true,
+  });
+  await expect(addButton).toBeVisible();
+  const registerBox = await registerButton.boundingBox();
+  const addBox = await addButton.boundingBox();
+  const countBox = await page
+    .locator(".product-heading-actions .muted")
+    .boundingBox();
+  expect(Math.abs(registerBox!.x - addBox!.x)).toBeLessThan(2);
+  expect(registerBox!.width).toBe(addBox!.width);
+  expect(registerBox!.height).toBe(addBox!.height);
+  expect(
+    Math.abs(
+      registerBox!.y +
+        registerBox!.height / 2 -
+        countBox!.y -
+        countBox!.height / 2,
+    ),
+  ).toBeLessThan(2);
+  expect(registerBox!.x + registerBox!.width).toBeLessThan(countBox!.x);
+  const normal = await registerButton.evaluate(
+    (el) => getComputedStyle(el).backgroundColor,
+  );
+  await registerButton.hover();
+  await expect
+    .poll(() =>
+      registerButton.evaluate((el) => getComputedStyle(el).backgroundColor),
+    )
+    .not.toBe(normal);
+  await page.getByRole("heading", { name: "商品一覧", exact: true }).hover();
+  await registered
+    .getByRole("button", { name: "在庫を追加", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/products\/new\?restock=/);
+  await expect(page.getByLabel("商品コード", { exact: true })).toHaveValue(
+    code,
+  );
+  await expect(page.getByLabel("商品名", { exact: true })).toHaveValue(name);
+  await expect(page.getByLabel("商品コード", { exact: true })).toBeDisabled();
+  const additional = page.getByLabel("追加数量", { exact: true });
+  await expect(additional).toHaveValue("1");
+  await page.reload();
+  await expect(additional).toHaveValue("1");
+  await expect(page.getByLabel("商品説明", { exact: true })).toHaveValue(
+    "<b>プレーンテキストの説明</b>",
+  );
+  await page.getByRole("button", { name: "在庫を追加", exact: true }).click();
+  await expect(page).toHaveURL(/\/products$/);
+  await expect(
+    registered.getByRole("cell", { name: "8", exact: true }),
+  ).toBeVisible();
+  await page.goto("http://localhost:5173/products/new");
   await page.getByLabel("商品コード", { exact: true }).fill(code.toLowerCase());
   await page.getByLabel("商品名", { exact: true }).fill(name);
   await page.getByRole("button", { name: "商品登録", exact: true }).click();
@@ -74,6 +178,56 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   ]);
   await expect(row.getByRole("button", { name: "在庫を更新" })).toHaveCount(0);
   await expect(row.getByRole("cell", { name: "9", exact: true })).toBeVisible();
+  const filter = page.getByRole("button", {
+    name: /^在庫ありのみ(?:を解除)?$/,
+  });
+  async function checkRightEdge() {
+    await expect
+      .poll(async () => {
+        const a = await filter.boundingBox();
+        const b = await row
+          .getByRole("button", { name: "商品を選択", exact: true })
+          .boundingBox();
+        return a && b ? Math.abs(a.x + a.width - b.x - b.width) : Infinity;
+      })
+      .toBeLessThan(2);
+  }
+  await checkRightEdge();
+  await filter.click();
+  await expect(filter).toHaveAttribute("aria-pressed", "true");
+  await expect(filter).toHaveText("在庫ありのみを解除");
+  await checkRightEdge();
+  await page.setViewportSize({ width: 1536, height: 850 });
+  await checkRightEdge();
+  await filter.click();
+  await checkRightEdge();
+  await filter.click();
+  await checkRightEdge();
+  await page.setViewportSize({ width: 1280, height: 850 });
+  await checkRightEdge();
+  function updateStock(value: number) {
+    execFileSync(process.execPath, [
+      "--input-type=module",
+      "-e",
+      "import {createPrismaClient} from './packages/prisma/src/index.ts';const db=createPrismaClient(process.env.DATABASE_URL);try{await db.products.update({where:{code:process.argv[1]},data:{stock:Number(process.argv[2])}});}finally{await db.$disconnect();}",
+      code,
+      String(value),
+    ]);
+  }
+  updateStock(0);
+  await expect(row).toHaveCount(0);
+  await expect(page.getByText("0 件の商品", { exact: true })).toBeVisible();
+  await filter.click();
+  await expect(filter).toHaveAttribute("aria-pressed", "false");
+  await expect(filter).toHaveText("在庫ありのみ");
+  await expect(row.getByText("在庫なし", { exact: true })).toBeVisible();
+  await filter.click();
+  await expect(filter).toHaveText("在庫ありのみを解除");
+  await expect(row).toHaveCount(0);
+  updateStock(9);
+  await expect(row.getByRole("cell", { name: "9", exact: true })).toBeVisible();
+  await filter.click();
+  await expect(filter).toHaveText("在庫ありのみ");
   await page
     .getByLabel("商品名", { exact: true })
     .fill("該当なし-" + randomUUID());

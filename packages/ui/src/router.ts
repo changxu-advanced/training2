@@ -21,6 +21,7 @@ export function createScreenRouter(
     "ADM-PRODUCTS": ProductsPage,
     "ADM-PRODUCT-CREATE": ProductFormPage,
     "PUB-ORDER-CREATE": OrderCreatePage,
+    "PUB-PRODUCT-CREATE": ProductFormPage,
     "PUB-ORDER": OrderPage,
   };
   const router = createRouter({

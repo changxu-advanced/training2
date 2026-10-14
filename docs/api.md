@@ -44,3 +44,7 @@ CI 对 PR base SHA 或主分支上一提交进行比较，首版无基线时仅�
 ## Catalog streaming
 
 GET /catalog/events is a public text/event-stream endpoint on both API services. Events: catalog / changed and heartbeat / ok; no order IDs or buyer information. EventSource owns transport (not the JSON Axios client). Reconnect refetches authoritative JSON snapshots; a 30-second fallback covers missed events. Database statement triggers use LISTEN/NOTIFY so both processes see committed writes only. Apply migration 0002 before starting the updated API. Listener failure closes streams, reconnects and returns 503 until ready. Existing JSON response validation and order transactions remain unchanged.
+
+## Own order listing
+
+GET /orders requires the current buyer access token. Inputs: page/pageSize and optional status (draft/confirmed/cancelled). Owner comes only from verified sub; unknown owner parameters are rejected. Newest createdAt first with id tie-breaker, stable pagination snapshot; each item contains the existing order DTO plus canConfirm computed against current stock. This is an availability hint, never a reservation; confirmation still validates locked stock transactionally.

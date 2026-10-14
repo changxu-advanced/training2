@@ -40,7 +40,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List own orders newest first with current confirmation availability */
+        get: operations["listOrders"];
         put?: never;
         /** Create draft without reserving stock */
         post: operations["createOrder"];
@@ -96,6 +97,23 @@ export interface paths {
         /** Cancel once; restore stock only when previously confirmed */
         post: operations["cancelOrder"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orders/cancelled": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove all own cancelled orders from history; preserve durable idempotency records */
+        delete: operations["deleteCancelledOrders"];
         options?: never;
         head?: never;
         patch?: never;
@@ -179,6 +197,17 @@ export interface components {
                 quantity: number;
             }[];
         };
+        OrdersPage: {
+            items: (components["schemas"]["Order"] & {
+                canConfirm: boolean;
+            })[];
+            page: number;
+            pageSize: number;
+            total: number;
+        };
+        OrderCleanupResult: {
+            deletedCount: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -193,6 +222,8 @@ export interface operations {
             query?: {
                 page?: number;
                 pageSize?: number;
+                /** @description true: stock greater than zero; false or omitted: all products */
+                inStock?: "true" | "false";
                 /** @description Trim and uppercase; blank means absent; exact match */
                 code?: string;
                 /** @description Trim; blank means absent; literal case-insensitive substring; combined with code using AND */
@@ -273,6 +304,66 @@ export interface operations {
             };
             /** @description Not found or not owner */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Internal response or service error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Operation not implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    listOrders: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                status?: "draft" | "confirmed" | "cancelled";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Own orders, never another buyer's orders */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrdersPage"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -599,6 +690,62 @@ export interface operations {
             };
             /** @description Not found or not owner */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Internal response or service error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Operation not implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+            /** @description Retry exhausted */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    deleteCancelledOrders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Number of newly deleted cancelled orders */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderCleanupResult"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

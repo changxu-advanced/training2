@@ -22,7 +22,10 @@ test("[E2E-FLOW] real administrator registration through buyer order confirmatio
     .fill("Training2-local-2026!");
   await page.getByRole("button", { name: "管理者ログイン" }).click();
   await page.waitForURL("**/products");
-  await page.getByRole("link", { name: "商品登録", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "メインナビゲーション" })
+    .getByRole("link", { name: "商品登録", exact: true })
+    .click();
   await page.getByLabel("商品コード", { exact: true }).fill(code.toLowerCase());
   await page
     .getByLabel("商品名", { exact: true })
@@ -69,6 +72,10 @@ test("[E2E-FLOW] real administrator registration through buyer order confirmatio
   ).toBeVisible();
   await page.goto(orderUrl);
   await page.getByRole("button", { name: "注文を確定", exact: true }).click();
+  await page
+    .getByRole("dialog", { name: "注文確定の確認" })
+    .getByRole("button", { name: "注文を確定", exact: true })
+    .click();
   await expect(
     page.getByRole("heading", { name: "確定済み", exact: true }),
   ).toBeVisible();
@@ -78,6 +85,10 @@ test("[E2E-FLOW] real administrator registration through buyer order confirmatio
   ).toBeVisible();
   await page.goto(orderUrl);
   await page
+    .getByRole("button", { name: "注文をキャンセル", exact: true })
+    .click();
+  await page
+    .getByRole("dialog", { name: "注文キャンセルの確認" })
     .getByRole("button", { name: "注文をキャンセル", exact: true })
     .click();
   await expect(
@@ -172,6 +183,10 @@ test("[E2E-FLOW] two customers receive inventory updates without replacing the s
       a.getByRole("button", { name: "注文を確定", exact: true }),
     ).toBeEnabled();
     await a.getByRole("button", { name: "注文を確定", exact: true }).click();
+    await a
+      .getByRole("dialog", { name: "注文確定の確認" })
+      .getByRole("button", { name: "注文を確定", exact: true })
+      .click();
     await expect(
       a.getByRole("heading", { name: "確定済み", exact: true }),
     ).toBeVisible();
@@ -203,6 +218,10 @@ test("[E2E-FLOW] two customers receive inventory updates without replacing the s
     await a
       .getByRole("button", { name: "注文をキャンセル", exact: true })
       .click();
+    await a
+      .getByRole("dialog", { name: "注文キャンセルの確認" })
+      .getByRole("button", { name: "注文をキャンセル", exact: true })
+      .click();
     await expect(
       a.getByRole("heading", { name: "キャンセル済み", exact: true }),
     ).toBeVisible();
@@ -217,6 +236,10 @@ test("[E2E-FLOW] two customers receive inventory updates without replacing the s
       b.getByRole("button", { name: "注文を確定", exact: true }),
     ).toBeEnabled();
     await b.getByRole("button", { name: "注文を確定", exact: true }).click();
+    await b
+      .getByRole("dialog", { name: "注文確定の確認" })
+      .getByRole("button", { name: "注文を確定", exact: true })
+      .click();
     await expect(
       b.getByRole("heading", { name: "確定済み", exact: true }),
     ).toBeVisible();
@@ -227,6 +250,10 @@ test("[E2E-FLOW] two customers receive inventory updates without replacing the s
     });
     // Restored fixture remains usable for manual testing.
     await b
+      .getByRole("button", { name: "注文をキャンセル", exact: true })
+      .click();
+    await b
+      .getByRole("dialog", { name: "注文キャンセルの確認" })
       .getByRole("button", { name: "注文をキャンセル", exact: true })
       .click();
     await expect(
