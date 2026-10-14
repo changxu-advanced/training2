@@ -19,7 +19,8 @@
       "!**/*.vue",
       "!**/test-results",
       "!**/playwright-report",
-      "!**/coverage"
+      "!**/coverage",
+      "!**/.vitepress/cache"
     ]
   },
   "formatter": {

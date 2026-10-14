@@ -368,6 +368,45 @@
           }
         }
       }
+    },
+    "/catalog/events": {
+      "get": {
+        "operationId": "catalogEvents",
+        "summary": "Committed catalog invalidation hints over SSE; reconnect and refetch snapshots",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Events catalog: changed and heartbeat: ok; no buyer or order information",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal response or service error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Retry exhausted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "webhooks": {}

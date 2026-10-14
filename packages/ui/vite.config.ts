@@ -38,6 +38,7 @@ export function frontendConfig(scope: "public" | "private") {
       },
     ],
     server: {
+      watch: { usePolling: true, interval: 300 },
       proxy: {
         "/api": {
           target: `http://localhost:${scope === "public" ? 3000 : 3001}`,

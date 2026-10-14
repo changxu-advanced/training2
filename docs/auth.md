@@ -9,3 +9,5 @@ API 只接收 Bearer access token。@training2/auth 使用 aws-jwt-verify 验证
 浏览器从 @training2/auth/browser 导入 configureBrowserAuth、signIn、signOut、fetchAuthSession；本地传入池 ID、Client ID、localEndpoint，部署时省略 localEndpoint。取得 accessToken 后通过 Axios Authorization 发送；刷新由 Amplify 管理，禁止记录或另存 token。登录 UI 已在 Step9 完成。
 
 两个新增组合测试使用实际 RSA 签名 token 覆盖篡改、到期、issuer/client/用途、权限及生产配置边界；现有契约测试同时检查 API 的 401/403 和管理员放行。商品与订单的已授权请求已在 Step10/11 接入业务。
+
+2026-10-14：本地初始化提供 admin@training2.test、buyer@training2.test、buyer2@training2.test、buyer3@training2.test。后三个为独立sub的普通买家，无管理权限；密码沿用本地测试密码，登录及JWT验证通过 seed:cognito。

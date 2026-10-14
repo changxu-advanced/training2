@@ -293,14 +293,17 @@ test("AC-D01 fresh migration is reproducible and repeat/concurrent execution app
         applyMigrations(client),
         applyMigrations(second),
       ]);
-      assert.equal(results.flat().length, 1);
+      assert.deepEqual(results.flat().sort(), [
+        "0001_initial.sql",
+        "0002_catalog_notifications.sql",
+      ]);
       assert.equal(
         (
           await client.query(
             "SELECT count(*)::int AS count FROM schema_migrations",
           )
         ).rows[0].count,
-        1,
+        2,
       );
       assert.deepEqual(await applyMigrations(client), []);
       const expected = await describeSchema(client);

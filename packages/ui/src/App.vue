@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { useCatalog } from "./catalog.ts";
 import { computed, ref } from "vue";
+import companyLogo from "./assets/company-logo.svg";
 import { session, useRuntime } from "./context.ts";
 
 const runtime = useRuntime();
+runtime.catalogConnected = useCatalog(runtime.queryClient);
 const admin = computed(() => session.groups.includes("admin"));
 const loggingOut = ref(false);
 async function logout() {
@@ -16,9 +19,9 @@ async function logout() {
 </script>
 <template>
 <div class="site-shell" :class="{'admin-shell':runtime.scope==='private'}">
-<header class="topbar"><router-link to="/products" class="brand"><span class="brand-icon">t<span>²</span></span><span>training<span class="brand-light"> store</span><small>{{runtime.scope==='private'?'管理工作台':'让好物，走进日常。'}}</small></span></router-link>
-<nav aria-label="主导航"><router-link v-if="runtime.scope==='public'||admin" to="/products">{{runtime.scope==='private'?'商品列表':'探索商品'}}</router-link><router-link v-if="runtime.scope==='private'&&admin" to="/products/new">注册商品</router-link><router-link v-if="runtime.scope==='public'" to="/orders/new">创建订单</router-link></nav>
-<div class="account"><span v-if="session.sub" class="account-email">{{session.email}}</span><span v-if="admin" class="role-pill">管理员</span><el-button v-if="session.sub" :loading="loggingOut" @click="logout">退出登录</el-button><router-link v-else to="/login" class="login-link">{{runtime.scope==='private'?'管理员登录':'登录账户'}} <span>↗</span></router-link></div></header>
-<main class="page-body"><router-view /></main><footer><span>training store · 日常好物</span><span>商品与订单已开放 · 库存以确认结果为准</span></footer>
+<header class="topbar"><router-link to="/products" class="brand"><span><img :src="companyLogo" class="company-logo" alt="アドバンスト・ソフト" width="909" height="149"/><small>{{runtime.scope==='private'?'管理画面':'オンラインストア'}}</small></span></router-link>
+<nav aria-label="メインナビゲーション"><router-link v-if="runtime.scope==='public'||admin" to="/products">{{runtime.scope==='private'?'商品一覧':'商品を見る'}}</router-link><router-link v-if="runtime.scope==='private'&&admin" to="/products/new">商品登録</router-link><router-link v-if="runtime.scope==='public'" to="/orders/new">注文作成</router-link></nav>
+<div class="account"><span v-if="session.sub" class="account-email">{{session.email}}</span><span v-if="admin" class="role-pill">管理者</span><el-button v-if="session.sub" :loading="loggingOut" @click="logout">ログアウト</el-button><router-link v-else to="/login" class="login-link">{{runtime.scope==='private'?'管理者ログイン':'ログイン'}} <span>↗</span></router-link></div></header>
+<main class="page-body"><router-view /></main><footer><span>アドバンスト・ソフト</span><span>在庫は注文確定時に確認されます</span></footer>
 </div>
 </template>

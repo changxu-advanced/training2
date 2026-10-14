@@ -58,7 +58,12 @@ if (!app)
   ).UserPoolClient;
 assert.ok(app?.ClientId);
 const password = "Training2-local-2026!";
-for (const username of ["admin@training2.test", "buyer@training2.test"]) {
+for (const username of [
+  "admin@training2.test",
+  "buyer@training2.test",
+  "buyer2@training2.test",
+  "buyer3@training2.test",
+]) {
   try {
     await client.send(
       new SignUpCommand({
@@ -136,7 +141,12 @@ const auth = createAuthenticator({
   issuer,
   jwksUri: `${endpoint}/${pool.Id}/.well-known/jwks.json`,
 });
-for (const username of ["admin@training2.test", "buyer@training2.test"]) {
+for (const username of [
+  "admin@training2.test",
+  "buyer@training2.test",
+  "buyer2@training2.test",
+  "buyer3@training2.test",
+]) {
   await signOut();
   const result = await signIn({
     username,

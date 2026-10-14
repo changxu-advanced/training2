@@ -8,8 +8,6 @@ const runtime = useRuntime();
 const code = ref("");
 const name = ref("");
 const page = ref(1);
-const stockNotice=ref("");
-async function refreshStock(productId:string){stockNotice.value="";try{const current=await runtime.publicClient.getStock({path:{id:productId}});runtime.queryClient.setQueryData(["products",runtime.scope,criteria.value,page.value],(previous:typeof products.data.value)=>previous?{...previous,items:previous.items.map(item=>item.id===productId?{...item,stock:current.stock}:item)}:previous);}catch(error){stockNotice.value=apiMessage(error);}}
 const criteria = ref({ code: "", name: "" });
 const products = useQuery({
   queryKey: ["products", runtime.scope, criteria, page],
@@ -31,7 +29,8 @@ function reset() {
   name.value = "";
   search();
 }
-function select(product: { id: string; code: string; name: string }) {
+function select(product: { id: string; code: string; name: string; stock: number }) {
+  if (product.stock < 1) return;
   if (!draft.items.some((i) => i.productId === product.id))
     draft.items.push({
       productId: product.id,
@@ -43,12 +42,12 @@ function select(product: { id: string; code: string; name: string }) {
   void runtime.router.push("/orders/new");
 }
 </script>
-<template><section><div class="page-heading"><div><p class="eyebrow">{{runtime.scope==='private'?'PRODUCT WORKSPACE':'THOUGHTFULLY SELECTED'}}</p><h1>{{runtime.scope==='private'?'商品管理':'发现日常好物'}}</h1><p class="muted">{{runtime.scope==='private'?'管理商品信息，掌握价格与库存。':'清晰的价格与库存，让每一次选择更从容。'}}</p></div><router-link v-if="runtime.scope==='private'" to="/products/new"><el-button type="primary">＋ 注册商品</el-button></router-link><span v-else class="heading-count">好物 / 日常 / 简单</span></div>
-<div v-if="runtime.scope==='public'" class="search-panel"><el-form inline @submit.prevent="search"><el-form-item label="商品代码" for="search-code"><el-input id="search-code" v-model="code" placeholder="例如 ABC-1" clearable/></el-form-item><el-form-item label="商品名称" for="search-name"><el-input id="search-name" v-model="name" placeholder="搜索心仪商品" clearable/></el-form-item><el-button type="primary" native-type="submit">搜索商品</el-button><el-button @click="reset">重置</el-button></el-form></div>
-<div class="content-card"><div class="card-heading"><h2>{{runtime.scope==='private'?'全部商品':'商品列表'}}</h2><span class="muted">{{products.data.value?products.data.value.total+' 件商品':'每页 20 件'}}</span></div>
-<el-alert v-if="stockNotice" :title="stockNotice" type="error" :closable="false"/><el-skeleton v-if="products.isPending.value" :rows="5" animated/>
-<div v-else-if="products.isError.value" class="empty-panel"><div class="empty-icon">◇</div><h3>暂时无法加载商品</h3><p>{{apiMessage(products.error.value)}}</p><el-button @click="products.refetch()">重新加载</el-button></div>
-<el-empty v-else-if="!products.data.value?.items.length" description="没有匹配的商品，试试其他条件"/>
-<el-table v-else :data="products.data.value.items"><el-table-column prop="code" label="代码"/><el-table-column prop="name" label="名称"/><el-table-column prop="description" label="说明"/><el-table-column label="价格"><template #default="{row}">¥{{row.priceJpy.toLocaleString('ja-JP')}}</template></el-table-column><el-table-column prop="stock" label="当前库存"/><el-table-column v-if="runtime.scope==='public'" label="操作"><template #default="{row}"><el-button @click="refreshStock(row.id)">刷新库存</el-button><el-button @click="select(row)">选择商品</el-button></template></el-table-column></el-table>
-<el-pagination v-if="products.data.value" v-model:current-page="page" :page-size="20" :total="products.data.value.total" layout="prev, pager, next"/>
-</div><div class="subtle-note"><span>↗</span> {{runtime.scope==='private'?'商品代码会自动转换为大写；价格单位为日元。':'库存是查询时的快照，最终可购买数量以确认订单时为准。'}}</div></section></template>
+<template><section><div class="page-heading"><div><p class="eyebrow">{{runtime.scope==='private'?'管理者向け':'オンラインストア'}}</p><h1>{{runtime.scope==='private'?'商品管理':'毎日の暮らしに、いいものを。'}}</h1><p class="muted">{{runtime.scope==='private'?'商品情報・価格・在庫を確認できます。':'価格と在庫を確認しながら、商品をお選びください。'}}</p></div><router-link v-if="runtime.scope==='private'" to="/products/new"><el-button type="primary">＋ 商品登録</el-button></router-link><span v-else class="heading-count">日々の暮らしに</span></div>
+<div v-if="runtime.scope==='public'" class="search-panel"><el-form inline @submit.prevent="search"><el-form-item label="商品コード" for="search-code"><el-input id="search-code" v-model="code" placeholder="例：ABC-1" clearable/></el-form-item><el-form-item label="商品名" for="search-name"><el-input id="search-name" v-model="name" placeholder="商品名で検索" clearable/></el-form-item><el-button type="primary" native-type="submit">商品を検索</el-button><el-button @click="reset">リセット</el-button></el-form></div>
+<div class="content-card"><div class="card-heading"><h2>{{runtime.scope==='private'?'すべての商品':'商品一覧'}}</h2><span class="muted">{{products.data.value?products.data.value.total+' 件の商品':'1ページ20件'}}</span></div>
+<p class="inventory-status">{{runtime.catalogConnected.value ? "在庫は自動で更新されます" : "自動更新に再接続中です。在庫は定期的に確認します。"}}</p><el-skeleton v-if="products.isPending.value" :rows="5" animated/>
+<div v-else-if="products.isError.value && !products.data.value" class="empty-panel"><div class="empty-icon">◇</div><h3>商品を読み込めません</h3><p>{{apiMessage(products.error.value)}}</p><el-button @click="products.refetch()">再読み込み</el-button></div>
+<el-empty v-else-if="!products.data.value?.items.length" description="該当する商品はありません。条件を変えてお試しください"/>
+<el-table v-else class="product-table" stripe row-key="id" :data="products.data.value.items"><el-table-column prop="code" label="コード"/><el-table-column prop="name" label="名称"/><el-table-column prop="description" label="説明"/><el-table-column label="価格"><template #default="{row}">¥{{row.priceJpy.toLocaleString('ja-JP')}}</template></el-table-column><el-table-column label="現在の在庫"><template #default="{row}"><span :class="row.stock < 1 ? 'stock-empty' : 'stock-value'">{{row.stock < 1 ? '在庫なし' : row.stock}}</span></template></el-table-column><el-table-column v-if="runtime.scope==='public'" label="操作"><template #default="{row}"><el-button type="primary" :disabled="row.stock < 1" @click="select(row)">商品を選択</el-button></template></el-table-column></el-table>
+<p v-if="products.isError.value && products.data.value" class="stock-empty">最新の在庫を取得できません。再接続後に更新します。</p><el-pagination v-if="products.data.value" v-model:current-page="page" :page-size="20" :total="products.data.value.total" layout="prev, pager, next"/>
+</div><div class="subtle-note"><span>↗</span> {{runtime.scope==='private'?'商品コードは大文字に変換されます。価格は日本円です。':'在庫は表示時点の情報です。購入可能な数量は注文確定時に確認されます。'}}</div></section></template>
