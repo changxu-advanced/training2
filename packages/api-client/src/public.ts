@@ -10,4 +10,5 @@ listOrders:(args:{query?:operations["listOrders"]["parameters"]["query"]} = {})=
 getOrder:(args:{path:NonNullable<operations["getOrder"]["parameters"]["path"]>})=>http.request<Success<operations["getOrder"]>>({method:"get",url:"/orders/{id}".replaceAll("{id}",encodeURIComponent(String(args.path.id))),}).then(response=>response.data),
 confirmOrder:(args:{path:NonNullable<operations["confirmOrder"]["parameters"]["path"]>})=>http.request<Success<operations["confirmOrder"]>>({method:"post",url:"/orders/{id}/confirm".replaceAll("{id}",encodeURIComponent(String(args.path.id))),}).then(response=>response.data),
 cancelOrder:(args:{path:NonNullable<operations["cancelOrder"]["parameters"]["path"]>})=>http.request<Success<operations["cancelOrder"]>>({method:"post",url:"/orders/{id}/cancel".replaceAll("{id}",encodeURIComponent(String(args.path.id))),}).then(response=>response.data),
+deleteCancelledOrders:(args:{} = {})=>http.request<Success<operations["deleteCancelledOrders"]>>({method:"delete",url:"/orders/cancelled",}).then(response=>response.data),
 };}

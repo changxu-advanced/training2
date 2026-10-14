@@ -238,6 +238,23 @@ export const publicRoutes = [
       ...failures([400, 401, 500, 501]),
     },
   }),
+  createRoute({
+    method: "delete",
+    path: "/orders/cancelled",
+    operationId: "deleteCancelledOrders",
+    summary:
+      "Remove all own cancelled orders from history; preserve durable idempotency records",
+    security: secured,
+    responses: {
+      200: json(
+        z
+          .strictObject({ deletedCount: z.number().int().min(0) })
+          .openapi("OrderCleanupResult"),
+        "Number of newly deleted cancelled orders",
+      ),
+      ...failures([401, 500, 501, 503]),
+    },
+  }),
 ] as const;
 export const privateRoutes = [
   createRoute({

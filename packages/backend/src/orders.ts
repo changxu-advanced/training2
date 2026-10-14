@@ -88,6 +88,12 @@ export async function createOrder(
       include,
     });
     if (existing) {
+      if (existing.deleted_at)
+        throw new ApiFailure(
+          409,
+          "IDEMPOTENCY_CONFLICT",
+          "Key belongs to a deleted order",
+        );
       if (
         JSON.stringify(
           canonical(orderInput.parse({ items: existing.request_items })),
@@ -136,7 +142,7 @@ export async function readOrder(
   id: string,
 ) {
   const row = await prisma.orders.findFirst({
-    where: { id, owner_sub: owner },
+    where: { id, owner_sub: owner, deleted_at: null },
     include,
   });
   if (!row) throw missing();
@@ -151,7 +157,7 @@ export async function changeOrder(
   return transaction(prisma, async (tx) => {
     const owned = await tx.$queryRaw<
       { id: string }[]
-    >`SELECT id FROM public.orders WHERE id=${id}::uuid AND owner_sub=${owner} FOR UPDATE`;
+    >`SELECT id FROM public.orders WHERE id=${id}::uuid AND owner_sub=${owner} AND deleted_at IS NULL FOR UPDATE`;
     if (!owned.length) throw missing();
     const order = await tx.orders.findUniqueOrThrow({ where: { id }, include });
     if (action === "confirm" && order.status === "cancelled")
@@ -209,6 +215,7 @@ export async function listOrders(
 ) {
   const where = {
     owner_sub: owner,
+    deleted_at: null,
     ...(query.status ? { status: query.status } : {}),
   };
   return prisma.$transaction(
@@ -246,6 +253,19 @@ export async function listOrders(
     },
     { isolationLevel: "RepeatableRead" },
   );
+}
+export async function deleteCancelledOrders(
+  prisma: PrismaClient,
+  owner: string,
+) {
+  return transaction(prisma, async (tx) => {
+    // Keep durable owner/key records so delayed create retries cannot resurrect a deleted order.
+    const result = await tx.orders.updateMany({
+      where: { owner_sub: owner, status: "cancelled", deleted_at: null },
+      data: { deleted_at: new Date() },
+    });
+    return { deletedCount: result.count };
+  });
 }
 export function bindOrderRoutes(
   app: ContractApp,
@@ -296,7 +316,11 @@ export function bindOrderRoutes(
       200,
     ),
   );
+  app.openapi(publicRoutes[7], async (c) =>
+    c.json(await deleteCancelledOrders(prisma, c.get("principal").sub), 200),
+  );
   return [
+    "deleteCancelledOrders",
     "createOrder",
     "getOrder",
     "confirmOrder",

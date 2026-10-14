@@ -161,6 +161,16 @@
       "collation_name": null
     },
     {
+      "table_name": "orders",
+      "column_name": "deleted_at",
+      "ordinal_position": 11,
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "YES",
+      "column_default": null,
+      "collation_name": null
+    },
+    {
       "table_name": "products",
       "column_name": "id",
       "ordinal_position": 1,
@@ -316,6 +326,12 @@
     },
     {
       "table_name": "orders",
+      "name": "orders_deleted_cancelled",
+      "type": "c",
+      "definition": "CHECK (((deleted_at IS NULL) OR (status = 'cancelled'::order_status)))"
+    },
+    {
+      "table_name": "orders",
       "name": "orders_owner_key_unique",
       "type": "u",
       "definition": "UNIQUE (owner_sub, idempotency_key)"
@@ -430,6 +446,11 @@
       "table_name": "orders",
       "name": "orders_pkey",
       "definition": "CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)"
+    },
+    {
+      "table_name": "orders",
+      "name": "orders_visible_owner_created_idx",
+      "definition": "CREATE INDEX orders_visible_owner_created_idx ON public.orders USING btree (owner_sub, created_at DESC, id DESC) WHERE (deleted_at IS NULL)"
     },
     {
       "table_name": "products",

@@ -108,6 +108,7 @@ export const screens: readonly Screen[] = [
     inputContract: "@training2/api-contracts/inputs#orderInput",
     apis: [
       "listOrders",
+      "deleteCancelledOrders",
       "createOrder",
       "getStock",
       "confirmOrder",
@@ -116,7 +117,7 @@ export const screens: readonly Screen[] = [
     authActions: [],
     transitions: ["PUB-LOGIN", "PUB-PRODUCTS", "PUB-ORDER"],
     states: {
-      idle: "统一订单入口：没有所选商品时显示本人的订单列表，按状态筛选，未确定可确认/取消，已确定仅取消，已取消无操作；所有操作先确认；底部新建订单进入商品选择。有所选商品时显示所选明细，重查库存；数量即时限制为1到min(库存,1000)的整数；零库存禁用；不允许输入价格或所有者",
+      idle: "统一订单入口：没有所选商品时显示本人的订单列表，按状态筛选，未确定可确认/取消，已确定仅取消，已取消无操作；所有操作先确认；顶部状态筛选右侧新建订单进入商品选择；清理本人全部已取消订单需确认，数据库逻辑删除保留幂等记录。有所选商品时显示所选明细，重查库存；数量即时限制为1到min(库存,1000)的整数；零库存禁用；不允许输入价格或所有者",
       loading:
         "仅首次查询库存时禁用输入/创建；后台更新保留输入节点，库存不足提示并禁用创建，不自动改变已选数量；提交中禁止重复点击或取消选择，不创建新key",
       empty: "无历史订单显示空白提示及创建新订单按钮；状态筛选无结果另有提示",
@@ -125,6 +126,7 @@ export const screens: readonly Screen[] = [
       error: "保留明细及key，输入/商品不存在/幂等冲突分别提示",
     },
     acceptance: [
+      "AC-O11",
       "AC-O09",
       "AC-O10",
       "AC-O08",
@@ -244,7 +246,7 @@ export const scenarios: readonly Scenario[] = [
   {
     id: "E2E-ORDER-HISTORY",
     screens: ["PUB-ORDER-CREATE", "PUB-ORDER"],
-    acceptance: ["AC-O09", "AC-O10"],
+    acceptance: ["AC-O09", "AC-O10", "AC-O11"],
     step: 11,
     kind: "business",
     status: "implemented",
@@ -255,7 +257,7 @@ export const scenarios: readonly Scenario[] = [
     ],
     expectations: [
       "他人订单不展示",
-      "未确定/确定/取消操作正确；列表底部创建新订单",
+      "未确定/确定/取消操作正确；顶部创建新订单；取消清理不发送DELETE，确认后仅删除本人全部已取消订单",
     ],
   },
   {

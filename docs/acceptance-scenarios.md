@@ -66,3 +66,5 @@ AC-O01〜O07、AC-S01〜S06 对应 packages/backend/test/orders.test.ts 的订�
 ## Step12 验证记录
 
 完整对应表与实际并发、故障、重试和再生成的证据见 [重点验证](verification.md)。AC-C01〜C08已在真实PostgreSQL检查，AC-E01完整浏览器主要流程已执行；六个E2E场景ID均已实现，仍必须通过对应检查和实际执行两道CI。
+
+| AC-O11 | 顶部新建及清理已取消订单，关闭/确认弹框、重试及跨账号访问 | 新建与筛选同排；返回不发送DELETE；确认清理本人所有页cancelled，数据库持久化且重载不出现；draft/confirmed/他人订单/库存不变；旧key不可复活；重复返回0 | 11 |

@@ -159,8 +159,23 @@ h3 {
 .search-panel {
   padding: 22px 26px;
 }
+.search-panel .el-form {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+}
 .search-panel .el-form-item {
-  margin-bottom: 0;
+  margin: 0;
+  align-items: center;
+}
+.search-panel .el-form-item__label {
+  height: auto;
+  line-height: 1.5;
+  align-items: center;
+}
+.search-panel .el-button + .el-button {
+  margin-left: 0;
 }
 .card-heading {
   display: flex;
@@ -539,7 +554,6 @@ footer {
   margin: auto;
 }
 .order-filters {
-  margin-bottom: 24px;
   display: flex;
   flex-wrap: wrap;
 }
@@ -578,14 +592,23 @@ footer {
 .history-order-controls .el-button + .el-button {
   margin-left: 0;
 }
-.new-order-action {
-  border-top: 1px solid #e1e9f1;
-  margin-top: 26px;
-  padding-top: 26px;
-  text-align: center;
+.order-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
 }
-.new-order-action p {
-  margin-top: 10px;
+.order-toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.order-toolbar-actions .el-button + .el-button {
+  margin-left: 0;
 }
 @media (max-width: 600px) {
   .history-order {

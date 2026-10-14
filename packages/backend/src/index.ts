@@ -51,7 +51,7 @@ export async function createApi(
         "*",
         cors({
           origin: config.corsOrigins,
-          allowMethods: ["GET", "POST", "OPTIONS"],
+          allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
           allowHeaders: ["Authorization", "Content-Type", "Idempotency-Key"],
           exposeHeaders: ["X-Request-Id"],
           maxAge: 600,
