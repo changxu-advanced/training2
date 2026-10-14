@@ -190,7 +190,9 @@ test("[E2E-ORDER-CREATE] [E2E-ORDER-OWNER] [E2E-ORDER-STOCK] real order retry, l
     "import {createPrismaClient} from './packages/prisma/src/index.ts';const db=createPrismaClient(process.env.DATABASE_URL);try{await db.products.update({where:{code:process.argv[1]+'-A'},data:{stock:0}});}finally{await db.$disconnect();}",
     code,
   ]);
-  await page.getByRole("button", { name: "注文を確定", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "注文を確定", exact: true }),
+  ).toBeDisabled();
   await expect(
     page.getByText(
       "在庫が不足しています。商品一覧で最新の在庫をご確認ください。",

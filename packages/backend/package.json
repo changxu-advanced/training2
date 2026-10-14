@@ -19,9 +19,11 @@
     "@training2/auth": "workspace:*",
     "@training2/config": "workspace:*",
     "@training2/logger": "workspace:*",
-    "@training2/prisma": "workspace:*"
+    "@training2/prisma": "workspace:*",
+    "pg": "8.23.1"
   },
   "devDependencies": {
-    "@training2/test-utils": "workspace:*"
+    "@training2/test-utils": "workspace:*",
+    "@types/pg": "8.23.1"
   }
 }

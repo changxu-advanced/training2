@@ -233,11 +233,12 @@ test("AC-C01/C07: independent PostgreSQL connections overlap while locked; no ov
       path: string,
       body?: unknown,
       key: string = randomUUID(),
+      owner = "buyer",
     ) =>
       asyncRequest(api, path, {
         method: "POST",
         headers: {
-          Authorization: "Bearer buyer",
+          Authorization: "Bearer " + owner,
           "Content-Type": "application/json",
           "Idempotency-Key": key,
         },
@@ -261,9 +262,15 @@ test("AC-C01/C07: independent PostgreSQL connections overlap while locked; no ov
       assert.deepEqual(same.map((r) => r.status).sort(), [200, 201]);
       assert.equal(same[0].body.id, same[1].body.id);
       assert.equal(await prisma.orders.count(), 1);
-      const second = await call(b, "/orders", {
-        items: [{ productId: p.id, quantity: 1 }],
-      });
+      const second = await call(
+        b,
+        "/orders",
+        {
+          items: [{ productId: p.id, quantity: 1 }],
+        },
+        randomUUID(),
+        "buyer-b",
+      );
       held = blocker.$transaction(
         async (tx) => {
           await tx.$queryRaw`SELECT id FROM public.products WHERE id=${p.id}::uuid FOR UPDATE`;
@@ -275,7 +282,13 @@ test("AC-C01/C07: independent PostgreSQL connections overlap while locked; no ov
       await ready;
       const concurrent = Promise.all([
         call(a, "/orders/" + same[0].body.id + "/confirm"),
-        call(b, "/orders/" + second.body.id + "/confirm"),
+        call(
+          b,
+          "/orders/" + second.body.id + "/confirm",
+          undefined,
+          randomUUID(),
+          "buyer-b",
+        ),
       ]);
       const deadline = Date.now() + 1500;
       let overlap = false;

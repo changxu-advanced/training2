@@ -238,6 +238,23 @@ export const privateRoutes = [
     },
   }),
 ] as const;
+// Public invalidation stream; authoritative data remains in JSON snapshot routes.
+export const catalogEventsRoute = createRoute({
+  method: "get",
+  path: "/catalog/events",
+  operationId: "catalogEvents",
+  summary:
+    "Committed catalog invalidation hints over SSE; reconnect and refetch snapshots",
+  security: [],
+  responses: {
+    200: {
+      description:
+        "Events catalog: changed and heartbeat: ok; no buyer or order information",
+      content: { "text/event-stream": { schema: z.string() } },
+    },
+    ...failures([500, 503]),
+  },
+});
 export function openapiDocument(
   scope: "public" | "private",
 ): ReturnType<OpenAPIHono["getOpenAPI31Document"]> {
@@ -249,6 +266,7 @@ export function openapiDocument(
   });
   for (const route of scope === "public" ? publicRoutes : privateRoutes)
     app.openAPIRegistry.registerPath(route);
+  app.openAPIRegistry.registerPath(catalogEventsRoute);
   return app.getOpenAPI31Document({
     openapi: "3.1.0",
     info: { title: `training2 ${scope} API`, version: "0.1.0" },

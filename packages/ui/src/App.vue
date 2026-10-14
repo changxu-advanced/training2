@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useCatalog } from "./catalog.ts";
 import { computed, ref } from "vue";
 import companyLogo from "./assets/company-logo.svg";
 import { session, useRuntime } from "./context.ts";
 
 const runtime = useRuntime();
+runtime.catalogConnected = useCatalog(runtime.queryClient);
 const admin = computed(() => session.groups.includes("admin"));
 const loggingOut = ref(false);
 async function logout() {

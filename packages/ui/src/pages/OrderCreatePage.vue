@@ -2,7 +2,7 @@
 import { useMutation, useQuery } from "@tanstack/vue-query";
 import { orderInput } from "@training2/api-contracts/inputs";
 import { ElMessageBox } from "element-plus";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { draft, type Selection, useRuntime } from "../context.ts";
 import { apiMessage } from "../helpers.ts";
 
@@ -24,8 +24,8 @@ function maximum(item: Selection) {
   return Math.min(1000, stock.data.value?.[item.productId] ?? 0);
 }
 const ready = computed(() =>
-  draft.items.length > 0 && !stock.isFetching.value && !stock.isError.value &&
-  draft.items.every(item => maximum(item) >= 1),
+  draft.items.length > 0 && !stock.isPending.value && !stock.isError.value &&
+  draft.items.every(item => maximum(item) >= 1 && item.quantity <= maximum(item)),
 );
 function quantity(item: Selection, value: number) {
   return Math.max(1, Math.min(Math.max(1, maximum(item)), Number.isFinite(value) ? Math.trunc(value) : 1));
@@ -62,16 +62,6 @@ const mutation = useMutation({
     runtime.queryClient.removeQueries({queryKey: ["selection-stock"]});
     await runtime.router.push(`/orders/${order.id}`);
   },
-});
-watch(stock.data, () => {
-  if (mutation.isPending.value) return;
-  for (const item of draft.items) {
-    const next = quantity(item, item.quantity);
-    if (item.quantity !== next) {
-      item.quantity = next;
-      changed();
-    }
-  }
 });
 function submit() {
   if (mutation.isPending.value || cancelling.value || !ready.value) return;
@@ -119,16 +109,18 @@ async function cancelSelection() {
         <el-alert v-if="validation || mutation.isError.value" :title="validation || apiMessage(mutation.error.value)" type="error" :closable="false"/>
         <el-alert v-if="stock.isError.value" title="現在の在庫を取得できません。再試行してください。" type="error" :closable="false"/>
         <el-button v-if="stock.isError.value" @click="stock.refetch()">在庫を再取得</el-button>
-        <p v-if="stock.isFetching.value" class="muted">在庫を確認しています…</p>
+        <p v-if="stock.isPending.value" class="muted">在庫を確認しています…</p>
         <div v-for="item in draft.items" :key="item.productId" class="order-line">
           <div>
             <strong>{{item.productName}}</strong><p class="muted">{{item.productCode}}</p>
             <p v-if="stock.data.value" class="muted">{{ maximum(item) > 0 ? '現在の在庫 ' + stock.data.value[item.productId] + ' · 選択可能 1–' + maximum(item) + ' 件' : '在庫がありません。商品一覧で選び直してください。' }}</p>
+          <p v-if="stock.data.value && item.quantity > maximum(item) && maximum(item) > 0" class="stock-empty">在庫が不足しています。数量を変更してください。</p>
           </div>
-          <el-input-number v-if="stock.data.value && !stock.isFetching.value" :key="maximum(item)" v-model="item.quantity" :aria-label="item.productName + '数量'"
-            :min="1" :max="Math.max(1, maximum(item))" :step="1" step-strictly :precision="0" :value-on-clear="1"
-            :disabled="mutation.isPending.value || cancelling || !ready"
-            @input.capture="limitInput($event, item)" @change="changed"/>
+          <div class="quantity-control">
+            <button type="button" :aria-label="item.productName + '数量を減らす'" :disabled="mutation.isPending.value || cancelling || maximum(item)<1 || item.quantity<=1" @click="item.quantity=quantity(item,item.quantity-1);changed()">−</button>
+            <input type="number" :aria-label="item.productName + '数量'" :value="item.quantity" min="1" :max="Math.max(1,maximum(item))" :aria-valuemin="1" :aria-valuemax="maximum(item)" :aria-valuenow="item.quantity" step="1" :disabled="mutation.isPending.value || cancelling || maximum(item)<1" @input="limitInput($event,item)"/>
+            <button type="button" :aria-label="item.productName + '数量を増やす'" :disabled="mutation.isPending.value || cancelling || maximum(item)<1 || item.quantity>=maximum(item)" @click="item.quantity=quantity(item,item.quantity+1);changed()">＋</button>
+          </div>
         </div>
         <div class="form-actions">
           <el-button type="primary" :disabled="!ready || cancelling" :loading="mutation.isPending.value" @click="submit">注文を作成</el-button>

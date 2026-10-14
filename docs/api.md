@@ -40,3 +40,7 @@ JSON 商品价格和数量为整数，JPY 合计最大 5 万亿；时间为 ISO 
 CI 对 PR base SHA 或主分支上一提交进行比较，首版无基线时仅跳过差异比较，生成与测试仍运行。破坏性变更需要在 PR 说明影响、理由和迁移方式，再通过显式兼容性设计解决，不自动忽略检查。
 
 只新增两项测试：输入/响应结构、501 占位和生成 Client 的传输组合验证，以及删除已有 endpoint 必须触发兼容性失败。
+
+## Catalog streaming
+
+GET /catalog/events is a public text/event-stream endpoint on both API services. Events: catalog / changed and heartbeat / ok; no order IDs or buyer information. EventSource owns transport (not the JSON Axios client). Reconnect refetches authoritative JSON snapshots; a 30-second fallback covers missed events. Database statement triggers use LISTEN/NOTIFY so both processes see committed writes only. Apply migration 0002 before starting the updated API. Listener failure closes streams, reconnects and returns 503 until ready. Existing JSON response validation and order transactions remain unchanged.

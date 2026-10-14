@@ -467,3 +467,69 @@ footer {
     margin-left: auto;
   }
 }
+
+.inventory-status {
+  min-height: 20px;
+  color: #6b8195;
+  font-size: 12px;
+  margin: 0 0 16px;
+}
+.product-table {
+  --el-table-header-bg-color: #eaf1f7;
+  --el-table-row-hover-bg-color: #e8f0f7;
+  --el-table-tr-bg-color: #fcfdff;
+  --el-table-border-color: #e1e9f1;
+  border-radius: 10px;
+}
+.product-table.el-table .el-table__row--striped td.el-table__cell {
+  background: #f2f6fa;
+}
+.product-table .el-table__cell {
+  padding: 16px 0;
+}
+.stock-value {
+  color: #315b7e;
+  font-weight: 600;
+}
+.stock-empty {
+  color: #a45e54;
+  font-size: 13px;
+}
+
+.quantity-control {
+  display: flex;
+  flex: 0 0 auto;
+  border: 1px solid #cdd9e5;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 44px;
+}
+.quantity-control input {
+  width: 84px;
+  border: 0;
+  text-align: center;
+  background: white;
+  color: #315b7e;
+  appearance: textfield;
+}
+.quantity-control input::-webkit-inner-spin-button {
+  appearance: none;
+}
+.quantity-control button {
+  width: 32px;
+  border: 0;
+  background: #edf3f8;
+  color: #315b7e;
+  cursor: pointer;
+}
+.quantity-control button:disabled,
+.quantity-control input:disabled {
+  color: #9aabb9;
+  cursor: not-allowed;
+  background: #f2f5f8;
+}
+.quantity-control input:focus-visible,
+.quantity-control button:focus-visible {
+  outline: 2px solid #527898;
+  outline-offset: -2px;
+}

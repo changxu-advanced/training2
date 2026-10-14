@@ -1,5 +1,5 @@
 import ElementPlus from "element-plus";
-import { createApp } from "vue";
+import { createApp, ref } from "vue";
 import { createWebHistory } from "vue-router";
 import { japaneseLocale } from "./locale.ts";
 import "element-plus/dist/index.css";
@@ -105,6 +105,7 @@ export async function mountFrontend(scope: Scope, manifest: RouteManifest) {
     const app = createApp(App);
     app.provide(runtimeKey, {
       scope,
+      catalogConnected: ref(false),
       router,
       queryClient,
       publicClient: createPublicClient(http),

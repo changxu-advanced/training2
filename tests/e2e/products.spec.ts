@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 
-test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal values and refreshes stock", async ({
+test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal values and automatically receives stock updates", async ({
   page,
 }) => {
   const code = "E2E-" + randomUUID().slice(0, 8).toUpperCase();
@@ -72,7 +72,7 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
     "import {createPrismaClient} from './packages/prisma/src/index.ts';const db=createPrismaClient(process.env.DATABASE_URL);try{await db.products.update({where:{code:process.argv[1]},data:{stock:9}});}finally{await db.$disconnect();}",
     code,
   ]);
-  await row.getByRole("button", { name: "在庫を更新" }).click();
+  await expect(row.getByRole("button", { name: "在庫を更新" })).toHaveCount(0);
   await expect(row.getByRole("cell", { name: "9", exact: true })).toBeVisible();
   await page
     .getByLabel("商品名", { exact: true })
