@@ -8,6 +8,20 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   const code = "E2E-" + randomUUID().slice(0, 8).toUpperCase();
   const name = "サンプル商品 %_ " + code;
   await page.goto("http://localhost:5173/login");
+  const browse = page.getByRole("link", { name: "商品を見る →", exact: true });
+  await expect(browse).toHaveClass(/navigation-button/);
+  const beforeHover = await browse.evaluate(
+    (el) => getComputedStyle(el).backgroundColor,
+  );
+  await browse.hover();
+  await expect
+    .poll(() => browse.evaluate((el) => getComputedStyle(el).backgroundColor))
+    .not.toBe(beforeHover);
+  await browse.focus();
+  await expect(browse).toBeFocused();
+  await browse.press("Enter");
+  await expect(page).toHaveURL(/\/products$/);
+  await page.goto("http://localhost:5173/login");
   await page
     .getByLabel("メールアドレス", { exact: true })
     .fill("admin@training2.test");
@@ -17,6 +31,13 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   await page.getByRole("button", { name: "ログイン" }).click();
   await page.waitForURL("**/products");
   await page.goto("http://localhost:5173/products/new");
+  const back = page.getByRole("link", { name: "← 一覧へ戻る", exact: true });
+  await expect(back).toHaveClass(/navigation-button/);
+  await back.focus();
+  await back.press("Enter");
+  await expect(page).toHaveURL(/\/products$/);
+  await page.getByRole("button", { name: "商品登録", exact: true }).click();
+  await expect(page).toHaveURL(/\/products\/new$/);
   await page
     .getByLabel("商品コード", { exact: true })
     .fill(" " + code.toLowerCase() + " ");
@@ -135,9 +156,30 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   const filter = page.getByRole("button", {
     name: /^在庫ありのみ(?:を解除)?$/,
   });
+  async function checkRightEdge() {
+    await expect
+      .poll(async () => {
+        const a = await filter.boundingBox();
+        const b = await row
+          .getByRole("button", { name: "商品を選択", exact: true })
+          .boundingBox();
+        return a && b ? Math.abs(a.x + a.width - b.x - b.width) : Infinity;
+      })
+      .toBeLessThan(2);
+  }
+  await checkRightEdge();
   await filter.click();
   await expect(filter).toHaveAttribute("aria-pressed", "true");
   await expect(filter).toHaveText("在庫ありのみを解除");
+  await checkRightEdge();
+  await page.setViewportSize({ width: 1536, height: 850 });
+  await checkRightEdge();
+  await filter.click();
+  await checkRightEdge();
+  await filter.click();
+  await checkRightEdge();
+  await page.setViewportSize({ width: 1280, height: 850 });
+  await checkRightEdge();
   function updateStock(value: number) {
     execFileSync(process.execPath, [
       "--input-type=module",

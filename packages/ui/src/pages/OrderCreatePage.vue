@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import NavButton from "../components/NavButton.vue";
 import OrderHistoryPage from "./OrderHistoryPage.vue";
 import { useMutation, useQuery } from "@tanstack/vue-query";
 import { orderInput } from "@training2/api-contracts/inputs";
@@ -102,7 +103,7 @@ async function cancelSelection() {
   <section v-else class="form-page">
     <div class="page-heading">
       <div><p class="eyebrow">ご注文の商品</p><h1>注文作成</h1><p class="muted">商品と数量をご確認ください。金額は注文作成時に計算されます。</p></div>
-      <router-link to="/products" class="quiet-link">← 買い物を続ける</router-link>
+      <NavButton to="/products">← 買い物を続ける</NavButton>
     </div>
     <div class="content-card">
       <el-empty v-if="!draft.items.length" description="商品が選択されていません">

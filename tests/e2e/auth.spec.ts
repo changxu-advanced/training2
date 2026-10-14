@@ -56,7 +56,10 @@ test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-
   await expect(
     page.getByRole("heading", { name: "商品一覧", exact: true }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "商品登録", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "メインナビゲーション" })
+    .getByRole("link", { name: "商品登録", exact: true })
+    .click();
   await expect(page).toHaveURL(/\/products\/new$/);
   await page.getByRole("button", { name: "商品登録", exact: true }).click();
   await expect(page.getByText(/次の項目をご確認ください/)).toBeVisible();
@@ -109,7 +112,10 @@ test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-
     page.getByRole("link", { name: "注文管理", exact: true }),
   ).toHaveCount(0);
   await expect(page.getByRole("button", { name: "商品を選択" })).toHaveCount(0);
-  await page.getByRole("link", { name: "商品登録", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "メインナビゲーション" })
+    .getByRole("link", { name: "商品登録", exact: true })
+    .click();
   await expect(page.getByLabel("初期在庫", { exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByLabel("初期在庫", { exact: true })).toBeVisible();

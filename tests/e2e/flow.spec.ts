@@ -22,7 +22,10 @@ test("[E2E-FLOW] real administrator registration through buyer order confirmatio
     .fill("Training2-local-2026!");
   await page.getByRole("button", { name: "管理者ログイン" }).click();
   await page.waitForURL("**/products");
-  await page.getByRole("link", { name: "商品登録", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "メインナビゲーション" })
+    .getByRole("link", { name: "商品登録", exact: true })
+    .click();
   await page.getByLabel("商品コード", { exact: true }).fill(code.toLowerCase());
   await page
     .getByLabel("商品名", { exact: true })

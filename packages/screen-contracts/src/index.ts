@@ -97,7 +97,7 @@ export const screens: readonly Screen[] = [
     authActions: [],
     transitions: ["PUB-LOGIN", "PUB-ORDER-CREATE", "PUB-PRODUCT-CREATE"],
     states: {
-      idle: "显示搜索条件；件数左侧筛选按钮未选中显示在庫ありのみ，选中显示在庫ありのみを解除并保持蓝色，服务器跨页过滤及计数，切换回第一页，搜索条件保留且库存变化自动更新",
+      idle: "显示搜索条件；件数左侧筛选按钮未选中显示在庫ありのみ，选中显示在庫ありのみを解除并保持蓝色，两种文案的右边缘均与商品选择按钮对齐，文字变长向左扩展；服务器跨页过滤及计数，切换回第一页，搜索条件保留且库存变化自动更新",
       loading: "仅首次加载展示占位；后台自动更新保留列表、搜索、分页和滚动",
       empty: "没有匹配商品，可清空条件",
       success:

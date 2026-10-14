@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import NavButton from "../components/NavButton.vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useMutation, useQuery } from "@tanstack/vue-query";
 import { ref } from "vue";
@@ -57,7 +58,7 @@ function allowed(id:string,action:"confirm"|"cancel"){
         <p class="muted">{{dates.format(new Date(item.createdAt))}}</p>
         <div class="history-order-items"><p v-for="line in item.items.slice(0,3)" :key="line.productId">{{line.productName}} <span class="muted">× {{line.quantity}}</span></p><p v-if="item.items.length>3" class="muted">ほか {{item.items.length-3}} 件の商品</p></div>
         <p v-if="item.status==='draft'&&!item.canConfirm" class="stock-empty">在庫が不足しているため、確定できません。</p>
-        <div class="history-order-bottom"><strong>合計 ¥{{item.totalJpy.toLocaleString('ja-JP')}}</strong><div class="history-order-controls"><router-link :to="'/orders/'+item.id" class="quiet-link">詳細を見る</router-link>
+        <div class="history-order-bottom"><strong>合計 ¥{{item.totalJpy.toLocaleString('ja-JP')}}</strong><div class="history-order-controls"><NavButton :to="'/orders/'+item.id">詳細を見る</NavButton>
           <span v-if="actions.operation.isPending.value&&actions.operation.variables.value?.id===item.id&&actions.operation.variables.value.action==='cancel'" class="muted" role="status">注文をキャンセルしています…</span>
           <template v-else-if="item.status!=='cancelled'"><el-button v-if="item.status==='draft'" type="primary" :disabled="actions.busy.value||!allowed(item.id,'confirm')" @click="actions.request(item.id,'confirm',()=>allowed(item.id,'confirm'))">注文を確定</el-button><el-button class="order-cancel-button" :disabled="actions.busy.value||!allowed(item.id,'cancel')" @click="actions.request(item.id,'cancel',()=>allowed(item.id,'cancel'))">注文をキャンセル</el-button></template>
         </div></div>
