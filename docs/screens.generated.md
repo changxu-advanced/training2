@@ -4,7 +4,25 @@
 
 根路由 / 在两端跳转 /products。权限 owner 包含已登录要求，服务器仍验证订单所有者。
 
-## PUB-LOGIN · 購入者ログイン
+## PUB-PRODUCT-CREATE · 商品登録（共通入口・管理者専用）
+
+- 端：public；路由：/products/new；权限：admin
+- 输入：code、name、description、priceJpy、stock
+- 输入契约：@training2/api-contracts/inputs#productInput
+- API：private:registerProduct
+- 认证 SDK：无
+- 遷移：PUB-LOGIN、PUB-PRODUCTS
+- 验收：AC-P01、AC-P03、AC-P08、AC-A03
+
+| 状态 | 页面反馈 |
+| --- | --- |
+| idle | 管理员登记商品，顾客无入口且直接URL拒绝 |
+| loading | 提交禁止重复 |
+| empty | 提示必填 |
+| success | 登记后回商品一覧，顾客收到自动更新 |
+| error | 401登录，403权限提示，409重复，保留输入 |
+
+## PUB-LOGIN · 共通ログイン
 
 - 端：public；路由：/login；权限：any
 - 输入：username、password、returnTo（仅同站受保护路由）
@@ -27,9 +45,9 @@
 - 端：public；路由：/products；权限：any
 - 输入：code、name、page、pageSize、所选商品与数量
 - 输入契约：searchProducts request；数量由 orderInput 验证
-- API：searchProducts、getStock
+- API：searchProducts、getStock、private:listProducts
 - 认证 SDK：无
-- 遷移：PUB-LOGIN、PUB-ORDER-CREATE
+- 遷移：PUB-LOGIN、PUB-ORDER-CREATE、PUB-PRODUCT-CREATE
 - 验收：AC-P05、AC-P06、AC-P07、AC-E01、AC-E02
 
 | 状态 | 页面反馈 |
@@ -40,7 +58,7 @@
 | success | 显示代码、名称、说明、JPY价格、自动更新库存和分页；仅商品选择按钮，零库存不可选择 |
 | error | 保留条件并支持重试，501提示功能未实现 |
 
-## PUB-ORDER-CREATE · 注文一覧・新規作成
+## PUB-ORDER-CREATE · 注文管理・新規作成
 
 - 端：public；路由：/orders/new；权限：authenticated
 - 输入：items(productId,quantity)、Idempotency-Key（同一次创建/重试保持 UUID）
@@ -145,15 +163,15 @@
 ### E2E-AUTH
 
 - 状态：implemented；阶段：Step9；实际 spec：tests/e2e/auth.spec.ts
-- 页面：PUB-LOGIN、ADM-LOGIN、ADM-PRODUCTS、ADM-PRODUCT-CREATE、PUB-ORDER-CREATE、PUB-ORDER
-- 验收：AC-A01、AC-P03、AC-O07、AC-E02
+- 页面：PUB-LOGIN、PUB-PRODUCT-CREATE、ADM-LOGIN、ADM-PRODUCTS、ADM-PRODUCT-CREATE、PUB-ORDER-CREATE、PUB-ORDER
+- 验收：AC-A01、AC-P03、AC-P01、AC-P08、AC-A03、AC-O07、AC-E02
 - 操作：登录/退出与过期会话处理；未登录跳转，买家不能进入管理页，API仍返回401/403
 - 预期：returnTo仅允许同站路由；不展示受保护数据；错误状态清晰
 
 ### E2E-PRODUCTS
 
 - 状态：implemented；阶段：Step10；实际 spec：tests/e2e/products.spec.ts
-- 页面：ADM-PRODUCT-CREATE、ADM-PRODUCTS、PUB-PRODUCTS
+- 页面：ADM-PRODUCT-CREATE、PUB-PRODUCT-CREATE、ADM-PRODUCTS、PUB-PRODUCTS
 - 验收：AC-P08、AC-P01、AC-P02、AC-P03、AC-P04、AC-P05、AC-P06、AC-E01、AC-E02
 - 操作：管理员注册后在两端查找商品；验证重复代码、非法输入、搜索组合及空分页
 - 预期：代码规范化、商品只写入一次；价格和库存正确；搜索字面匹配；错误不丢输入

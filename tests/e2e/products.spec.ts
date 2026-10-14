@@ -7,16 +7,16 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
 }) => {
   const code = "E2E-" + randomUUID().slice(0, 8).toUpperCase();
   const name = "サンプル商品 %_ " + code;
-  await page.goto("http://localhost:5174/login");
+  await page.goto("http://localhost:5173/login");
   await page
     .getByLabel("メールアドレス", { exact: true })
     .fill("admin@training2.test");
   await page
     .getByLabel("パスワード", { exact: true })
     .fill("Training2-local-2026!");
-  await page.getByRole("button", { name: "管理者ログイン" }).click();
+  await page.getByRole("button", { name: "ログイン" }).click();
   await page.waitForURL("**/products");
-  await page.goto("http://localhost:5174/products/new");
+  await page.goto("http://localhost:5173/products/new");
   await page
     .getByLabel("商品コード", { exact: true })
     .fill(" " + code.toLowerCase() + " ");
@@ -47,7 +47,7 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   await page.getByRole("heading", { name: "商品登録" }).click();
   await page.getByRole("button", { name: "商品登録", exact: true }).click();
   await expect(page).toHaveURL(/\/products$/);
-  await page.goto("http://localhost:5174/products/new");
+  await page.goto("http://localhost:5173/products/new");
   await page.getByLabel("商品コード", { exact: true }).fill(code.toLowerCase());
   await page.getByLabel("商品名", { exact: true }).fill(name);
   await page.getByRole("button", { name: "商品登録", exact: true }).click();

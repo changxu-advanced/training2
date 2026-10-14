@@ -18,7 +18,7 @@ export function renderScreens(
       `- 端：${screen.scope}；路由：${screen.path}；权限：${screen.access}`,
       `- 输入：${screen.inputs.join("、")}`,
       `- 输入契约：${screen.inputContract}`,
-      `- API：${screen.apis.join("、") || "无业务 API"}`,
+      `- API：${[...screen.apis, ...(screen.apiBindings ?? []).map((binding) => binding.scope + ":" + binding.operationId)].join("、") || "无业务 API"}`,
       `- 认证 SDK：${screen.authActions.join("、") || "无"}`,
       `- 遷移：${screen.transitions.join("、")}`,
       `- 验收：${screen.acceptance.join("、")}`,

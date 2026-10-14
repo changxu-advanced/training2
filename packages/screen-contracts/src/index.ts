@@ -8,6 +8,7 @@ export type Screen = {
   inputs: readonly string[];
   inputContract: string;
   apis: readonly string[];
+  apiBindings?: readonly { scope: Scope; operationId: string }[];
   authActions: readonly string[];
   transitions: readonly string[];
   states: Record<"idle" | "loading" | "empty" | "success" | "error", string>;
@@ -32,9 +33,30 @@ export type RouteManifest = {
 };
 export const screens: readonly Screen[] = [
   {
+    id: "PUB-PRODUCT-CREATE",
+    scope: "public",
+    name: "商品登録（共通入口・管理者専用）",
+    path: "/products/new",
+    access: "admin",
+    inputs: ["code", "name", "description", "priceJpy", "stock"],
+    inputContract: "@training2/api-contracts/inputs#productInput",
+    apis: [],
+    apiBindings: [{ scope: "private", operationId: "registerProduct" }],
+    authActions: [],
+    transitions: ["PUB-LOGIN", "PUB-PRODUCTS"],
+    states: {
+      idle: "管理员登记商品，顾客无入口且直接URL拒绝",
+      loading: "提交禁止重复",
+      empty: "提示必填",
+      success: "登记后回商品一覧，顾客收到自动更新",
+      error: "401登录，403权限提示，409重复，保留输入",
+    },
+    acceptance: ["AC-P01", "AC-P03", "AC-P08", "AC-A03"],
+  },
+  {
     id: "PUB-LOGIN",
     scope: "public",
-    name: "購入者ログイン",
+    name: "共通ログイン",
     path: "/login",
     access: "any",
     inputs: ["username", "password", "returnTo（仅同站受保护路由）"],
@@ -60,8 +82,9 @@ export const screens: readonly Screen[] = [
     inputs: ["code", "name", "page", "pageSize", "所选商品与数量"],
     inputContract: "searchProducts request；数量由 orderInput 验证",
     apis: ["searchProducts", "getStock"],
+    apiBindings: [{ scope: "private", operationId: "listProducts" }],
     authActions: [],
-    transitions: ["PUB-LOGIN", "PUB-ORDER-CREATE"],
+    transitions: ["PUB-LOGIN", "PUB-ORDER-CREATE", "PUB-PRODUCT-CREATE"],
     states: {
       idle: "显示搜索条件",
       loading: "仅首次加载展示占位；后台自动更新保留列表、搜索、分页和滚动",
@@ -75,7 +98,7 @@ export const screens: readonly Screen[] = [
   {
     id: "PUB-ORDER-CREATE",
     scope: "public",
-    name: "注文一覧・新規作成",
+    name: "注文管理・新規作成",
     path: "/orders/new",
     access: "authenticated",
     inputs: [
@@ -239,13 +262,22 @@ export const scenarios: readonly Scenario[] = [
     id: "E2E-AUTH",
     screens: [
       "PUB-LOGIN",
+      "PUB-PRODUCT-CREATE",
       "ADM-LOGIN",
       "ADM-PRODUCTS",
       "ADM-PRODUCT-CREATE",
       "PUB-ORDER-CREATE",
       "PUB-ORDER",
     ],
-    acceptance: ["AC-A01", "AC-P03", "AC-O07", "AC-E02"],
+    acceptance: [
+      "AC-A01",
+      "AC-P03",
+      "AC-P01",
+      "AC-P08",
+      "AC-A03",
+      "AC-O07",
+      "AC-E02",
+    ],
     step: 9,
     kind: "business",
     status: "implemented",
@@ -258,7 +290,12 @@ export const scenarios: readonly Scenario[] = [
   },
   {
     id: "E2E-PRODUCTS",
-    screens: ["ADM-PRODUCT-CREATE", "ADM-PRODUCTS", "PUB-PRODUCTS"],
+    screens: [
+      "ADM-PRODUCT-CREATE",
+      "PUB-PRODUCT-CREATE",
+      "ADM-PRODUCTS",
+      "PUB-PRODUCTS",
+    ],
     acceptance: [
       "AC-P08",
       "AC-P01",

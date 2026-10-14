@@ -14,7 +14,13 @@ import {
 import type { RouteManifest, Scope } from "@training2/screen-contracts";
 import axios from "axios";
 import App from "./App.vue";
-import { clearSession, runtimeKey, session } from "./context.ts";
+import {
+  clearSession,
+  draft,
+  isAdministrator,
+  runtimeKey,
+  session,
+} from "./context.ts";
 import { createScreenRouter } from "./router.ts";
 import "./style.css";
 export async function mountFrontend(scope: Scope, manifest: RouteManifest) {
@@ -57,45 +63,62 @@ export async function mountFrontend(scope: Scope, manifest: RouteManifest) {
       await refreshSession();
       if (to.meta.access !== "any" && !session.sub)
         return { path: "/login", query: { returnTo: to.fullPath } };
-      if (to.meta.access === "admin" && !session.groups.includes("admin"))
-        return { path: "/login", query: { denied: "1" } };
+      if (to.meta.access === "admin" && !isAdministrator.value)
+        return scope === "public"
+          ? { path: "/products", query: { denied: "admin" } }
+          : { path: "/login", query: { denied: "1" } };
+      if (
+        scope === "public" &&
+        isAdministrator.value &&
+        to.path.startsWith("/orders")
+      ) {
+        draft.items = [];
+        draft.key = "";
+        return "/products";
+      }
       return true;
     });
-    const http = axios.create({ baseURL: "/api", timeout: 8000 });
-    http.interceptors.request.use(async (request) => {
-      if (session.sub) {
-        try {
-          const auth = await fetchAuthSession();
-          const token = auth.tokens?.accessToken?.toString();
-          if (!token) throw new Error("session");
-          request.headers.set("Authorization", `Bearer ${token}`);
-        } catch {
-          clearSession();
-          queryClient.clear();
-          if (router.currentRoute.value.meta.access !== "any")
-            void router.replace("/login");
-          throw new Error("session");
+    function authenticatedHttp(baseURL: string) {
+      const http = axios.create({ baseURL, timeout: 8000 });
+      http.interceptors.request.use(async (request) => {
+        if (session.sub) {
+          try {
+            const auth = await fetchAuthSession();
+            const token = auth.tokens?.accessToken?.toString();
+            if (!token) throw new Error("session");
+            request.headers.set("Authorization", `Bearer ${token}`);
+          } catch {
+            clearSession();
+            queryClient.clear();
+            if (router.currentRoute.value.meta.access !== "any")
+              void router.replace("/login");
+            throw new Error("session");
+          }
         }
-      }
-      return request;
-    });
-    http.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        if (error.response?.status === 401) {
-          const returnTo = router.currentRoute.value.fullPath;
-          clearSession();
-          queryClient.clear();
-          await signOut().catch(() => {});
-          if (router.currentRoute.value.meta.access !== "any")
-            await router.replace({
-              path: "/login",
-              query: { expired: "1", returnTo },
-            });
-        }
-        return Promise.reject(error);
-      },
-    );
+        return request;
+      });
+      http.interceptors.response.use(
+        (response) => response,
+        async (error) => {
+          if (error.response?.status === 401) {
+            const returnTo = router.currentRoute.value.fullPath;
+            clearSession();
+            queryClient.clear();
+            await signOut().catch(() => {});
+            if (router.currentRoute.value.meta.access !== "any")
+              await router.replace({
+                path: "/login",
+                query: { expired: "1", returnTo },
+              });
+          }
+          return Promise.reject(error);
+        },
+      );
+      return http;
+    }
+    const http = authenticatedHttp("/api");
+    const adminHttp =
+      scope === "public" ? authenticatedHttp("/admin-api") : http;
     const logout = async () => {
       await signOut();
       clearSession();
@@ -109,7 +132,7 @@ export async function mountFrontend(scope: Scope, manifest: RouteManifest) {
       router,
       queryClient,
       publicClient: createPublicClient(http),
-      privateClient: createPrivateClient(http),
+      privateClient: createPrivateClient(adminHttp),
       refreshSession,
       logout,
     });

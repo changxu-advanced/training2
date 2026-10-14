@@ -48,6 +48,11 @@ export function validateGraph(
     for (const api of screen.apis)
       if (!operations[screen.scope].has(api))
         throw new Error(`Unknown API ${screen.id}:${api}`);
+    for (const binding of screen.apiBindings ?? [])
+      if (!operations[binding.scope].has(binding.operationId))
+        throw new Error(
+          `Unknown API binding ${screen.id}:${binding.scope}:${binding.operationId}`,
+        );
     for (const id of screen.acceptance) {
       if (!acceptance.has(id)) throw new Error(`Unknown acceptance ${id}`);
       if (

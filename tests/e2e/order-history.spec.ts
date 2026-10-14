@@ -17,7 +17,7 @@ test("[E2E-ORDER-HISTORY] unified order entry, state actions and confirmation di
   await page.route("**/api/orders?**", (route) =>
     route.fulfill({ json: { items: [], page: 1, pageSize: 20, total: 0 } }),
   );
-  await page.getByRole("link", { name: "注文", exact: true }).click();
+  await page.getByRole("link", { name: "注文管理", exact: true }).click();
   await expect(
     page.getByText("まだ注文はありません。商品を選んで注文を作成しましょう。"),
   ).toBeVisible();

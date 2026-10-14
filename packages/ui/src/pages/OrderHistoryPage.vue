@@ -18,7 +18,7 @@ function allowed(id:string,action:"confirm"|"cancel"){
 </script>
 <template>
 <section class="orders-page">
-  <div class="page-heading"><div><p class="eyebrow">ご注文の管理</p><h1>注文</h1><p class="muted">ご注文の確認・確定・キャンセルができます。</p></div></div>
+  <div class="page-heading"><div><p class="eyebrow">ご注文の管理</p><h1>注文管理</h1><p class="muted">ご注文の確認・確定・キャンセルができます。</p></div></div>
   <div class="content-card">
     <div class="card-heading"><h2>あなたの注文</h2><span class="muted">{{orders.data.value ? orders.data.value.total+' 件' : ''}}</span></div>
     <el-radio-group v-model="status" class="order-filters" aria-label="注文状態" @change="page=1"><el-radio-button value="">すべて</el-radio-button><el-radio-button value="draft">未確定</el-radio-button><el-radio-button value="confirmed">確定済み</el-radio-button><el-radio-button value="cancelled">キャンセル済み</el-radio-button></el-radio-group>
