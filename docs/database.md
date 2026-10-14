@@ -53,7 +53,7 @@ updated_at 由 SQL 触发器更新。draft 不含确认和取消时间，confirm
 
 每次迁移在一个实际 PostgreSQL 事务中取得 advisory lock，再校验 SHA256 历史和连续编号，全部新增 SQL 与历史一起提交。重复执行跳过历史；并发执行串行化；失败全部回滚。已应用历史不可修改或删除。追加历史版本进行修复，不直接运行 DDL 修改设计。
 
-清单生成和 DB 测试创建独立 training2_test_ 数据库，执行后清理，只清理自己创建的数据库。不得对生产地址运行测试工具。迁移、seed 和生成命令见 [数据库操作说明](../packages/postgres/README.md)。
+清单生成和 DB 测试创建独立 training2_test_ 数据库，执行后清理，只清理自己创建的数据库。不得对生产地址运行测试工具。迁移、seed 和生成命令见 [数据库操作说明](https://github.com/changxu-advanced/training2/blob/main/packages/postgres/README.md)。
 
 ## 已验证
 

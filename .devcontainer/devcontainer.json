@@ -17,7 +17,7 @@
       "version": "29.9.0"
     }
   },
-  "forwardPorts": [3000, 3001, 5173, 5174],
+  "forwardPorts": [3000, 3001, 5173, 5174, 5175],
   "postCreateCommand": "bash .devcontainer/post-create.sh ${containerWorkspaceFolder}",
   "remoteUser": "node",
   "customizations": {

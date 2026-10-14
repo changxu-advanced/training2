@@ -7,6 +7,12 @@
 
 ### 开始开发
 
+- [文档首页](docs/index.md)（容器内 pnpm docs:dev，打开 http://localhost:5175）
+- [API 参考（生成）](docs/api.generated.md)
+- [页面参考（生成）](docs/screens.generated.md)
+- [生成与排查](docs/maintenance.md)
+- [验证方式](docs/testing.md)
+- [设计判断与学习](docs/learning.md)
 - [启动和日常操作](docs/getting-started.md)
 - [业务需求](docs/requirements.md)
 - [架构说明](docs/architecture.md)
@@ -15,6 +21,8 @@
 - [验收场景](docs/acceptance-scenarios.md)
 - [当前进度](docs/progress.md)
 - [待处理事项](ISSUES.md)
+
+追加ツール: 文書整理に VitePress 1.6.4 を使用します。API・画面の仕様文書は契約から生成し、文書ビルドと生成一致性を CI で検証します。VitePress の内部 Vite 5 とアプリの Vite 8 は別の依存関係です。
 
 本プロジェクトでは以下を学習対象とします。
 

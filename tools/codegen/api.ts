@@ -3,6 +3,9 @@ import path from "node:path";
 import openapiTS, { astToString } from "openapi-typescript";
 import { openapiDocument } from "../../packages/api-contracts/src/index.ts";
 
+import { renderApiDocs } from "./api-docs.ts";
+
+const documents: Parameters<typeof renderApiDocs>[0] = [];
 const check = process.argv.includes("--check");
 async function save(file: string, value: string) {
   if (check) {
@@ -15,6 +18,7 @@ async function save(file: string, value: string) {
 }
 for (const scope of ["public", "private"] as const) {
   const doc = openapiDocument(scope);
+  documents.push({ scope, doc });
   await save(
     `schemas/openapi/${scope}.json`,
     `${JSON.stringify(doc, null, 2)}\n`,
@@ -71,8 +75,9 @@ for (const scope of ["public", "private"] as const) {
   code += "};}\n";
   await save(`packages/api-client/src/${scope}.ts`, code);
 }
+await save("docs/api.generated.md", renderApiDocs(documents));
 console.log(
   check
-    ? "OpenAPI and Axios Client match their contracts."
-    : "Generated OpenAPI and typed Axios Client.",
+    ? "OpenAPI, Axios Client and API docs match their contracts."
+    : "Generated OpenAPI, typed Axios Client and API docs.",
 );

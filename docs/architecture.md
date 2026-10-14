@@ -5,13 +5,14 @@ training2 由两个 Vue 前端、两个 Hono API、一个 PostgreSQL 和本地�
 ## 请求路径和职责
 
 ```text
-买家浏览器 → public-frontend → public-api  → PostgreSQL
-管理员浏览器 → private-frontend → private-api → PostgreSQL
+顾客（5173） → public-frontend → public-api → PostgreSQL
+管理员（5173统一入口） → public-frontend → /admin-api代理 → private-api → PostgreSQL
+管理员（5174独立入口） → private-frontend → private-api → PostgreSQL
 两种浏览器 → Cognito 登录 → access token → API 验证
 ```
 
-- `apps/public-frontend`：搜索、库存、自己的订单操作。
-- `apps/private-frontend`：管理员商品注册和列表。
+- `apps/public-frontend`：顾客搜索、库存、自己的订单操作；保留统一入口按管理员组显示商品管理功能，管理请求仍交给private-api。
+- `apps/private-frontend`：独立管理入口，管理员商品登记、列表及增量补货；复用现有共享管理页面。
 - `apps/public-api` / `apps/private-api`：接入契约、验证请求和响应、调用服务、认证授权、返回统一错误。
 - 服务层：订单所有者、状态、金额和库存业务规则；负责事务边界。
 - 数据访问层：Prisma 普通查询与参数化 SQL 行锁；不直接拼接用户输入。
@@ -49,7 +50,7 @@ Prisma schema 和 Client 不手改，不使用 Prisma migrations 管理 DB。生
 
 | 服务 | 浏览器或 Windows | 开发容器内部 |
 | --- | --- | --- |
-| 买家前端 | localhost:5173 | app:5173 |
+| 主入口（顾客／统一双身份） | localhost:5173 | app:5173 |
 | 管理前端 | localhost:5174 | app:5174 |
 | 买家 API | localhost:3000 | app:3000 |
 | 管理 API | localhost:3001 | app:3001 |

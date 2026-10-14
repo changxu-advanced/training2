@@ -26,17 +26,24 @@
     "codegen:check": "node tools/codegen/api.ts --check",
     "screen:generate": "node packages/screen-contracts/scripts/check.ts --write",
     "screen:check": "node packages/screen-contracts/scripts/check.ts --require-implemented --require-e2e",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "docs:dev": "vitepress dev docs --host 0.0.0.0 --port 5175",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs --host 0.0.0.0 --port 5175",
+    "docs:generate": "pnpm codegen && pnpm screen:generate",
+    "docs:check": "pnpm codegen:check && pnpm screen:check && pnpm docs:build"
   },
   "devDependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "3.1150.0",
     "@biomejs/biome": "2.5.15",
+    "@playwright/test": "1.64.0",
     "@types/node": "26.6.4",
-    "husky": "9.1.7",
-    "typescript": "7.0.2",
     "aws-amplify": "6.22.1",
     "aws-jwt-verify": "5.2.1",
-    "@aws-sdk/client-cognito-identity-provider": "3.1150.0",
-    "@playwright/test": "1.64.0"
+    "esbuild": "0.28.2",
+    "husky": "9.1.7",
+    "typescript": "7.0.2",
+    "vitepress": "1.6.4"
   },
   "packageManager": "pnpm@12.9.1",
   "engines": {

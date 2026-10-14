@@ -7,6 +7,8 @@ node --version
 pnpm --version
 pnpm install --frozen-lockfile
 pnpm seed:cognito
+pnpm db:migrate
+pnpm db:seed
 pnpm prisma:check
 pnpm codegen:check
 psql -v ON_ERROR_STOP=1 -c 'SELECT current_database(), version();'
