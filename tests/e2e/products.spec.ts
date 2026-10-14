@@ -48,6 +48,42 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   await page.getByRole("button", { name: "商品登録", exact: true }).click();
   await expect(page).toHaveURL(/\/products$/);
   const registered = page.getByRole("row").filter({ hasText: code });
+  const registerButton = page.getByRole("button", {
+    name: "商品登録",
+    exact: true,
+  });
+  const addButton = registered.getByRole("button", {
+    name: "在庫を追加",
+    exact: true,
+  });
+  await expect(addButton).toBeVisible();
+  const registerBox = await registerButton.boundingBox();
+  const addBox = await addButton.boundingBox();
+  const countBox = await page
+    .locator(".product-heading-actions .muted")
+    .boundingBox();
+  expect(Math.abs(registerBox!.x - addBox!.x)).toBeLessThan(2);
+  expect(registerBox!.width).toBe(addBox!.width);
+  expect(registerBox!.height).toBe(addBox!.height);
+  expect(
+    Math.abs(
+      registerBox!.y +
+        registerBox!.height / 2 -
+        countBox!.y -
+        countBox!.height / 2,
+    ),
+  ).toBeLessThan(2);
+  expect(registerBox!.x + registerBox!.width).toBeLessThan(countBox!.x);
+  const normal = await registerButton.evaluate(
+    (el) => getComputedStyle(el).backgroundColor,
+  );
+  await registerButton.hover();
+  await expect
+    .poll(() =>
+      registerButton.evaluate((el) => getComputedStyle(el).backgroundColor),
+    )
+    .not.toBe(normal);
+  await page.getByRole("heading", { name: "商品一覧", exact: true }).hover();
   await registered
     .getByRole("button", { name: "在庫を追加", exact: true })
     .click();
@@ -97,11 +133,11 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   await expect(row.getByRole("button", { name: "在庫を更新" })).toHaveCount(0);
   await expect(row.getByRole("cell", { name: "9", exact: true })).toBeVisible();
   const filter = page.getByRole("button", {
-    name: "在庫ありのみ",
-    exact: true,
+    name: /^在庫ありのみ(?:を解除)?$/,
   });
   await filter.click();
   await expect(filter).toHaveAttribute("aria-pressed", "true");
+  await expect(filter).toHaveText("在庫ありのみを解除");
   function updateStock(value: number) {
     execFileSync(process.execPath, [
       "--input-type=module",
@@ -116,12 +152,15 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   await expect(page.getByText("0 件の商品", { exact: true })).toBeVisible();
   await filter.click();
   await expect(filter).toHaveAttribute("aria-pressed", "false");
+  await expect(filter).toHaveText("在庫ありのみ");
   await expect(row.getByText("在庫なし", { exact: true })).toBeVisible();
   await filter.click();
+  await expect(filter).toHaveText("在庫ありのみを解除");
   await expect(row).toHaveCount(0);
   updateStock(9);
   await expect(row.getByRole("cell", { name: "9", exact: true })).toBeVisible();
   await filter.click();
+  await expect(filter).toHaveText("在庫ありのみ");
   await page
     .getByLabel("商品名", { exact: true })
     .fill("該当なし-" + randomUUID());

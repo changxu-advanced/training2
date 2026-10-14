@@ -184,6 +184,24 @@ h3 {
   flex-wrap: wrap;
   gap: 16px;
 }
+.product-management-heading {
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.product-heading-actions--management {
+  width: 240px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0 12px;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+}
+.product-heading-actions--management .muted {
+  white-space: nowrap;
+}
+.product-management-button {
+  width: 104px;
+}
 .card-heading {
   display: flex;
   align-items: center;
