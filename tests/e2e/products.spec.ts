@@ -8,6 +8,15 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   const code = "E2E-" + randomUUID().slice(0, 8).toUpperCase();
   const name = "サンプル商品 %_ " + code;
   await page.goto("http://localhost:5173/login");
+  const logo = page.getByRole("img", {
+    name: "アドバンスト・ソフト",
+    exact: true,
+  });
+  await expect(
+    page.getByRole("link", { name: /アドバンスト・ソフト/ }),
+  ).toHaveCount(0);
+  await logo.click();
+  await expect(page).toHaveURL(/\/login$/);
   const browse = page.getByRole("link", { name: "商品を見る →", exact: true });
   await expect(browse).toHaveClass(/navigation-button/);
   const beforeHover = await browse.evaluate(
@@ -21,7 +30,21 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   await expect(browse).toBeFocused();
   await browse.press("Enter");
   await expect(page).toHaveURL(/\/products$/);
-  await page.goto("http://localhost:5173/login");
+  const headerLogin = page
+    .locator("header")
+    .getByRole("link", { name: /^ログイン\s*↗$/ });
+  await expect(headerLogin).toHaveClass(/navigation-button/);
+  const loginNormal = await headerLogin.evaluate(
+    (el) => getComputedStyle(el).backgroundColor,
+  );
+  await headerLogin.hover();
+  await expect
+    .poll(() =>
+      headerLogin.evaluate((el) => getComputedStyle(el).backgroundColor),
+    )
+    .not.toBe(loginNormal);
+  await headerLogin.click();
+  await expect(page).toHaveURL(/\/login$/);
   await page
     .getByLabel("メールアドレス", { exact: true })
     .fill("admin@training2.test");
@@ -31,6 +54,8 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   await page.getByRole("button", { name: "ログイン" }).click();
   await page.waitForURL("**/products");
   await page.goto("http://localhost:5173/products/new");
+  await logo.click();
+  await expect(page).toHaveURL(/\/products\/new$/);
   const back = page.getByRole("link", { name: "← 一覧へ戻る", exact: true });
   await expect(back).toHaveClass(/navigation-button/);
   await back.focus();

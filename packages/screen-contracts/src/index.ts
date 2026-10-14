@@ -69,7 +69,7 @@ export const screens: readonly Screen[] = [
     authActions: ["signIn", "signOut", "fetchAuthSession"],
     transitions: ["PUB-PRODUCTS", "PUB-ORDER-CREATE", "PUB-ORDER"],
     states: {
-      idle: "显示登录表单；顶部仅保留公司Logo，隐藏页面导航和右侧登录/账号区，表单下方保留商品浏览入口",
+      idle: "显示登录表单；顶部仅保留无链接的公司Logo，隐藏页面导航和右侧登录/账号区，表单下方保留商品浏览入口",
       loading: "登录按钮禁用",
       empty: "提示填写账号与密码",
       success: "安全跳转回来源页，默认商品页",
@@ -97,7 +97,7 @@ export const screens: readonly Screen[] = [
     authActions: [],
     transitions: ["PUB-LOGIN", "PUB-ORDER-CREATE", "PUB-PRODUCT-CREATE"],
     states: {
-      idle: "显示搜索条件；件数左侧筛选按钮未选中显示在庫ありのみ，选中显示在庫ありのみを解除并保持蓝色，两种文案的右边缘均与商品选择按钮对齐，文字变长向左扩展；服务器跨页过滤及计数，切换回第一页，搜索条件保留且库存变化自动更新",
+      idle: "全站Logo为不可点击展示，非登录页未登录时右侧登录入口使用统一描边导航按钮；显示搜索条件；件数左侧筛选按钮未选中显示在庫ありのみ，选中显示在庫ありのみを解除并保持蓝色，两种文案的右边缘均与商品选择按钮对齐，文字变长向左扩展；服务器跨页过滤及计数，切换回第一页，搜索条件保留且库存变化自动更新",
       loading: "仅首次加载展示占位；后台自动更新保留列表、搜索、分页和滚动",
       empty: "没有匹配商品，可清空条件",
       success:
@@ -196,7 +196,7 @@ export const screens: readonly Screen[] = [
     authActions: ["signIn", "signOut", "fetchAuthSession"],
     transitions: ["ADM-PRODUCTS", "ADM-PRODUCT-CREATE"],
     states: {
-      idle: "显示管理员登录表单；顶部仅保留公司Logo，隐藏页面导航和右侧登录/账号区",
+      idle: "显示管理员登录表单；顶部仅保留无链接的公司Logo，隐藏页面导航和右侧登录/账号区",
       loading: "登录按钮禁用",
       empty: "提示填写账号与密码",
       success: "验证admin组后进入管理页",
