@@ -88,10 +88,12 @@ test("contract input/response validation, honest stubs and generated Axios trans
   );
   let url = "";
   let header = "";
+  let requestSignal: unknown;
   const transport = axios.create({
     adapter: async (config) => {
       url = config.url ?? "";
       header = String(config.headers.get("Idempotency-Key") ?? "");
+      requestSignal = config.signal;
       return {
         data: { stub: true },
         status: 200,
@@ -103,8 +105,10 @@ test("contract input/response validation, honest stubs and generated Axios trans
   });
   const client = createPublicClient(transport);
   const id = randomUUID();
-  await client.confirmOrder({ path: { id } });
+  const abort = new AbortController();
+  await client.confirmOrder({ path: { id }, signal: abort.signal });
   assert.equal(url, `/orders/${id}/confirm`);
+  assert.equal(requestSignal, abort.signal);
   const key = randomUUID();
   await client.createOrder({
     headers: { "idempotency-key": key },

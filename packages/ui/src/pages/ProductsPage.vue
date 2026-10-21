@@ -23,6 +23,7 @@ const products = useQuery({
         })
       : runtime.publicClient.searchProducts({
           query: { ...criteria.value, page: page.value, pageSize: 20, ...(inStock.value ? { inStock: "true" as const } : {}) },
+          signal,
         }),
 });
 function search() {
