@@ -8,7 +8,7 @@ Training 3 在 Training 2 上继续实施。原 implementation-plan 中 GraphQL 
 | --- | --- | --- |
 | 1 | PostGraphile 管理员 GraphQL API | 商品查询、登记、补货；保留 REST 兼容入口，验证实际数据库和权限 |
 | 2 | 管理端接入 graphql-request + TanStack Vue Query | 5173 管理员模式和 5174 独立管理端一起迁移；买家界面维持 |
-| 3 | 检查其他 Axios 请求的 Vue Query 包装 | 复用已有请求管理，不重复引入缓存层 |
+| 3 | 检查其他 Axios 请求的 Vue Query 包装 | 已完成：复用已有请求管理，并把读取取消信号传入 Axios |
 | 4 | CI 检查、构建应用镜像并推送 GHCR | typecheck、unit test、build、image build/push；镜像发布权限在实施时配置 |
 | 5 | 从 GHCR 拉取并在本地启动验收 | 验证认证、商品操作和订单库存，记录可复现命令 |
 
@@ -99,4 +99,8 @@ GraphQLClient 使用当前 origin 生成完整的 /admin-api/graphql 地址，�
 
 Screen Contract 使用 `graphql:<rootField>` 声明管理接口依赖。screen:check 从已保存 SDL 构建 schema 验证字段存在；客户端组合测试还验证四份实际 GraphQL 文档与 SDL 一致。既有 E2E-PRODUCTS 覆盖两个管理员入口的实际读写，阻断旧 REST 管理请求以避免悄悄回退；既有 E2E-AUTH 覆盖 GraphQL 401 和退出后迟到请求。浏览器用例数量不增加。
 
-阶段 2 完成后继续保留后端 REST 兼容入口；其他 Axios 调用的系统性检查属于阶段 3，镜像发布属于阶段 4/5。
+阶段 2 完成后继续保留后端 REST 兼容入口；阶段 3 已补齐买家 REST 读取的取消信号，镜像发布属于阶段 4/5。
+
+## 阶段 3：REST Axios 与 Vue Query
+
+阶段 3 的审查确认，前端业务请求均从页面的 `useQuery` 或 `useMutation` 发起；登录配置读取、Axios 实例创建、认证拦截器和错误类型判断是启动/传输基础设施，不属于脱离 Vue Query 的业务请求。为使查询生命周期完整，OpenAPI Axios Client 的生成模板现在为每个方法提供可选 `AbortSignal`，商品搜索、库存、订单列表和订单详情读取把 Vue Query 的 signal 传入 Client。页面离开、查询失效或账号切换时，Vue Query 可以中止正在进行的 REST 读取；写操作仍由 mutation 管理且不自动重试。未修改 API 契约、服务端、数据库或缓存键。

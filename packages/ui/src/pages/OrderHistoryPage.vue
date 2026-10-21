@@ -9,7 +9,7 @@ import { useOrderActions } from "../order-actions.ts";
 const runtime=useRuntime();
 const status=ref<""|"draft"|"confirmed"|"cancelled">("");
 const page=ref(1);
-const orders=useQuery({queryKey:["orders",session.sub,status,page],queryFn:()=>runtime.publicClient.listOrders({query:{page:page.value,pageSize:20,...(status.value?{status:status.value}:{})}})});
+const orders=useQuery({queryKey:["orders",session.sub,status,page],queryFn:({signal})=>runtime.publicClient.listOrders({query:{page:page.value,pageSize:20,...(status.value?{status:status.value}:{})},signal})});
 const actions=useOrderActions();
 const cleanupAsking=ref(false);
 const cleanupError=ref("");

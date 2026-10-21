@@ -40,6 +40,8 @@ for (const scope of ["public", "private"] as const) {
       const params = op.parameters ?? [];
       const fields: string[] = [];
       const config: string[] = [];
+      fields.push("signal?:AbortSignal");
+      config.push("signal:args.signal");
       let required = false;
       let route = JSON.stringify(url);
       if (params.some((p) => p.in === "path")) {

@@ -11,7 +11,11 @@
 
 ## Training 3 阶段 2：管理员前端 GraphQL
 
-状态：レビュー待ち，尚未合并。两个管理员入口已接入共享 graphql-request 7.4.0 客户端，保留 Vue Query 缓存、SSE 刷新、账号隔离及补货幂等 key；页面契约从 SDL 验证 GraphQL 字段。容器内 pnpm check 通过（44 个单元/集成测试、类型检查、构建），screen:check、codegen:check 和文档构建通过。既有 6 个浏览器用例分组通过，覆盖两个入口的 GraphQL 登记/补货、401 反馈、账号切换、多人库存同步及订单流程；未新增浏览器用例。Chrome 已展示主站和已登录的独立管理端，IDEA Community 2023.1.7 已打开项目及第一步 GraphQL 源文件。未读取或修改 .env。
+状态：完了。PR #16 已经用户授权合并，main 合并提交 3022d4e。两个管理员入口已接入共享 graphql-request 7.4.0 客户端，保留 Vue Query 缓存、SSE 刷新、账号隔离及补货幂等 key；页面契约从 SDL 验证 GraphQL 字段。容器内 pnpm check 通过（44 个单元/集成测试、类型检查、构建），screen:check、codegen:check 和文档构建通过。既有 6 个浏览器用例分组通过，覆盖两个入口的 GraphQL 登记/补货、401 反馈、账号切换、多人库存同步及订单流程；未新增浏览器用例。Chrome 已展示主站和已登录的独立管理端，IDEA Community 2023.1.7 已打开项目及第一步 GraphQL 源文件。未读取或修改 .env。
+
+## Training 3 阶段 3：REST Axios 与 Vue Query
+
+状态：实现待审查。审查确认页面业务请求均由既有 `useQuery`/`useMutation` 发起；启动配置、认证拦截器和错误识别保留为传输基础设施。OpenAPI Axios Client 生成模板新增可选 `AbortSignal`，商品搜索、库存、订单列表和订单详情读取均传入 Vue Query 的 signal，使页面离开、查询失效和账号切换能够取消底层 REST 请求。未修改 API、数据库或业务规则。待容器内完整检查、PR 和 CI 结果确认。
 
 ## Step0 规格已准备
 

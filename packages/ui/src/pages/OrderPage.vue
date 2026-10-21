@@ -12,12 +12,12 @@ const route = useRoute();
 const id = computed(() => String(route.params.id));
 const order = useQuery({
   queryKey: ["order", id],
-  queryFn: () => runtime.publicClient.getOrder({ path: { id: id.value } }),
+  queryFn: ({ signal }) => runtime.publicClient.getOrder({ path: { id: id.value }, signal }),
 });
 const stocks = useQuery({
   queryKey:["order-stock", id],
   enabled:computed(() => order.data.value?.status === "draft"),
-  queryFn:async () => Object.fromEntries(await Promise.all((order.data.value?.items ?? []).map(async item => [item.productId,(await runtime.publicClient.getStock({path:{id:item.productId}})).stock]))),
+  queryFn:async ({ signal }) => Object.fromEntries(await Promise.all((order.data.value?.items ?? []).map(async item => [item.productId,(await runtime.publicClient.getStock({path:{id:item.productId}, signal})).stock]))),
 });
 const stockReady = computed(() => !stocks.isPending.value && !stocks.isError.value && order.data.value?.items.every(item => (stocks.data.value?.[item.productId] ?? 0) >= item.quantity));
 const shortage = computed(() => stocks.data.value && order.data.value?.status === "draft" && order.data.value.items.some(item => (stocks.data.value?.[item.productId] ?? 0) < item.quantity));

@@ -16,4 +16,4 @@ Vite 的本地 /auth-config.json 只返回忽略的 runtime/cognito.json 中的�
 
 统一入口的管理Client使用/admin-api代理到private API，复用相同令牌/401处理，不复制或另存令牌。顾客访问/products/new重定向商品页并提示无权限，不挂载登记表单；绕过页面调用管理商品API仍403。管理员订单路由返回商品一覧；顾客和管理员切换时清理查询及选择。页面契约apiBindings显式声明private API依赖并验证。
 
-Training 3 阶段 2 将两个管理员入口的四项商品请求迁移到 GraphQL + 既有 Vue Query；实现、请求取消/账号隔离、SDL 检查及验收边界见 [Training 3](./training3.md)。
+Training 3 阶段 2 将两个管理员入口的四项商品请求迁移到 GraphQL + 既有 Vue Query；阶段 3 又把买家 REST 读取的 AbortSignal 贯通到生成 Axios Client。实现、请求取消/账号隔离、SDL 检查及验收边界见 [Training 3](./training3.md)。

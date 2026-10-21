@@ -15,9 +15,9 @@ const stock = useQuery({
   queryKey: ["selection-stock", computed(() => draft.items.map(item => item.productId))],
   enabled: computed(() => draft.items.length > 0),
   staleTime: 0,
-  queryFn: async () => Object.fromEntries(await Promise.all(
+  queryFn: async ({ signal }) => Object.fromEntries(await Promise.all(
     draft.items.map(async item => {
-      const snapshot = await runtime.publicClient.getStock({path: {id: item.productId}});
+      const snapshot = await runtime.publicClient.getStock({path: {id: item.productId}, signal});
       return [item.productId, snapshot.stock] as const;
     }),
   )),
