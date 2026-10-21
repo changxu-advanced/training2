@@ -11,3 +11,6 @@ test-results/
 packages/prisma/generated/
 packages/prisma/.generation-*.prisma
 docs/.vitepress/cache/
+
+# Local IntelliJ project metadata
+.idea/

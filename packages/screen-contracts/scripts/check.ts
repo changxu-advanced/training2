@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { openapiDocument } from "@training2/api-contracts";
 import { routeManifest as privateManifest } from "../../../apps/private-frontend/src/route-manifest.ts";
 import { routeManifest as publicManifest } from "../../../apps/public-frontend/src/route-manifest.ts";
+import { graphqlOperations } from "../src/graphql-operations.ts";
 import { type Scope, scenarios, screens } from "../src/index.ts";
 import { renderScreens } from "../src/render.ts";
 import { validateGraph, validateRoutes } from "../src/validate.ts";
@@ -25,9 +26,14 @@ function operations(scope: Scope) {
     ),
   );
 }
+const adminOperations = operations("private");
+for (const field of graphqlOperations(
+  await readFile(`${root}schemas/graphql/admin.graphql`, "utf8"),
+))
+  adminOperations.add(field);
 validateGraph(screens, scenarios, acceptance, {
   public: operations("public"),
-  private: operations("private"),
+  private: adminOperations,
 });
 for (const manifest of [publicManifest, privateManifest])
   validateRoutes(

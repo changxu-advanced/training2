@@ -5,7 +5,7 @@ import { useMutation, useQuery } from "@tanstack/vue-query";
 import { productInput, restockInput } from "@training2/api-contracts/inputs";
 import { computed, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useRuntime } from "../context.ts";
+import { session, useRuntime } from "../context.ts";
 
 const runtime = useRuntime();
 const form = reactive({
@@ -20,7 +20,7 @@ const restockId=computed(()=>typeof route.query.restock==="string"?route.query.r
 const restocking=computed(()=>!!restockId.value);
 let requestKey="";
 let loadedId="";
-const existing=useQuery({queryKey:["products","detail",restockId],enabled:restocking,queryFn:()=>runtime.privateClient.getProduct({path:{id:restockId.value}})});
+const existing=useQuery({queryKey:["products","detail",computed(()=>runtime.scope),computed(()=>session.sub),restockId],enabled:restocking,queryFn:({signal})=>runtime.adminClient.getProduct({path:{id:restockId.value},signal})});
 watch(restockId,()=>{loadedId="";requestKey="";Object.assign(form,{code:"",name:"",description:"",priceJpy:0,stock:restocking.value?1:0});},{immediate:true});
 watch(existing.data,data=>{if(data){Object.assign(form,{code:data.code,name:data.name,description:data.description,priceJpy:data.priceJpy});if(loadedId!==data.id){form.stock=1;loadedId=data.id;}}},{immediate:true});
 const stockMax = 2000;
@@ -29,7 +29,7 @@ const formInput = productInput.extend({ stock: productInput.shape.stock.max(stoc
 const validation = ref("");
 const mutation = useMutation({
   mutationFn: (body: ReturnType<typeof productInput.parse>) =>
-    restocking.value ? runtime.privateClient.restockProduct({path:{id:restockId.value},headers:{"idempotency-key":requestKey},body:{quantity:body.stock}}) : runtime.privateClient.registerProduct({ body }),
+    restocking.value ? runtime.adminClient.restockProduct({path:{id:restockId.value},headers:{"idempotency-key":requestKey},body:{quantity:body.stock}}) : runtime.adminClient.registerProduct({ body }),
   onSuccess: async () => {
     await runtime.queryClient.invalidateQueries({ queryKey: ["products"] });
     await runtime.router.push("/products");

@@ -4,7 +4,6 @@ import { createWebHistory } from "vue-router";
 import { japaneseLocale } from "./locale.ts";
 import "element-plus/dist/index.css";
 import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
-import { createPrivateClient } from "@training2/api-client/private";
 import { createPublicClient } from "@training2/api-client/public";
 import {
   configureBrowserAuth,
@@ -14,6 +13,7 @@ import {
 import type { RouteManifest, Scope } from "@training2/screen-contracts";
 import axios from "axios";
 import App from "./App.vue";
+import { createAdminClient } from "./admin-client.ts";
 import {
   clearSession,
   draft,
@@ -128,8 +128,25 @@ export async function mountFrontend(scope: Scope, manifest: RouteManifest) {
       return http;
     }
     const http = authenticatedHttp("/api");
-    const adminHttp =
-      scope === "public" ? authenticatedHttp("/admin-api") : http;
+    const adminClient = createAdminClient({
+      endpoint: new URL("/admin-api/graphql", window.location.origin).href,
+      owner: () => session.sub,
+      accessToken: async () =>
+        (await fetchAuthSession()).tokens?.accessToken?.toString(),
+      unauthorized: async (owner) => {
+        if (owner !== session.sub) return;
+        const returnTo = router.currentRoute.value.fullPath;
+        clearSession();
+        queryClient.clear();
+        await signOut().catch(() => {});
+        // An expired request must never redirect a newly signed-in account.
+        if (!session.sub && router.currentRoute.value.meta.access !== "any")
+          await router.replace({
+            path: "/login",
+            query: { expired: "1", returnTo },
+          });
+      },
+    });
     const logout = async () => {
       clearSession();
       queryClient.clear();
@@ -143,7 +160,7 @@ export async function mountFrontend(scope: Scope, manifest: RouteManifest) {
       router,
       queryClient,
       publicClient: createPublicClient(http),
-      privateClient: createPrivateClient(adminHttp),
+      adminClient,
       refreshSession,
       logout,
     });

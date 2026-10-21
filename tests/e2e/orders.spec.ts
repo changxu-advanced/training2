@@ -232,8 +232,8 @@ test("[E2E-ORDER-CREATE] [E2E-ORDER-OWNER] [E2E-ORDER-STOCK] real order retry, l
   await page.getByRole("button", { name: "ログアウト" }).click();
   const observed = page.waitForRequest(
     (request) =>
-      new URL(request.url()).pathname === "/admin-api/products" &&
-      request.method() === "GET",
+      new URL(request.url()).pathname === "/admin-api/graphql" &&
+      request.method() === "POST",
   );
   await login(page, "admin@training2.test");
   await page.waitForURL("**/products");

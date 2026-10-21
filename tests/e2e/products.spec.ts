@@ -5,6 +5,40 @@ import { expect, test } from "@playwright/test";
 test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal values and automatically receives stock updates", async ({
   page,
 }) => {
+  test.setTimeout(90000);
+  const graphOperations = new Set<string>();
+  page.on("response", (response) => {
+    if (
+      new URL(response.url()).pathname === "/admin-api/graphql" &&
+      response.status() === 200
+    ) {
+      const body = response.request().postDataJSON();
+      const name = String(body.query).match(/(?:query|mutation)\s+(\w+)/)?.[1];
+      if (name) graphOperations.add(name);
+    }
+  });
+  await page.route("**/admin-api/products**", (route) => route.abort());
+  async function findAdminRow(code: string) {
+    const row = page.getByRole("row").filter({ hasText: code });
+    for (let i = 0; i < 100; i++) {
+      await expect(page.locator(".product-table")).toBeVisible();
+      if (await row.count()) return row;
+      const next = page.locator(".el-pagination .btn-next");
+      if (await next.isDisabled())
+        throw new Error(
+          "Registered product not found in paginated administrator list",
+        );
+      const changed = page.waitForResponse(
+        (r) =>
+          new URL(r.url()).pathname === "/admin-api/graphql" &&
+          r.request().postData()?.includes("AdminProducts") === true,
+      );
+      await next.click();
+      await changed;
+      await expect(page.locator(".el-skeleton")).toHaveCount(0);
+    }
+    throw new Error("Administrator pagination exceeded test bound");
+  }
   const code = "E2E-" + randomUUID().slice(0, 8).toUpperCase();
   const name = "サンプル商品 %_ " + code;
   await page.goto("http://localhost:5173/login");
@@ -93,7 +127,7 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   await page.getByRole("heading", { name: "商品登録" }).click();
   await page.getByRole("button", { name: "商品登録", exact: true }).click();
   await expect(page).toHaveURL(/\/products$/);
-  const registered = page.getByRole("row").filter({ hasText: code });
+  const registered = await findAdminRow(code);
   const registerButton = page.getByRole("button", {
     name: "商品登録",
     exact: true,
@@ -148,6 +182,7 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
   );
   await page.getByRole("button", { name: "在庫を追加", exact: true }).click();
   await expect(page).toHaveURL(/\/products$/);
+  await findAdminRow(code);
   await expect(
     registered.getByRole("cell", { name: "8", exact: true }),
   ).toBeVisible();
@@ -244,4 +279,75 @@ test("[E2E-PRODUCTS] admin registers a real product, buyer searches literal valu
     ),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "再読み込み" })).toBeVisible();
+  expect([...graphOperations]).toEqual(
+    expect.arrayContaining([
+      "AdminProducts",
+      "AdminProduct",
+      "RegisterAdminProduct",
+      "RestockAdminProduct",
+    ]),
+  );
+  // The same shared client must also serve the standalone administrator origin.
+  const privatePage = await page.context().newPage();
+  try {
+    await privatePage.route("**/admin-api/products**", (route) =>
+      route.abort(),
+    );
+    await privatePage.route("**/api/products**", (route) => route.abort());
+    await privatePage.goto("http://localhost:5174/login");
+    await privatePage
+      .getByLabel("メールアドレス", { exact: true })
+      .fill("admin@training2.test");
+    await privatePage
+      .getByLabel("パスワード", { exact: true })
+      .fill("Training2-local-2026!");
+    await privatePage
+      .getByRole("button", { name: "管理者ログイン", exact: true })
+      .click();
+    await expect(privatePage.locator(".product-table")).toBeVisible();
+    await privatePage
+      .getByRole("navigation")
+      .getByRole("link", { name: "商品登録", exact: true })
+      .click();
+    const privateCode = "PRI-" + randomUUID().slice(0, 8).toUpperCase();
+    await privatePage
+      .getByLabel("商品コード", { exact: true })
+      .fill(privateCode);
+    await privatePage
+      .getByLabel("商品名", { exact: true })
+      .fill("GraphQL 管理端商品");
+    await privatePage.getByLabel("価格 · JPY", { exact: true }).fill("500");
+    await privatePage.getByLabel("初期在庫", { exact: true }).fill("1");
+    const created = privatePage.waitForResponse(
+      (r) =>
+        new URL(r.url()).pathname === "/admin-api/graphql" &&
+        r.request().postData()?.includes("RegisterAdminProduct") === true,
+    );
+    await privatePage
+      .getByRole("button", { name: "商品登録", exact: true })
+      .click();
+    const payload = await (await created).json();
+    expect(payload.errors).toBeUndefined();
+    const id = payload.data.product.id;
+    await expect(privatePage).toHaveURL(/\/products$/);
+    await privatePage.goto("http://localhost:5174/products/new?restock=" + id);
+    await expect(
+      privatePage.getByLabel("商品コード", { exact: true }),
+    ).toHaveValue(privateCode);
+    await expect(
+      privatePage.getByLabel("追加数量", { exact: true }),
+    ).toHaveValue("1");
+    const restocked = privatePage.waitForResponse(
+      (r) =>
+        new URL(r.url()).pathname === "/admin-api/graphql" &&
+        r.request().postData()?.includes("RestockAdminProduct") === true,
+    );
+    await privatePage
+      .getByRole("button", { name: "在庫を追加", exact: true })
+      .click();
+    expect((await (await restocked).json()).data.product.stock).toBe(2);
+    await expect(privatePage).toHaveURL(/\/products$/);
+  } finally {
+    await privatePage.close();
+  }
 });

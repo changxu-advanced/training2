@@ -380,6 +380,9 @@ importers:
       '@training2/api-contracts':
         specifier: workspace:*
         version: link:../api-contracts
+      graphql:
+        specifier: 16.11.0
+        version: 16.11.0
 
   packages/test-utils:
     dependencies:
@@ -410,6 +413,12 @@ importers:
       element-plus:
         specifier: 2.14.7
         version: 2.14.7(vue@3.5.43(typescript@5.9.3))
+      graphql:
+        specifier: 16.11.0
+        version: 16.11.0
+      graphql-request:
+        specifier: 7.4.0
+        version: 7.4.0(graphql@16.11.0)
       vue:
         specifier: 3.5.43
         version: 3.5.43(typescript@5.9.3)
@@ -1228,6 +1237,11 @@ packages:
     peerDependenciesMeta:
       graphql-ws:
         optional: true
+
+  '@graphql-typed-document-node/core@3.2.0':
+    resolution: {integrity: sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==}
+    peerDependencies:
+      graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
   '@headlessui/react@2.2.10':
     resolution: {integrity: sha512-5pVLNK9wlpxTUTy9GpgbX/SdcRh+HBnPktjM2wbiLTH4p+2EPHBO1aoSryUCuKUIItdDWO9ITlhUL8UnUN/oIA==}
@@ -3169,6 +3183,11 @@ packages:
     hasBin: true
     peerDependencies:
       graphql: ^15.5.0 || ^16.0.0 || ^17.0.0
+
+  graphql-request@7.4.0:
+    resolution: {integrity: sha512-xfr+zFb/QYbs4l4ty0dltqiXIp07U6sl+tOKAb0t50/EnQek6CVVBLjETXi+FghElytvgaAWtIOt3EV7zLzIAQ==}
+    peerDependencies:
+      graphql: 14 - 16
 
   graphql-ws@6.4.1:
     resolution: {integrity: sha512-a3MzY5u+tCHHwuyimzxMAHZQ6TY7bOpkQURtKXE5kKIkBdsZ2axlb7sLzMpzGFO4guhws9FyMVB1onyX58pO4w==}
@@ -5381,6 +5400,10 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
+  '@graphql-typed-document-node/core@3.2.0(graphql@16.11.0)':
+    dependencies:
+      graphql: 16.11.0
+
   '@headlessui/react@2.2.10(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@floating-ui/react': 0.26.28(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -7313,6 +7336,11 @@ snapshots:
       graphql: 16.11.0
       nullthrows: 1.1.1
       vscode-languageserver-types: 3.18.4
+
+  graphql-request@7.4.0(graphql@16.11.0):
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@16.11.0)
+      graphql: 16.11.0
 
   graphql-ws@6.4.1(graphql@16.11.0)(ws@8.22.0):
     dependencies:
