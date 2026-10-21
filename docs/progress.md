@@ -15,7 +15,11 @@
 
 ## Training 3 阶段 3：REST Axios 与 Vue Query
 
-状态：实现待审查。审查确认页面业务请求均由既有 `useQuery`/`useMutation` 发起；启动配置、认证拦截器和错误识别保留为传输基础设施。OpenAPI Axios Client 生成模板新增可选 `AbortSignal`，商品搜索、库存、订单列表和订单详情读取均传入 Vue Query 的 signal，使页面离开、查询失效和账号切换能够取消底层 REST 请求。未修改 API、数据库或业务规则。待容器内完整检查、PR 和 CI 结果确认。
+状态：完了。PR #17 已经用户授权合并，main 合并提交 a8fac75。审查确认页面业务请求均由既有 `useQuery`/`useMutation` 发起；启动配置、认证拦截器和错误识别保留为传输基础设施。OpenAPI Axios Client 生成模板新增可选 `AbortSignal`，商品搜索、库存、订单列表和订单详情读取均传入 Vue Query 的 signal，使页面离开、查询失效和账号切换能够取消底层 REST 请求。未修改 API、数据库或业务规则。
+
+## Training 3 阶段 4：CI 与 GHCR 镜像
+
+状态：实现待审查。新增应用镜像 Dockerfile 和多进程启动入口，包含两个 API 与 5173/5174 两个前端；Vite preview 补齐本地认证配置接口和 API 代理，镜像可作为本地拉取运行的应用层。CI 在质量 job 成功后构建镜像，Pull Request 只构建，main/手动运行推送 `ghcr.io/changxu-advanced/training2` 的 SHA 与 latest 标签。待容器内镜像构建、CI 和 GHCR 权限结果确认。
 
 ## Step0 规格已准备
 

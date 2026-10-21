@@ -48,3 +48,35 @@ jobs:
             -e CI=true -e HUSKY=0 -e NODE_ENV=test -e DATABASE_URL -e COGNITO_LOCAL_ENDPOINT=http://cognito-local:9229 -e PLAYWRIGHT_BROWSERS_PATH=/opt/playwright -e API_BASE_REF="${{ github.event.pull_request.base.sha || github.event.before }}" \
             -v "${{ github.workspace }}:/workspaces/training2" \
             training2-ci bash -lc 'pnpm install --frozen-lockfile && pnpm seed:cognito && pnpm db:migrate && pnpm db:seed && pnpm prisma:check && pnpm codegen:check && pnpm screen:check && pnpm docs:build && pnpm check && pnpm exec playwright install --with-deps chromium && pnpm test:e2e && pnpm db:schema:check && git config --global --add safe.directory /workspaces/training2 && if [ -n "$API_BASE_REF" ] && [ "$API_BASE_REF" != 0000000000000000000000000000000000000000 ]; then bash tools/scripts/check-openapi-breaking.sh "$API_BASE_REF"; fi'
+
+  image:
+    needs: quality
+    if: ${{ needs.quality.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Build application image
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/training2
+        run: docker build --file infra/docker/app.Dockerfile --tag "$IMAGE:${{ github.sha }}" .
+      - name: Log in to GHCR
+        if: ${{ github.event_name != 'pull_request' }}
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$GHCR_TOKEN" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
+      - name: Push application image
+        if: ${{ github.event_name != 'pull_request' }}
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/training2
+        run: |
+          docker push "$IMAGE:${{ github.sha }}"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            docker tag "$IMAGE:${{ github.sha }}" "$IMAGE:latest"
+            docker push "$IMAGE:latest"
+          fi
