@@ -8,6 +8,7 @@ RUN apt-get update \
 WORKDIR /app
 COPY . .
 RUN pnpm install --frozen-lockfile \
+    && DATABASE_URL=postgresql://postgres:postgres@localhost:5432/training2 pnpm --filter @training2/prisma exec prisma generate --config prisma.config.ts \
     && pnpm build
 
 COPY infra/docker/start-app.sh /usr/local/bin/training2-start
