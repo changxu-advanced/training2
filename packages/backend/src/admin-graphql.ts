@@ -67,18 +67,29 @@ function bounded(document: DocumentNode, operationName?: string) {
         : [],
     ),
   );
+  const used = new Set<string>();
   let fields = 0;
   function walk(set: SelectionSetNode, depth: number) {
     if (depth > 10) throw invalid();
     for (const item of set.selections) {
       if (++fields > 200) throw invalid();
       if (item.kind === "FragmentSpread") {
+        used.add(item.name.value);
         const fragment = fragments.get(item.name.value);
         if (fragment) walk(fragment, depth + 1);
       } else if (item.selectionSet) walk(item.selectionSet, depth + 1);
     }
   }
   walk(operation.selectionSet, 0);
+  return {
+    ...document,
+    definitions: [
+      operation,
+      ...document.definitions.filter(
+        (d) => d.kind === "FragmentDefinition" && used.has(d.name.value),
+      ),
+    ],
+  };
 }
 export async function createAdminGraphql(
   databaseUrl: string,
@@ -163,7 +174,7 @@ export async function createAdminGraphql(
         const errors = validate(schema, document);
         if (errors.length) return { errors: errors.map(() => invalid()) };
         try {
-          bounded(document, operationName);
+          const selected = bounded(document, operationName);
           const operation = getOperationAST(document, operationName);
           if (!operation) throw invalid();
           const coerced = getVariableValues(
@@ -174,7 +185,7 @@ export async function createAdminGraphql(
           if (coerced.errors) return { errors: [invalid()] };
           const info = new TypeInfo(schema);
           visit(
-            document,
+            selected,
             visitWithTypeInfo(info, {
               Field(node) {
                 const field = info.getFieldDef();

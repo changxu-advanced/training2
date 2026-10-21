@@ -174,6 +174,23 @@ test("Training3 GraphQL: generated product reads, admin-only writes, idempotency
         ).status,
         400,
       );
+      const selected = await jsonResponse(
+        await admin.app.request("/graphql", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer admin",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query:
+              "query Other($n:Int!){...OtherProducts} query Picked{...PickedProducts} fragment OtherProducts on Query{allProducts(first:$n){totalCount}} fragment PickedProducts on Query{allProducts(first:1){totalCount}}",
+            operationName: "Picked",
+            variables: {},
+          }),
+        }),
+      );
+      assert.equal(selected.body.errors, undefined);
+      assert.equal(selected.body.data.allProducts.totalCount, 1);
       const key = randomUUID();
       const variables = { id: product.id, key, quantity: 2 };
       const repeated = await Promise.all([
