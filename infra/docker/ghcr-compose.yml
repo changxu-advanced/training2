@@ -1,0 +1,102 @@
+name: training2-image
+
+services:
+  db:
+    image: postgres:17.6-bookworm
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: training2
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d training2"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [training2]
+
+  cognito-local:
+    image: jagregory/cognito-local:5.3.0
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["cp /training2-config.json /app/.cognito/config.json && node /app/start.js"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9230:9229"
+    volumes:
+      - cognito-data:/app/.cognito
+      - ../../.devcontainer/cognito/config.json:/training2-config.json:ro
+    networks: [training2]
+
+  seed-auth:
+    image: ghcr.io/changxu-advanced/training2:latest
+    entrypoint: [""]
+    command: ["node", "tools/scripts/check-local-auth.mjs"]
+    environment:
+      COGNITO_LOCAL_ENDPOINT: http://cognito-local:9229
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
+      AWS_DEFAULT_REGION: us-east-1
+    volumes:
+      - runtime:/app/.devcontainer/runtime
+    depends_on:
+      cognito-local:
+        condition: service_started
+    networks: [training2]
+
+  migrate:
+    image: ghcr.io/changxu-advanced/training2:latest
+    entrypoint: [""]
+    command: ["pnpm", "db:migrate"]
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/training2?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [training2]
+
+  seed-db:
+    image: ghcr.io/changxu-advanced/training2:latest
+    entrypoint: [""]
+    command: ["pnpm", "db:seed"]
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/training2?schema=public
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks: [training2]
+
+  app:
+    image: ghcr.io/changxu-advanced/training2:latest
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/training2?schema=public
+      PUBLIC_API_CORS_ORIGINS: http://localhost:5173
+      PRIVATE_API_CORS_ORIGINS: http://localhost:5174
+      PUBLIC_API_PORT: "3000"
+      PRIVATE_API_PORT: "3001"
+    ports:
+      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:3001:3001"
+      - "127.0.0.1:5173:5173"
+      - "127.0.0.1:5174:5174"
+    volumes:
+      - runtime:/app/.devcontainer/runtime:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      seed-auth:
+        condition: service_completed_successfully
+      seed-db:
+        condition: service_completed_successfully
+    networks: [training2]
+
+volumes:
+  postgres-data:
+  cognito-data:
+  runtime:
+
+networks:
+  training2:

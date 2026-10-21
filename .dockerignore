@@ -2,6 +2,8 @@
 .env.*
 **/.env
 **/.env.*
+.devcontainer/runtime
+**/.devcontainer/runtime
 .git
 node_modules
 **/node_modules
