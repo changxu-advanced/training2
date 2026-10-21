@@ -16,6 +16,7 @@
       "!**/api-client/src/private.ts",
       "!**/api-client/src/*.types.ts",
       "!**/schemas/openapi",
+      "!**/schemas/graphql",
       "!**/*.vue",
       "!**/test-results",
       "!**/playwright-report",

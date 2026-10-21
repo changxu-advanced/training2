@@ -28,3 +28,5 @@ features:
 首次参与从 [启动说明](./getting-started.md) 开始；了解 [业务规则](./requirements.md) 后查看 [API 参考](./api.generated.md) 和 [页面参考](./screens.generated.md)。修改契约时遵循 [生成与排查流程](./maintenance.md)，设计取舍见 [学习记录](./learning.md)。
 
 当前开发功能已实现，部署环境仍待 Step14 确定；进度以 [进度记录](./progress.md) 和 PR 检查结果为准。
+
+后续 Training 3 的 GraphQL 与 GHCR 镜像任务见 [分步实施说明](./training3.md)。

@@ -16,7 +16,7 @@ Dev Container内でTypeScriptモノレポのMini EC Siteを構築し、次を学
 - トランザクションと排他制御による在庫の整合性維持。
 - CI/CD、コンテナ運用、AI AgentによるStep単位の開発。
 
-GraphQLは対象外。決済・配送・商品編集や削除などREADMEにない機能は、初期案では対象外とする。
+Training 2 ではGraphQLは対象外。Training 3 の追加要件と段階的な移行は [Training 3](training3.md) を参照。決済・配送・商品編集や削除などREADMEにない機能は、初期案では対象外とする。
 
 ## 2. 現状と進捗の扱い
 

@@ -39,6 +39,17 @@ export async function createApi(
       throw new Error("Catalog listener startup failed");
     },
   );
+  const graphqlModule =
+    scope === "private" ? await import("./admin-graphql.ts") : undefined;
+  const graphql = graphqlModule
+    ? await graphqlModule
+        .createAdminGraphql(config.databaseUrl, prisma)
+        .catch(async () => {
+          await events.close();
+          await prisma.$disconnect();
+          throw new Error("Administrator GraphQL startup failed");
+        })
+    : undefined;
   const app = createContractApp(scope, authenticator, {
     ...options,
     logger,
@@ -70,6 +81,8 @@ export async function createApi(
       });
     },
   });
+  if (graphql)
+    graphqlModule?.bindAdminGraphql(app, graphql, authenticator, logger);
   events.bind(app);
   app.get("/health", async (c) => {
     try {
@@ -97,9 +110,11 @@ export async function createApi(
     app,
     prisma,
     close() {
-      closing ??= Promise.all([events.close(), prisma.$disconnect()]).then(
-        () => {},
-      );
+      closing ??= Promise.all([
+        graphql?.close(),
+        events.close(),
+        prisma.$disconnect(),
+      ]).then(() => {});
       return closing;
     },
   };
