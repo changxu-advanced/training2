@@ -8,7 +8,7 @@ export type Screen = {
   inputs: readonly string[];
   inputContract: string;
   apis: readonly string[];
-  apiBindings?: readonly { scope: Scope; operationId: string }[];
+  apiBindings?: readonly { scope: Scope; operationId: string }[]; // GraphQL root fields use graphql:<field>.
   authActions: readonly string[];
   transitions: readonly string[];
   states: Record<"idle" | "loading" | "empty" | "success" | "error", string>;
@@ -42,9 +42,9 @@ export const screens: readonly Screen[] = [
     inputContract: "@training2/api-contracts/inputs#productInput",
     apis: [],
     apiBindings: [
-      { scope: "private", operationId: "registerProduct" },
-      { scope: "private", operationId: "getProduct" },
-      { scope: "private", operationId: "restockProduct" },
+      { scope: "private", operationId: "graphql:registerAdminProduct" },
+      { scope: "private", operationId: "graphql:productByRowId" },
+      { scope: "private", operationId: "graphql:restockAdminProduct" },
     ],
     authActions: [],
     transitions: ["PUB-LOGIN", "PUB-PRODUCTS"],
@@ -52,7 +52,8 @@ export const screens: readonly Screen[] = [
       idle: "管理员登记商品，顾客无入口且直接URL拒绝；restock查询参数选定已有商品，自动填入只读信息，追加数量默认1，范围1～2000；按增量补货且保留同次提交key避免重复",
       loading: "提交禁止重复",
       empty: "提示必填",
-      success: "登记后回商品一覧，顾客收到自动更新",
+      success:
+        "graphql-request + Vue Query 提交后刷新商品缓存并回商品一覧，顾客通过既有SSE收到自动更新",
       error: "401登录，403权限提示，409重复，保留输入",
     },
     acceptance: ["AC-P01", "AC-P03", "AC-P08", "AC-P09", "AC-A03"],
@@ -93,7 +94,7 @@ export const screens: readonly Screen[] = [
     ],
     inputContract: "searchProducts request；数量由 orderInput 验证",
     apis: ["searchProducts", "getStock"],
-    apiBindings: [{ scope: "private", operationId: "listProducts" }],
+    apiBindings: [{ scope: "private", operationId: "graphql:allProducts" }],
     authActions: [],
     transitions: ["PUB-LOGIN", "PUB-ORDER-CREATE", "PUB-PRODUCT-CREATE"],
     states: {
@@ -212,7 +213,7 @@ export const screens: readonly Screen[] = [
     access: "admin",
     inputs: ["page", "pageSize"],
     inputContract: "listProducts request",
-    apis: ["listProducts"],
+    apis: ["graphql:allProducts"],
     authActions: [],
     transitions: ["ADM-LOGIN", "ADM-PRODUCT-CREATE"],
     states: {
@@ -233,7 +234,11 @@ export const screens: readonly Screen[] = [
     access: "admin",
     inputs: ["code", "name", "description", "priceJpy", "stock"],
     inputContract: "@training2/api-contracts/inputs#productInput",
-    apis: ["registerProduct", "getProduct", "restockProduct"],
+    apis: [
+      "graphql:registerAdminProduct",
+      "graphql:productByRowId",
+      "graphql:restockAdminProduct",
+    ],
     authActions: [],
     transitions: ["ADM-LOGIN", "ADM-PRODUCTS"],
     states: {

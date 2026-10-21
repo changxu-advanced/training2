@@ -13,6 +13,7 @@
     "test": "node --test test/*.test.ts"
   },
   "devDependencies": {
-    "@training2/api-contracts": "workspace:*"
+    "@training2/api-contracts": "workspace:*",
+    "graphql": "16.11.0"
   }
 }

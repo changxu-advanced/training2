@@ -80,6 +80,24 @@ test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-
   await expect(page).toHaveURL(/\/products\/new$/);
   await page.getByRole("button", { name: "商品登録", exact: true }).click();
   await expect(page.getByText(/次の項目をご確認ください/)).toBeVisible();
+  await page.route("**/admin-api/graphql", (route) =>
+    route.continue({
+      headers: {
+        ...route.request().headers(),
+        authorization: "Bearer invalid",
+      },
+    }),
+  );
+  await page.goto("http://localhost:5174/products");
+  await expect(page).toHaveURL(/\/login/);
+  await expect(
+    page.getByText(
+      "セッションの有効期限が切れました。再度ログインしてください",
+    ),
+  ).toBeVisible();
+  await page.unroute("**/admin-api/graphql");
+  await login(page, "admin@training2.test");
+  await expect(page).toHaveURL(/\/products$/);
   await page.getByRole("button", { name: "ログアウト" }).click();
   await page.goto("http://localhost:5173/login");
   await login(page, "buyer@training2.test");
@@ -136,6 +154,10 @@ test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-
   await expect(page.getByLabel("初期在庫", { exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByLabel("初期在庫", { exact: true })).toBeVisible();
+  let finishOld = () => {};
+  const finishedOld = new Promise<void>((resolve) => {
+    finishOld = resolve;
+  });
   let releaseOld = () => {};
   let oldRequested = () => {};
   const gate = new Promise<void>((resolve) => {
@@ -144,32 +166,33 @@ test("[E2E-AUTH] real Cognito login/logout, protected routes, roles and expired-
   const pending = new Promise<void>((resolve) => {
     oldRequested = resolve;
   });
-  await page.route("**/admin-api/products?**", async (route) => {
+  await page.route("**/admin-api/graphql", async (route) => {
     oldRequested();
     await gate;
-    await route.fulfill({
-      status: 401,
-      json: {
-        error: {
-          code: "UNAUTHENTICATED",
-          message: "expired",
-          requestId: "old-session",
+    try {
+      await route.fulfill({
+        status: 401,
+        json: {
+          errors: [
+            {
+              message: "expired",
+              extensions: { code: "UNAUTHENTICATED", requestId: "old-session" },
+            },
+          ],
         },
-      },
-    });
+      });
+    } catch {
+    } finally {
+      finishOld();
+    }
   });
   await page.goto("http://localhost:5173/products");
   await pending;
   await page.getByRole("button", { name: "ログアウト" }).click();
   await login(page, "buyer@training2.test");
   await page.waitForURL("**/products");
-  const oldResponse = page.waitForResponse(
-    (response) =>
-      new URL(response.url()).pathname === "/admin-api/products" &&
-      response.status() === 401,
-  );
   releaseOld();
-  await oldResponse;
+  await finishedOld;
   await page
     .getByRole("navigation")
     .getByRole("link", { name: "注文管理", exact: true })

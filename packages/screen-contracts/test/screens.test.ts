@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { openapiDocument } from "@training2/api-contracts";
 import { routeManifest as privateManifest } from "../../../apps/private-frontend/src/route-manifest.ts";
 import { routeManifest as publicManifest } from "../../../apps/public-frontend/src/route-manifest.ts";
+import { graphqlOperations } from "../src/graphql-operations.ts";
 import { type Scope, scenarios, screens } from "../src/index.ts";
 import {
   validateActualRoutes,
@@ -30,7 +31,18 @@ function ids(scope: Scope) {
     ),
   );
 }
-const operations = { public: ids("public"), private: ids("private") };
+const operations = {
+  public: ids("public"),
+  private: new Set([
+    ...ids("private"),
+    ...graphqlOperations(
+      await readFile(
+        new URL("../../../schemas/graphql/admin.graphql", import.meta.url),
+        "utf8",
+      ),
+    ),
+  ]),
+};
 test("screen graph detects missing E2E/acceptance, duplicate IDs and unknown API/transition", () => {
   validateGraph(screens, scenarios, acceptance, operations);
   assert.throws(
@@ -48,6 +60,11 @@ test("screen graph detects missing E2E/acceptance, duplicate IDs and unknown API
     /Duplicate/,
   );
   for (const change of [
+    {
+      apiBindings: [
+        { scope: "private" as const, operationId: "graphql:unknownField" },
+      ],
+    },
     { apis: ["unknown-api"] },
     { acceptance: ["AC-UNKNOWN"] },
     { transitions: ["ADM-LOGIN"] },

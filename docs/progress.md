@@ -4,10 +4,14 @@
 
 ## Training 3 阶段 1：管理员 GraphQL
 
-状态：レビュー待ち，尚未合并。PostGraphile 5.1.5 实际生成商品查询，新增管理员商品登记和幂等补货 mutation；保留原 REST 兼容接口。前端 GraphQL 接入及 GHCR 发布属于后续阶段。实施范围和验证入口见 [Training 3](training3.md)。容器内 pnpm check 通过（43 个单元/集成测试、类型检查及构建），新增测试为一项 GraphQL 组合验证；最终调整后后端类型与 GraphQL 测试再次通过。REST/页面契约检查与文档构建通过。使用真实本地 Cognito token 的 HTTP 验证中，管理员查询 200、顾客拒绝 403。未执行新的浏览器用例，未修改数据库结构或访问 .env；GitHub CI 状态以该阶段 PR 为准。
+状态：完了。PR #15 已经用户授权合并，main 提交 67bdbdb，GitHub CI 成功。PostGraphile 5.1.5 实际生成商品查询，新增管理员商品登记和幂等补货 mutation；保留原 REST 兼容接口。前端 GraphQL 接入及 GHCR 发布属于后续阶段。实施范围和验证入口见 [Training 3](training3.md)。容器内 pnpm check 通过（43 个单元/集成测试、类型检查及构建），新增测试为一项 GraphQL 组合验证；最终调整后后端类型与 GraphQL 测试再次通过。REST/页面契约检查与文档构建通过。使用真实本地 Cognito token 的 HTTP 验证中，管理员查询 200、顾客拒绝 403。未执行新的浏览器用例，未修改数据库结构或访问 .env；GitHub CI 状态以该阶段 PR 为准。
 
 
 当前集成状态：功能与界面PR #14经用户授权已合并，main提交1f49803；此前段落中的「レビュー待ち／未合并」为各阶段历史记录。Step13文档已更新至最新功能，最终集成状态见[PR #12](https://github.com/changxu-advanced/training2/pull/12)；Step14部署仍未确定。
+
+## Training 3 阶段 2：管理员前端 GraphQL
+
+状态：レビュー待ち，尚未合并。两个管理员入口已接入共享 graphql-request 7.4.0 客户端，保留 Vue Query 缓存、SSE 刷新、账号隔离及补货幂等 key；页面契约从 SDL 验证 GraphQL 字段。容器内 pnpm check 通过（44 个单元/集成测试、类型检查、构建），screen:check、codegen:check 和文档构建通过。既有 6 个浏览器用例分组通过，覆盖两个入口的 GraphQL 登记/补货、401 反馈、账号切换、多人库存同步及订单流程；未新增浏览器用例。Chrome 已展示主站和已登录的独立管理端，IDEA Community 2023.1.7 已打开项目及第一步 GraphQL 源文件。未读取或修改 .env。
 
 ## Step0 规格已准备
 

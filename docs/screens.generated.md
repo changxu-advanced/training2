@@ -9,7 +9,7 @@
 - 端：public；路由：/products/new；权限：admin
 - 输入：code、name、description、priceJpy、stock
 - 输入契约：@training2/api-contracts/inputs#productInput
-- API：private:registerProduct、private:getProduct、private:restockProduct
+- API：private:graphql:registerAdminProduct、private:graphql:productByRowId、private:graphql:restockAdminProduct
 - 认证 SDK：无
 - 遷移：PUB-LOGIN、PUB-PRODUCTS
 - 验收：AC-P01、AC-P03、AC-P08、AC-P09、AC-A03
@@ -19,7 +19,7 @@
 | idle | 管理员登记商品，顾客无入口且直接URL拒绝；restock查询参数选定已有商品，自动填入只读信息，追加数量默认1，范围1～2000；按增量补货且保留同次提交key避免重复 |
 | loading | 提交禁止重复 |
 | empty | 提示必填 |
-| success | 登记后回商品一覧，顾客收到自动更新 |
+| success | graphql-request + Vue Query 提交后刷新商品缓存并回商品一覧，顾客通过既有SSE收到自动更新 |
 | error | 401登录，403权限提示，409重复，保留输入 |
 
 ## PUB-LOGIN · 共通ログイン
@@ -45,7 +45,7 @@
 - 端：public；路由：/products；权限：any
 - 输入：code、name、page、pageSize、所选商品与数量、inStock（有库存筛选）
 - 输入契约：searchProducts request；数量由 orderInput 验证
-- API：searchProducts、getStock、private:listProducts
+- API：searchProducts、getStock、private:graphql:allProducts
 - 认证 SDK：无
 - 遷移：PUB-LOGIN、PUB-ORDER-CREATE、PUB-PRODUCT-CREATE
 - 验收：AC-P05、AC-P06、AC-P07、AC-E01、AC-E02
@@ -117,7 +117,7 @@
 - 端：private；路由：/products；权限：admin
 - 输入：page、pageSize
 - 输入契约：listProducts request
-- API：listProducts
+- API：graphql:allProducts
 - 认证 SDK：无
 - 遷移：ADM-LOGIN、ADM-PRODUCT-CREATE
 - 验收：AC-P01、AC-P03、AC-P06、AC-E01、AC-E02
@@ -135,7 +135,7 @@
 - 端：private；路由：/products/new；权限：admin
 - 输入：code、name、description、priceJpy、stock
 - 输入契约：@training2/api-contracts/inputs#productInput
-- API：registerProduct、getProduct、restockProduct
+- API：graphql:registerAdminProduct、graphql:productByRowId、graphql:restockAdminProduct
 - 认证 SDK：无
 - 遷移：ADM-LOGIN、ADM-PRODUCTS
 - 验收：AC-P09、AC-P08、AC-P01、AC-P02、AC-P03、AC-P04、AC-E01、AC-E02

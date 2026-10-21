@@ -12,7 +12,7 @@ Training 3 在 Training 2 上继续实施。原 implementation-plan 中 GraphQL 
 | 4 | CI 检查、构建应用镜像并推送 GHCR | typecheck、unit test、build、image build/push；镜像发布权限在实施时配置 |
 | 5 | 从 GHCR 拉取并在本地启动验收 | 验证认证、商品操作和订单库存，记录可复现命令 |
 
-当前只实施阶段 1。保留日本文案、角色边界、SSE 自动刷新和现有订单锁规则。后续阶段在前一步集成后推进。
+阶段 1 已通过 PR #15 合并，当前实施阶段 2。保留日本文案、角色边界、SSE 自动刷新和现有订单锁规则。后续阶段在前一步集成后推进。
 
 ## 阶段 1：管理员 GraphQL
 
@@ -83,6 +83,20 @@ pnpm check
 
 既有 pnpm test/CI 自动包含新增的一项真实 PostgreSQL 组合测试，并比对生成 SDL；覆盖访问权限、自动查询、登记、输入边界、重复代码、并发同 key 补货、补货与订单确认竞争、隐藏数据/自动修改入口、请求边界及异常信息隐藏。临时数据库在测试后释放，不修改演示账号订单。
 
-本阶段还未将前端请求迁到 GraphQL，也未构建或发布 GHCR 应用镜像，不能据此宣告 Training 3 全部完成。
+阶段 1 仅完成后端，前端迁移见下面阶段 2；GHCR 应用镜像属于后续阶段。
 
 参考：[PostGraphile schema-only](https://postgraphile.org/postgraphile/5/usage-schema/)、[schema extension](https://postgraphile.org/postgraphile/5/extend-schema/)、[公开行为控制](https://postgraphile.org/postgraphile/5/behavior/)。
+
+## 阶段 2：管理员前端请求迁移
+
+5173 的管理员模式和 5174 的独立管理端共用 packages/ui/src/admin-client.ts。graphql-request 7.4.0 发送商品列表、详情、登记和补货请求，页面继续用既有 useQuery/useMutation 管理缓存、加载、失败和写入后刷新，不再为管理员商品功能调用 Axios REST。顾客商品浏览和订单仍使用原 REST + Vue Query；SSE 仍是库存变化通知。
+
+GraphQLClient 使用当前 origin 生成完整的 /admin-api/graphql 地址，适用于两个端口及同源反向代理。每个请求单独取得 Amplify access token，不把 token 缓存为客户端固定 header；捕获请求账号，在发送前、响应后及错误处理时验证身份，迟到的响应不能清除新账号会话或填充新账号缓存。401 和 GraphQL UNAUTHENTICATED 返回登录，其他业务错误按 code 显示日文安全提示，不回显服务端原始文本。
+
+查询传入 Vue Query 的 AbortSignal，页面切换/账号退出可取消读取；请求超时 8 秒。写操作不自动重试，补货手动重试沿用同一 UUID key，数量变化才换 key。商品 UUID 通过 GraphQL alias id:rowId 映射到页面，bigint 日元字符串先检查格式及业务范围再转 number。列表、商品详情缓存包含当前账号，避免跨账号复用私有查询。
+
+页面仍复用 products 查询键前缀，因此既有 SSE 失效通知与 mutation 成功刷新继续生效；后台重新取数保持已有表格、滚动和按钮，不加入整页刷新。
+
+Screen Contract 使用 `graphql:<rootField>` 声明管理接口依赖。screen:check 从已保存 SDL 构建 schema 验证字段存在；客户端组合测试还验证四份实际 GraphQL 文档与 SDL 一致。既有 E2E-PRODUCTS 覆盖两个管理员入口的实际读写，阻断旧 REST 管理请求以避免悄悄回退；既有 E2E-AUTH 覆盖 GraphQL 401 和退出后迟到请求。浏览器用例数量不增加。
+
+阶段 2 完成后继续保留后端 REST 兼容入口；其他 Axios 调用的系统性检查属于阶段 3，镜像发布属于阶段 4/5。

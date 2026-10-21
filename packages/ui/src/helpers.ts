@@ -1,5 +1,6 @@
 import type { RouteManifest } from "@training2/screen-contracts";
 import axios from "axios";
+import { AdminApiError } from "./admin-client.ts";
 export function safeReturnTo(value: unknown, manifest: RouteManifest) {
   if (
     typeof value !== "string" ||
@@ -39,6 +40,18 @@ const messages: Record<string, string> = {
     "ただいま混み合っています。時間をおいて再試行してください。",
 };
 export function apiMessage(error: unknown) {
+  if (error instanceof AdminApiError) {
+    if (error.code === "NETWORK_ERROR")
+      return "接続できません。ネットワークを確認して再試行してください。";
+    if (error.code === "TIMEOUT")
+      return "通信がタイムアウトしました。同じ受付番号で再試行できます。";
+    if (error.code === "IDEMPOTENCY_CONFLICT")
+      return "追加内容が変更されています。数量を確認してから再試行してください。";
+    return (
+      messages[error.code] ??
+      "処理を完了できません。時間をおいて再試行してください。"
+    );
+  }
   if (axios.isAxiosError(error)) {
     if (error.code === "ECONNABORTED")
       return "通信がタイムアウトしました。再試行できます。注文は同じ受付番号で処理されます。";

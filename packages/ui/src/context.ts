@@ -1,9 +1,9 @@
 import type { QueryClient } from "@tanstack/vue-query";
-import type { createPrivateClient } from "@training2/api-client/private";
 import type { createPublicClient } from "@training2/api-client/public";
 import type { Scope } from "@training2/screen-contracts";
 import { computed, type InjectionKey, inject, type Ref, reactive } from "vue";
 import type { Router } from "vue-router";
+import type { createAdminClient } from "./admin-client.ts";
 export const session = reactive({ sub: "", email: "", groups: [] as string[] });
 export const isAdministrator = computed(() => session.groups.includes("admin"));
 export type Selection = {
@@ -19,7 +19,7 @@ export type Runtime = {
   router: Router;
   queryClient: QueryClient;
   publicClient: ReturnType<typeof createPublicClient>;
-  privateClient: ReturnType<typeof createPrivateClient>;
+  adminClient: ReturnType<typeof createAdminClient>;
   refreshSession: () => Promise<void>;
   logout: () => Promise<void>;
 };

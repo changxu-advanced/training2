@@ -16,10 +16,10 @@ function toggleStock() { inStock.value = !inStock.value; page.value = 1; }
 const criteria = ref({ code: "", name: "" });
 const products = useQuery({
   queryKey: ["products", runtime.scope, management, computed(() => session.sub), criteria, inStock, page],
-  queryFn: () =>
+  queryFn: ({signal}) =>
     management.value
-      ? runtime.privateClient.listProducts({
-          query: { page: page.value, pageSize: 20 },
+      ? runtime.adminClient.listProducts({
+          query: { page: page.value, pageSize: 20 }, signal,
         })
       : runtime.publicClient.searchProducts({
           query: { ...criteria.value, page: page.value, pageSize: 20, ...(inStock.value ? { inStock: "true" as const } : {}) },
