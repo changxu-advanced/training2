@@ -1,6 +1,11 @@
 # training2 当前进度
 
-更新日期：2026-10-14。
+更新日期：2026-10-21。
+
+## Training 3 阶段 1：管理员 GraphQL
+
+状态：レビュー待ち，尚未合并。PostGraphile 5.1.5 实际生成商品查询，新增管理员商品登记和幂等补货 mutation；保留原 REST 兼容接口。前端 GraphQL 接入及 GHCR 发布属于后续阶段。实施范围和验证入口见 [Training 3](training3.md)。容器内 pnpm check 通过（43 个单元/集成测试、类型检查及构建），新增测试为一项 GraphQL 组合验证；最终调整后后端类型与 GraphQL 测试再次通过。REST/页面契约检查与文档构建通过。使用真实本地 Cognito token 的 HTTP 验证中，管理员查询 200、顾客拒绝 403。未执行新的浏览器用例，未修改数据库结构或访问 .env；GitHub CI 状态以该阶段 PR 为准。
+
 
 当前集成状态：功能与界面PR #14经用户授权已合并，main提交1f49803；此前段落中的「レビュー待ち／未合并」为各阶段历史记录。Step13文档已更新至最新功能，最终集成状态见[PR #12](https://github.com/changxu-advanced/training2/pull/12)；Step14部署仍未确定。
 

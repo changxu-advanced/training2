@@ -31,7 +31,9 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs --host 0.0.0.0 --port 5175",
     "docs:generate": "pnpm codegen && pnpm screen:generate",
-    "docs:check": "pnpm codegen:check && pnpm screen:check && pnpm docs:build"
+    "docs:check": "pnpm codegen:check && pnpm screen:check && pnpm docs:build",
+    "graphql:schema": "node packages/backend/scripts/export-graphql.ts",
+    "graphql:check": "node packages/backend/scripts/export-graphql.ts --check"
   },
   "devDependencies": {
     "@aws-sdk/client-cognito-identity-provider": "3.1150.0",

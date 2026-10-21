@@ -37,6 +37,7 @@ export default defineConfig({
           { text: "页面参考（生成）", link: "/screens.generated" },
           { text: "认证与权限", link: "/auth" },
           { text: "后端", link: "/backend" },
+          { text: "Training 3・GraphQL", link: "/training3" },
           { text: "前端", link: "/frontend" },
           { text: "商品", link: "/products" },
           { text: "订单与锁", link: "/orders" },

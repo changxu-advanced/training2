@@ -14,13 +14,15 @@
   },
   "dependencies": {
     "@hono/node-server": "2.1.4",
-    "hono": "4.13.13",
     "@training2/api-contracts": "workspace:*",
     "@training2/auth": "workspace:*",
     "@training2/config": "workspace:*",
     "@training2/logger": "workspace:*",
     "@training2/prisma": "workspace:*",
-    "pg": "8.23.1"
+    "graphql": "16.11.0",
+    "hono": "4.13.13",
+    "pg": "8.23.1",
+    "postgraphile": "5.1.5"
   },
   "devDependencies": {
     "@training2/test-utils": "workspace:*",
